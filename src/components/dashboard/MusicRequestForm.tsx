@@ -22,6 +22,7 @@ const musicRequestSchema = z.object({
   ], {
     required_error: "Selecione o tipo de relacionamento",
   }),
+  custom_relationship: z.string().nullable().optional(),
   music_genre: z.enum([
     "romantic", "mpb", "classical", "jazz", "hiphop", 
     "rock", "country", "reggae", "electronic", "samba", "folk", "pop"
@@ -50,6 +51,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
     defaultValues: {
       honoree_name: "",
       relationship_type: undefined,
+      custom_relationship: null,
       music_genre: undefined,
       include_names: false,
       names_to_include: "",
@@ -85,6 +87,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
         user_id: userProfile.id,
         honoree_name: values.honoree_name,
         relationship_type: values.relationship_type,
+        custom_relationship: values.relationship_type === 'other' ? values.custom_relationship : null,
         music_genre: values.music_genre,
         include_names: values.include_names,
         names_to_include: values.include_names ? values.names_to_include : null,
@@ -125,7 +128,8 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
     }
   };
 
-  // Handle names field visibility
+  // Handle conditional fields
+  const relationshipType = form.watch("relationship_type");
   const includeNames = form.watch("include_names");
 
   return (
@@ -158,37 +162,60 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
               )}
             />
             
-            <FormField
-              control={form.control}
-              name="relationship_type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-purple-700">Tipo de relacionamento</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="border-pink-200 focus-visible:ring-pink-400">
-                        <SelectValue placeholder="Selecione o tipo" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="partner">Parceiro(a)/Cônjuge</SelectItem>
-                      <SelectItem value="friend">Amigo(a)</SelectItem>
-                      <SelectItem value="family">Familiar (Geral)</SelectItem>
-                      <SelectItem value="parent">Pai/Mãe</SelectItem>
-                      <SelectItem value="sibling">Irmão/Irmã</SelectItem>
-                      <SelectItem value="child">Filho(a)</SelectItem>
-                      <SelectItem value="colleague">Colega de Trabalho</SelectItem>
-                      <SelectItem value="mentor">Mentor(a)/Professor(a)</SelectItem>
-                      <SelectItem value="other">Outro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
+            <div className="space-y-3">
+              <FormField
+                control={form.control}
+                name="relationship_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-purple-700">Tipo de relacionamento</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="border-pink-200 focus-visible:ring-pink-400">
+                          <SelectValue placeholder="Selecione o tipo" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="partner">Parceiro(a)/Cônjuge</SelectItem>
+                        <SelectItem value="friend">Amigo(a)</SelectItem>
+                        <SelectItem value="family">Familiar (Geral)</SelectItem>
+                        <SelectItem value="parent">Pai/Mãe</SelectItem>
+                        <SelectItem value="sibling">Irmão/Irmã</SelectItem>
+                        <SelectItem value="child">Filho(a)</SelectItem>
+                        <SelectItem value="colleague">Colega de Trabalho</SelectItem>
+                        <SelectItem value="mentor">Mentor(a)/Professor(a)</SelectItem>
+                        <SelectItem value="other">Outro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              {relationshipType === 'other' && (
+                <FormField
+                  control={form.control}
+                  name="custom_relationship"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-purple-700">Especifique o relacionamento</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Ex: Chefe, vizinho, etc" 
+                          className="border-pink-200 focus-visible:ring-pink-400"
+                          {...field}
+                          value={field.value || ''} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
+            </div>
           </div>
           
           <FormField

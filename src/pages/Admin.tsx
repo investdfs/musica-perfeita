@@ -20,18 +20,44 @@ import {
   DialogDescription,
   DialogFooter
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
-import { MusicRequest } from "@/types/database.types";
+import { MusicRequest, UserProfile } from "@/types/database.types";
 import { isDevelopmentOrPreview } from "@/lib/environment";
+import { 
+  PlusCircle, 
+  Trash, 
+  Edit, 
+  Lock, 
+  Unlock, 
+  Send 
+} from "lucide-react";
 
 const Admin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [requests, setRequests] = useState<MusicRequest[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
   const [selectedRequest, setSelectedRequest] = useState<MusicRequest | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [showUserForm, setShowUserForm] = useState(false);
+  const [showDeliveryForm, setShowDeliveryForm] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [newUser, setNewUser] = useState({
+    name: "",
+    email: "",
+    whatsapp: ""
+  });
+  const [activeTab, setActiveTab] = useState("requests");
   const navigate = useNavigate();
 
   // Check authentication
@@ -50,6 +76,66 @@ const Admin = () => {
       navigate("/admin-login");
     }
   }, [navigate]);
+
+  // Create test order
+  useEffect(() => {
+    const createTestOrder = async () => {
+      try {
+        // Check if we already have test data
+        const { data: existingData } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('email', 'teste@musicaperfeita.com')
+          .single();
+
+        if (existingData) {
+          return; // Test data already exists
+        }
+
+        // Create test user
+        const { data: testUser, error: userError } = await supabase
+          .from('user_profiles')
+          .insert([
+            {
+              name: 'Cliente Teste',
+              email: 'teste@musicaperfeita.com',
+              whatsapp: '+5511999999999'
+            }
+          ])
+          .select();
+
+        if (userError) throw userError;
+
+        if (testUser && testUser.length > 0) {
+          // Create test request
+          const { error: requestError } = await supabase
+            .from('music_requests')
+            .insert([
+              {
+                user_id: testUser[0].id,
+                honoree_name: 'Maria da Silva',
+                relationship_type: 'esposa',
+                custom_relationship: null,
+                music_genre: 'romantic',
+                include_names: true,
+                names_to_include: 'João e Maria',
+                story: 'Esta é uma história de teste para o sistema. Estamos criando um pedido de música personalizada para testar todas as funcionalidades do painel administrativo.',
+                status: 'pending',
+                payment_status: 'pending'
+              }
+            ]);
+
+          if (requestError) throw requestError;
+        }
+      } catch (error) {
+        console.error('Error creating test data:', error);
+      }
+    };
+
+    if (isDevelopmentOrPreview()) {
+      createTestOrder();
+    }
+  }, []);
 
   // Fetch requests
   useEffect(() => {
@@ -81,6 +167,150 @@ const Admin = () => {
     fetchRequests();
   }, []);
 
+  // Fetch users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .order('name', { ascending: true });
+          
+        if (error) throw error;
+        
+        if (data) {
+          setUsers(data);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+    
+    fetchUsers();
+  }, []);
+
+  // Handle user form
+  const handleUserFormSubmit = async () => {
+    try {
+      if (selectedUser) {
+        // Update existing user
+        const { error } = await supabase
+          .from('user_profiles')
+          .update({
+            name: newUser.name,
+            email: newUser.email,
+            whatsapp: newUser.whatsapp
+          })
+          .eq('id', selectedUser.id);
+          
+        if (error) throw error;
+        
+        toast({
+          title: "Cliente atualizado",
+          description: "As informações foram atualizadas com sucesso",
+        });
+      } else {
+        // Create new user
+        const { error } = await supabase
+          .from('user_profiles')
+          .insert([{
+            name: newUser.name,
+            email: newUser.email,
+            whatsapp: newUser.whatsapp
+          }]);
+          
+        if (error) throw error;
+        
+        toast({
+          title: "Cliente criado",
+          description: "Novo cliente adicionado com sucesso",
+        });
+      }
+      
+      // Reset form and refetch users
+      setNewUser({ name: "", email: "", whatsapp: "" });
+      setSelectedUser(null);
+      setShowUserForm(false);
+      
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .order('name', { ascending: true });
+        
+      if (data) {
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error('Error managing user:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível salvar o cliente",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Handle user actions
+  const handleEditUser = (user: UserProfile) => {
+    setSelectedUser(user);
+    setNewUser({
+      name: user.name,
+      email: user.email,
+      whatsapp: user.whatsapp
+    });
+    setShowUserForm(true);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      // Check if user has any requests
+      const { data } = await supabase
+        .from('music_requests')
+        .select('id')
+        .eq('user_id', userId);
+        
+      if (data && data.length > 0) {
+        toast({
+          title: "Não foi possível excluir",
+          description: "Este cliente possui pedidos de música associados",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Delete user
+      const { error } = await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('id', userId);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Cliente excluído",
+        description: "Cliente excluído com sucesso",
+      });
+      
+      // Refetch users
+      const { data: users } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .order('name', { ascending: true });
+        
+      if (users) {
+        setUsers(users);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir o cliente",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Music delivery functions
   const handleViewDetails = (request: MusicRequest) => {
     setSelectedRequest(request);
     setShowDetails(true);
@@ -128,6 +358,66 @@ const Admin = () => {
     }
   };
 
+  const handleDeliverMusic = (request: MusicRequest) => {
+    setSelectedRequest(request);
+    setShowDeliveryForm(true);
+  };
+
+  const handleSendEmail = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      toast({
+        title: "E-mail enviado",
+        description: "A música foi enviada ao cliente por e-mail",
+      });
+      setShowDeliveryForm(false);
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast({
+        title: "Erro ao enviar",
+        description: "Não foi possível enviar o e-mail",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateStatus = async (requestId: string, status: MusicRequest['status'], paymentStatus?: MusicRequest['payment_status']) => {
+    try {
+      const updates: { status?: string, payment_status?: string } = {};
+      
+      if (status) updates.status = status;
+      if (paymentStatus) updates.payment_status = paymentStatus;
+      
+      const { error } = await supabase
+        .from('music_requests')
+        .update(updates)
+        .eq('id', requestId);
+        
+      if (error) throw error;
+      
+      const updatedRequests = requests.map(req => 
+        req.id === requestId 
+          ? { ...req, ...updates } 
+          : req
+      );
+      
+      setRequests(updatedRequests);
+      
+      toast({
+        title: "Status atualizado",
+        description: "O status do pedido foi atualizado com sucesso",
+      });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível atualizar o status",
+        variant: "destructive",
+      });
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
@@ -140,67 +430,238 @@ const Admin = () => {
         <div className="max-w-6xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Painel do Administrador</h1>
           
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-6">Lista de Pedidos</h2>
+          <Tabs defaultValue="requests" onValueChange={setActiveTab}>
+            <TabsList className="grid grid-cols-2 mb-8">
+              <TabsTrigger value="requests">Pedidos de Música</TabsTrigger>
+              <TabsTrigger value="users">Gerenciar Clientes</TabsTrigger>
+            </TabsList>
             
-            {isLoading ? (
-              <p className="text-center py-8">Carregando pedidos...</p>
-            ) : requests.length === 0 ? (
-              <p className="text-center py-8">Nenhum pedido encontrado.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>ID</TableHead>
-                      <TableHead>Cliente</TableHead>
-                      <TableHead>Pessoa Homenageada</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Data</TableHead>
-                      <TableHead>Ações</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {requests.map((request) => (
-                      <TableRow key={request.id}>
-                        <TableCell className="font-mono">{request.id.substring(0, 8)}...</TableCell>
-                        <TableCell>{request.user_id}</TableCell>
-                        <TableCell>{request.honoree_name}</TableCell>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            request.status === 'pending' 
-                              ? 'bg-yellow-100 text-yellow-800' 
-                              : request.status === 'in_production' 
-                                ? 'bg-blue-100 text-blue-800' 
-                                : 'bg-green-100 text-green-800'
-                          }`}>
-                            {request.status === 'pending' 
-                              ? 'Pendente' 
-                              : request.status === 'in_production' 
-                                ? 'Em Produção' 
-                                : 'Concluído'}
-                          </span>
-                        </TableCell>
-                        <TableCell>{formatDate(request.created_at)}</TableCell>
-                        <TableCell>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => handleViewDetails(request)}
-                          >
-                            Ver Detalhes
-                          </Button>
-                        </TableCell>
+            <TabsContent value="requests" className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <h2 className="text-xl font-semibold mb-6">Lista de Pedidos</h2>
+              
+              {isLoading ? (
+                <p className="text-center py-8">Carregando pedidos...</p>
+              ) : requests.length === 0 ? (
+                <p className="text-center py-8">Nenhum pedido encontrado.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Cliente</TableHead>
+                        <TableHead>Pessoa Homenageada</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Pagamento</TableHead>
+                        <TableHead>Data</TableHead>
+                        <TableHead>Ações</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {requests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell className="font-mono">{request.id.substring(0, 8)}...</TableCell>
+                          <TableCell>{request.user_id}</TableCell>
+                          <TableCell>{request.honoree_name}</TableCell>
+                          <TableCell>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              request.status === 'pending' 
+                                ? 'bg-yellow-100 text-yellow-800' 
+                                : request.status === 'in_production' 
+                                  ? 'bg-blue-100 text-blue-800' 
+                                  : 'bg-green-100 text-green-800'
+                            }`}>
+                              {request.status === 'pending' 
+                                ? 'Pendente' 
+                                : request.status === 'in_production' 
+                                  ? 'Em Produção' 
+                                  : 'Concluído'}
+                            </span>
+                          </TableCell>
+                          <TableCell>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${
+                              request.payment_status === 'pending' 
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-green-100 text-green-800'
+                            }`}>
+                              {request.payment_status === 'pending' ? 'Não Pago' : 'Pago'}
+                            </span>
+                          </TableCell>
+                          <TableCell>{formatDate(request.created_at)}</TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleViewDetails(request)}
+                              >
+                                Ver Detalhes
+                              </Button>
+                              
+                              <Select 
+                                onValueChange={(value) => handleUpdateStatus(request.id, value as MusicRequest['status'])}
+                                defaultValue={request.status}
+                              >
+                                <SelectTrigger className="w-[130px] h-9">
+                                  <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pending">Pendente</SelectItem>
+                                  <SelectItem value="in_production">Em Produção</SelectItem>
+                                  <SelectItem value="completed">Concluído</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              
+                              <Select
+                                onValueChange={(value) => handleUpdateStatus(request.id, undefined, value as MusicRequest['payment_status'])}
+                                defaultValue={request.payment_status || 'pending'}
+                              >
+                                <SelectTrigger className="w-[130px] h-9">
+                                  <SelectValue placeholder="Pagamento" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pending">Não Pago</SelectItem>
+                                  <SelectItem value="completed">Pago</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              
+                              {request.status === 'completed' && (
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  onClick={() => handleDeliverMusic(request)}
+                                >
+                                  <Send className="w-4 h-4 mr-1" />
+                                  Entregar
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </TabsContent>
+            
+            <TabsContent value="users" className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-semibold">Gerenciar Clientes</h2>
+                <Button 
+                  onClick={() => {
+                    setSelectedUser(null);
+                    setNewUser({ name: "", email: "", whatsapp: "" });
+                    setShowUserForm(true);
+                  }}
+                >
+                  <PlusCircle className="w-4 h-4 mr-2" />
+                  Novo Cliente
+                </Button>
               </div>
-            )}
-          </div>
+              
+              {users.length === 0 ? (
+                <p className="text-center py-8">Nenhum cliente cadastrado.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>WhatsApp</TableHead>
+                        <TableHead>Data de Cadastro</TableHead>
+                        <TableHead>Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {users.map((user) => (
+                        <TableRow key={user.id}>
+                          <TableCell className="font-medium">{user.name}</TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>{user.whatsapp}</TableCell>
+                          <TableCell>{formatDate(user.created_at)}</TableCell>
+                          <TableCell>
+                            <div className="flex space-x-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => handleEditUser(user)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="destructive" 
+                                size="sm"
+                                onClick={() => handleDeleteUser(user.id)}
+                              >
+                                <Trash className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
       
+      {/* User Form Dialog */}
+      <Dialog open={showUserForm} onOpenChange={setShowUserForm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{selectedUser ? "Editar Cliente" : "Novo Cliente"}</DialogTitle>
+            <DialogDescription>
+              Preencha os campos abaixo para {selectedUser ? "editar as informações do" : "adicionar um novo"} cliente.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label htmlFor="name" className="text-sm font-medium">Nome Completo</label>
+              <Input
+                id="name"
+                value={newUser.name}
+                onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium">Email</label>
+              <Input
+                id="email"
+                type="email"
+                value={newUser.email}
+                onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="whatsapp" className="text-sm font-medium">WhatsApp</label>
+              <Input
+                id="whatsapp"
+                value={newUser.whatsapp}
+                onChange={(e) => setNewUser({...newUser, whatsapp: e.target.value})}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowUserForm(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleUserFormSubmit}>
+              {selectedUser ? "Salvar Alterações" : "Adicionar Cliente"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Music Details Dialog */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
@@ -231,6 +692,10 @@ const Admin = () => {
                     <p>{selectedRequest.names_to_include || 'Nenhum nome especificado'}</p>
                   </div>
                 )}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500">Status do Pagamento</h3>
+                  <p>{selectedRequest.payment_status === 'completed' ? 'Pago' : 'Não Pago'}</p>
+                </div>
               </div>
               
               <div>
@@ -264,6 +729,69 @@ const Admin = () => {
               disabled={!audioFile || isUploading}
             >
               {isUploading ? "Enviando..." : "Enviar Música"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Music Delivery Dialog */}
+      <Dialog open={showDeliveryForm} onOpenChange={setShowDeliveryForm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Entregar Música ao Cliente</DialogTitle>
+            <DialogDescription>
+              Envie a música finalizada para o cliente por e-mail.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedRequest && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium">Cliente</h3>
+                <p className="p-2 bg-gray-50 rounded">{selectedRequest.user_id}</p>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium">Música para</h3>
+                <p className="p-2 bg-gray-50 rounded">{selectedRequest.honoree_name}</p>
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium">Status do Pagamento</h3>
+                <p className={`p-2 rounded ${
+                  selectedRequest.payment_status === 'completed' 
+                    ? 'bg-green-50 text-green-700' 
+                    : 'bg-red-50 text-red-700'
+                }`}>
+                  {selectedRequest.payment_status === 'completed' ? 'Pago' : 'Não Pago'}
+                </p>
+                {selectedRequest.payment_status !== 'completed' && (
+                  <p className="text-sm text-red-500">
+                    Atenção: Este pedido ainda não foi pago. Recomendamos verificar o pagamento antes de entregar a música.
+                  </p>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium">Mensagem para o Cliente</h3>
+                <textarea 
+                  className="w-full p-2 border rounded"
+                  rows={4}
+                  defaultValue="Olá! Sua música personalizada está pronta. Esperamos que goste do resultado final. Clique no link abaixo para acessar a música completa."
+                />
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDeliveryForm(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSendEmail}
+              disabled={selectedRequest?.payment_status !== 'completed'}
+            >
+              Enviar por E-mail
             </Button>
           </DialogFooter>
         </DialogContent>

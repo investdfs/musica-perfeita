@@ -139,11 +139,11 @@ const Admin = () => {
       });
     }
     
-    if (filterStatus) {
+    if (filterStatus && filterStatus !== "all") {
       result = result.filter(request => request.status === filterStatus);
     }
     
-    if (filterPaymentStatus) {
+    if (filterPaymentStatus && filterPaymentStatus !== "all") {
       result = result.filter(request => request.payment_status === filterPaymentStatus);
     }
     
@@ -205,8 +205,8 @@ const Admin = () => {
 
   const handleClearFilters = () => {
     setSearchQuery("");
-    setFilterStatus(null);
-    setFilterPaymentStatus(null);
+    setFilterStatus("all");
+    setFilterPaymentStatus("all");
   };
 
   return (

@@ -53,7 +53,7 @@ const RequestsFilters = ({
             <SelectValue placeholder="Status do pedido" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos os status</SelectItem>
+            <SelectItem value="all">Todos os status</SelectItem>
             <SelectItem value="pending">Pendente</SelectItem>
             <SelectItem value="in_production">Em Produção</SelectItem>
             <SelectItem value="completed">Concluído</SelectItem>
@@ -68,7 +68,7 @@ const RequestsFilters = ({
             <SelectValue placeholder="Status do pagamento" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos</SelectItem>
+            <SelectItem value="all">Todos</SelectItem>
             <SelectItem value="pending">Não Pago</SelectItem>
             <SelectItem value="completed">Pago</SelectItem>
           </SelectContent>

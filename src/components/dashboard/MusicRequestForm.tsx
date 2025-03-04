@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -13,6 +12,9 @@ import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
 import { UserProfile } from "@/types/database.types";
 import ImageUpload from "./ImageUpload";
+import { Play, Info } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const musicRequestSchema = z.object({
   honoree_name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
@@ -41,11 +43,15 @@ interface MusicRequestFormProps {
   onRequestSubmitted: (newRequest: any) => void;
 }
 
+const audioExplanationUrl = "https://example.com/audio-explanation.mp3";
+
 const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [audio] = useState(new Audio(audioExplanationUrl));
 
-  // Configure the form
   const form = useForm<MusicRequestFormValues>({
     resolver: zodResolver(musicRequestSchema),
     defaultValues: {
@@ -63,12 +69,30 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
     setCoverImage(file);
   };
 
-  // Handle form submission
+  const toggleAudio = () => {
+    if (isAudioPlaying) {
+      audio.pause();
+    } else {
+      audio.play().catch(error => {
+        console.error("Erro ao reproduzir áudio:", error);
+        toast({
+          title: "Erro ao reproduzir",
+          description: "Não foi possível reproduzir o áudio explicativo.",
+          variant: "destructive",
+        });
+      });
+    }
+    setIsAudioPlaying(!isAudioPlaying);
+  };
+
+  audio.onended = () => {
+    setIsAudioPlaying(false);
+  };
+
   const onSubmit = async (values: MusicRequestFormValues) => {
     setIsSubmitting(true);
     
     try {
-      // Upload image if provided
       let coverUrl = null;
       if (coverImage) {
         const fileName = `covers/${userProfile.id}/${Date.now()}-${coverImage.name}`;
@@ -111,7 +135,6 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
         description: "Seu pedido foi recebido e está sendo analisado.",
       });
       
-      // Notify parent component about the new request
       if (data) {
         onRequestSubmitted(data);
       }
@@ -128,7 +151,6 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
     }
   };
 
-  // Handle conditional fields
   const relationshipType = form.watch("relationship_type");
   const includeNames = form.watch("include_names");
 
@@ -265,7 +287,41 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
             name="story"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-purple-700">Conte sua história aqui</FormLabel>
+                <div className="flex items-center gap-2">
+                  <FormLabel className="text-purple-700">Conte sua história aqui</FormLabel>
+                  
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 rounded-full bg-purple-100 hover:bg-purple-200 text-purple-700"
+                          onClick={toggleAudio}
+                        >
+                          <Play className={`h-4 w-4 ${isAudioPlaying ? 'text-purple-900' : 'text-purple-700'}`} />
+                          <span className="sr-only">Ouvir explicação</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Ouça uma explicação sobre a importância deste campo</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 rounded-full bg-pink-100 hover:bg-pink-200 text-pink-700"
+                    onClick={() => setIsDialogOpen(true)}
+                  >
+                    <Info className="h-4 w-4" />
+                    <span className="sr-only">Informações</span>
+                  </Button>
+                </div>
+                
                 <FormControl>
                   <Textarea
                     placeholder="Escreva detalhes emocionantes, momentos especiais e sentimentos."
@@ -335,6 +391,17 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
           </Button>
         </form>
       </Form>
+      
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl text-pink-600">A Importância da Sua História</DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="text-gray-700 leading-relaxed">
+            Este campo da história é o coração pulsante da sua música – o lugar mais importante onde você vai ajudar nosso compositor a dar vida à alma perfeita para essa canção. Dedique alguns minutos especiais, desligue-se do mundo e mergulhe nos momentos mais emocionantes da vida da pessoa homenageada. Foque nos instantes que fizeram o coração dela vibrar – risadas inesquecíveis, lágrimas que ensinaram, ou gestos de amor que marcaram para sempre, mas lembre-se também dos momentos tristes, eles fazem parte da vida. Quanto mais detalhes e emoção você compartilhar aqui, mais única e tocante será a melodia que criaremos. Está pronto para transformar esses sentimentos em música? Escreva agora e deixe a magia acontecer!
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

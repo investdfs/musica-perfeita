@@ -12,8 +12,8 @@ export type MusicRequest = {
   created_at: string;
   user_id: string;
   honoree_name: string;
-  relationship_type: 'partner' | 'friend' | 'family' | 'other';
-  music_genre: 'romantic' | 'mpb' | 'classical' | 'jazz' | 'hiphop';
+  relationship_type: 'partner' | 'friend' | 'family' | 'colleague' | 'mentor' | 'child' | 'sibling' | 'parent' | 'other';
+  music_genre: 'romantic' | 'mpb' | 'classical' | 'jazz' | 'hiphop' | 'rock' | 'country' | 'reggae' | 'electronic' | 'samba' | 'folk' | 'pop';
   include_names: boolean;
   names_to_include: string | null;
   story: string;

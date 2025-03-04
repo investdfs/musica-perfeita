@@ -16,10 +16,16 @@ import ImageUpload from "./ImageUpload";
 
 const musicRequestSchema = z.object({
   honoree_name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
-  relationship_type: z.enum(["partner", "friend", "family", "other"], {
+  relationship_type: z.enum([
+    "partner", "friend", "family", "colleague", "mentor", 
+    "child", "sibling", "parent", "other"
+  ], {
     required_error: "Selecione o tipo de relacionamento",
   }),
-  music_genre: z.enum(["romantic", "mpb", "classical", "jazz", "hiphop"], {
+  music_genre: z.enum([
+    "romantic", "mpb", "classical", "jazz", "hiphop", 
+    "rock", "country", "reggae", "electronic", "samba", "folk", "pop"
+  ], {
     required_error: "Selecione o gênero musical",
   }),
   include_names: z.boolean().default(false),
@@ -168,9 +174,14 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="partner">Parceiro(a)</SelectItem>
+                      <SelectItem value="partner">Parceiro(a)/Cônjuge</SelectItem>
                       <SelectItem value="friend">Amigo(a)</SelectItem>
-                      <SelectItem value="family">Familiar</SelectItem>
+                      <SelectItem value="family">Familiar (Geral)</SelectItem>
+                      <SelectItem value="parent">Pai/Mãe</SelectItem>
+                      <SelectItem value="sibling">Irmão/Irmã</SelectItem>
+                      <SelectItem value="child">Filho(a)</SelectItem>
+                      <SelectItem value="colleague">Colega de Trabalho</SelectItem>
+                      <SelectItem value="mentor">Mentor(a)/Professor(a)</SelectItem>
                       <SelectItem value="other">Outro</SelectItem>
                     </SelectContent>
                   </Select>
@@ -198,9 +209,16 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
                   <SelectContent>
                     <SelectItem value="romantic">Romântica</SelectItem>
                     <SelectItem value="mpb">MPB</SelectItem>
+                    <SelectItem value="pop">Pop</SelectItem>
+                    <SelectItem value="rock">Rock</SelectItem>
                     <SelectItem value="classical">Clássica</SelectItem>
                     <SelectItem value="jazz">Jazz</SelectItem>
                     <SelectItem value="hiphop">Hip-Hop</SelectItem>
+                    <SelectItem value="electronic">Eletrônica</SelectItem>
+                    <SelectItem value="country">Country</SelectItem>
+                    <SelectItem value="folk">Folk</SelectItem>
+                    <SelectItem value="reggae">Reggae</SelectItem>
+                    <SelectItem value="samba">Samba</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-gray-500 mt-1">
@@ -210,52 +228,6 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
               </FormItem>
             )}
           />
-          
-          <p className="text-sm italic text-gray-600 bg-gray-50 p-3 rounded-md border border-gray-100">
-            A música não será exatamente o texto cantado; o texto serve como inspiração para o desenvolvimento.
-          </p>
-          
-          <FormField
-            control={form.control}
-            name="include_names"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 bg-pink-50 p-4 rounded-md">
-                <FormControl>
-                  <Checkbox 
-                    checked={field.value} 
-                    onCheckedChange={field.onChange}
-                    className="border-pink-400 data-[state=checked]:bg-pink-500"
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel className="text-gray-700">Citar até 3 nomes na música?</FormLabel>
-                </div>
-              </FormItem>
-            )}
-          />
-          
-          {includeNames && (
-            <FormField
-              control={form.control}
-              name="names_to_include"
-              render={({ field }) => (
-                <FormItem className="bg-pink-50 p-4 rounded-md -mt-2">
-                  <FormLabel className="text-gray-700">Quais os nomes?</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Separe os nomes por vírgula" 
-                      className="border-pink-200 focus-visible:ring-pink-400"
-                      {...field} 
-                    />
-                  </FormControl>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Cite os nomes na história também.
-                  </p>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
           
           <FormField
             control={form.control}
@@ -270,10 +242,58 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
                     {...field}
                   />
                 </FormControl>
+                <p className="text-xs italic text-gray-600 mt-2 bg-gray-50 p-3 rounded-md border border-gray-100">
+                  A música não será exatamente o texto cantado; o texto serve como inspiração para o desenvolvimento.
+                </p>
                 <FormMessage />
               </FormItem>
             )}
           />
+          
+          <FormField
+            control={form.control}
+            name="include_names"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 bg-pink-50 p-4 rounded-md">
+                <FormControl>
+                  <Checkbox 
+                    checked={field.value} 
+                    onCheckedChange={field.onChange}
+                    className="border-pink-400 data-[state=checked]:bg-pink-500"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel className="text-gray-700">Citar até 4 nomes na música?</FormLabel>
+                  <p className="text-xs text-gray-500">
+                    Os nomes devem estar relacionados à história da pessoa homenageada.
+                  </p>
+                </div>
+              </FormItem>
+            )}
+          />
+          
+          {includeNames && (
+            <FormField
+              control={form.control}
+              name="names_to_include"
+              render={({ field }) => (
+                <FormItem className="bg-pink-50 p-4 rounded-md -mt-2">
+                  <FormLabel className="text-gray-700">Quais os nomes a serem citados?</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="Digite até 4 nomes separados por vírgula" 
+                      className="border-pink-200 focus-visible:ring-pink-400"
+                      {...field} 
+                    />
+                  </FormControl>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Certifique-se de mencionar estes nomes na história também para melhor contextualização.
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
           
           <Button 
             type="submit" 

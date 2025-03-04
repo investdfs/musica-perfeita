@@ -8,6 +8,7 @@ import ProgressIndicator from "@/components/dashboard/ProgressIndicator";
 import MusicPreviewPlayer from "@/components/dashboard/MusicPreviewPlayer";
 import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
 import { toast } from "@/hooks/use-toast";
+import { isDevelopmentOrPreview } from "@/lib/environment";
 
 const Dashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -15,17 +16,16 @@ const Dashboard = () => {
   const [currentProgress, setCurrentProgress] = useState(0);
   const navigate = useNavigate();
 
-  // Get the user info from localStorage or create a test user in development
+  // Get the user info from localStorage or create a test user in development/preview
   useEffect(() => {
     const storedUser = localStorage.getItem("musicaperfeita_user");
     
-    // In development, create a test user if none exists
-    if (!storedUser && (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost')) {
+    // In development or preview, create a test user if none exists
+    if (!storedUser && isDevelopmentOrPreview()) {
       const testUser: UserProfile = {
         id: 'dev-user-id',
         name: 'Usuário de Desenvolvimento',
         email: 'dev@example.com',
-        phone: '11999999999',
         created_at: new Date().toISOString()
       };
       
@@ -33,7 +33,7 @@ const Dashboard = () => {
       setUserProfile(testUser);
       
       toast({
-        title: "Modo de desenvolvimento",
+        title: "Modo de desenvolvimento/preview",
         description: "Usuário de teste criado automaticamente",
       });
       
@@ -41,7 +41,7 @@ const Dashboard = () => {
     }
     
     // Redirect to registration in production if no user is found
-    if (!storedUser && process.env.NODE_ENV !== 'development') {
+    if (!storedUser && !isDevelopmentOrPreview()) {
       navigate("/cadastro");
       return;
     }

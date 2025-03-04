@@ -23,6 +23,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
 import { MusicRequest } from "@/types/database.types";
+import { isDevelopmentOrPreview } from "@/lib/environment";
 
 const Admin = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -37,9 +38,9 @@ const Admin = () => {
   useEffect(() => {
     const isAdmin = localStorage.getItem("musicaperfeita_admin");
     
-    // Skip authentication check in development mode
-    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-      // Auto-authenticate in development mode
+    // Skip authentication check in development mode or preview
+    if (isDevelopmentOrPreview()) {
+      // Auto-authenticate in development mode or preview
       localStorage.setItem("musicaperfeita_admin", "true");
       return;
     }

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
+import { isDevelopmentOrPreview } from "@/lib/environment";
 
 const adminLoginSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
@@ -21,11 +22,11 @@ const AdminLogin = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  // Auto-login for development environment
+  // Auto-login for development environment and Lovable preview
   useEffect(() => {
-    // Check if we're in development mode
-    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
-      // Automatically authenticate as admin in development mode
+    // Check if we're in development mode or preview URL
+    if (isDevelopmentOrPreview()) {
+      // Automatically authenticate as admin
       localStorage.setItem("musicaperfeita_admin", "true");
       // Redirect to admin panel after a short delay to allow toast to be visible
       const timer = setTimeout(() => {
@@ -33,8 +34,8 @@ const AdminLogin = () => {
       }, 1000);
       
       toast({
-        title: "Acesso de desenvolvimento",
-        description: "Autenticação automática como administrador em modo de desenvolvimento",
+        title: "Acesso de desenvolvimento/preview",
+        description: "Autenticação automática como administrador em modo de desenvolvimento ou preview",
       });
       
       return () => clearTimeout(timer);

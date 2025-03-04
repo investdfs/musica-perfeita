@@ -7,6 +7,7 @@ import { MusicRequest, UserProfile } from "@/types/database.types";
 import ProgressIndicator from "@/components/dashboard/ProgressIndicator";
 import MusicPreviewPlayer from "@/components/dashboard/MusicPreviewPlayer";
 import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
+import { toast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -14,20 +15,45 @@ const Dashboard = () => {
   const [currentProgress, setCurrentProgress] = useState(0);
   const navigate = useNavigate();
 
-  // Get the user info from localStorage
+  // Get the user info from localStorage or create a test user in development
   useEffect(() => {
     const storedUser = localStorage.getItem("musicaperfeita_user");
-    if (!storedUser) {
+    
+    // In development, create a test user if none exists
+    if (!storedUser && (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost')) {
+      const testUser: UserProfile = {
+        id: 'dev-user-id',
+        name: 'Usuário de Desenvolvimento',
+        email: 'dev@example.com',
+        phone: '11999999999',
+        created_at: new Date().toISOString()
+      };
+      
+      localStorage.setItem("musicaperfeita_user", JSON.stringify(testUser));
+      setUserProfile(testUser);
+      
+      toast({
+        title: "Modo de desenvolvimento",
+        description: "Usuário de teste criado automaticamente",
+      });
+      
+      return;
+    }
+    
+    // Redirect to registration in production if no user is found
+    if (!storedUser && process.env.NODE_ENV !== 'development') {
       navigate("/cadastro");
       return;
     }
     
-    const userInfo = JSON.parse(storedUser);
+    const userInfo = storedUser ? JSON.parse(storedUser) : null;
     setUserProfile(userInfo);
     
     // Fetch user's music requests
     const fetchUserRequests = async () => {
       try {
+        if (!userInfo?.id) return;
+        
         const { data, error } = await supabase
           .from('music_requests')
           .select('*')
@@ -61,7 +87,9 @@ const Dashboard = () => {
       }
     };
     
-    fetchUserRequests();
+    if (userInfo) {
+      fetchUserRequests();
+    }
   }, [navigate]);
 
   // Handle new request submission

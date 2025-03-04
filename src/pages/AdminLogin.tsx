@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +20,26 @@ type AdminLoginValues = z.infer<typeof adminLoginSchema>;
 const AdminLogin = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+
+  // Auto-login for development environment
+  useEffect(() => {
+    // Check if we're in development mode
+    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+      // Automatically authenticate as admin in development mode
+      localStorage.setItem("musicaperfeita_admin", "true");
+      // Redirect to admin panel after a short delay to allow toast to be visible
+      const timer = setTimeout(() => {
+        navigate("/admin");
+      }, 1000);
+      
+      toast({
+        title: "Acesso de desenvolvimento",
+        description: "Autenticação automática como administrador em modo de desenvolvimento",
+      });
+      
+      return () => clearTimeout(timer);
+    }
+  }, [navigate]);
 
   const form = useForm<AdminLoginValues>({
     resolver: zodResolver(adminLoginSchema),

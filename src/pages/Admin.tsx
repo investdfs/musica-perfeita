@@ -33,11 +33,20 @@ const Admin = () => {
   const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
 
-  // Mock admin authentication
+  // Check authentication
   useEffect(() => {
     const isAdmin = localStorage.getItem("musicaperfeita_admin");
+    
+    // Skip authentication check in development mode
+    if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+      // Auto-authenticate in development mode
+      localStorage.setItem("musicaperfeita_admin", "true");
+      return;
+    }
+    
+    // Only redirect in production
     if (!isAdmin) {
-      navigate("/admin-login"); // would redirect to login in a real app
+      navigate("/admin-login");
     }
   }, [navigate]);
 

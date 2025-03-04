@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import supabase from "@/lib/supabase";
+import { UserProfile } from "@/types/database.types";
 
 const formSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
@@ -33,19 +35,37 @@ const RegistrationForm = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     
-    // Simulating API call
-    setTimeout(() => {
-      // Store in localStorage for demo purposes
-      localStorage.setItem("musicaperfeita_user", JSON.stringify(values));
+    try {
+      // Insert user into Supabase
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .insert([values])
+        .select();
+        
+      if (error) throw error;
       
+      if (data && data.length > 0) {
+        // Store in localStorage with proper typing
+        const userProfile: UserProfile = data[0];
+        localStorage.setItem("musicaperfeita_user", JSON.stringify(userProfile));
+        
+        toast({
+          title: "Conta criada com sucesso!",
+          description: "Bem-vindo ao Musicaperfeita!",
+        });
+        
+        navigate("/dashboard");
+      }
+    } catch (error) {
+      console.error('Error creating user:', error);
       toast({
-        title: "Conta criada com sucesso!",
-        description: "Bem-vindo ao Musicaperfeita!",
+        title: "Erro ao criar conta",
+        description: "Ocorreu um erro ao criar sua conta. Tente novamente.",
+        variant: "destructive",
       });
-      
+    } finally {
       setIsSubmitting(false);
-      navigate("/dashboard");
-    }, 1500);
+    }
   };
 
   // Format WhatsApp input with mask

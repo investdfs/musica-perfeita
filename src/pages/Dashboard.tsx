@@ -27,7 +27,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
-import { MusicRequest } from "@/types/database.types";
+import { MusicRequest, UserProfile } from "@/types/database.types";
 
 const musicRequestSchema = z.object({
   honoree_name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
@@ -46,7 +46,7 @@ type MusicRequestFormValues = z.infer<typeof musicRequestSchema>;
 
 const Dashboard = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userProfile, setUserProfile] = useState<{ name: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userRequests, setUserRequests] = useState<MusicRequest[]>([]);
   const [currentProgress, setCurrentProgress] = useState(0);
   const navigate = useNavigate();
@@ -83,7 +83,7 @@ const Dashboard = () => {
         const { data, error } = await supabase
           .from('music_requests')
           .select('*')
-          .eq('user_email', userInfo.email);
+          .eq('user_id', userInfo.id);
           
         if (error) throw error;
         
@@ -125,7 +125,7 @@ const Dashboard = () => {
     try {
       // In a real implementation, we'd get the user ID from auth
       const newRequest = {
-        user_email: userProfile.email,
+        user_id: userProfile.id,
         honoree_name: values.honoree_name,
         relationship_type: values.relationship_type,
         music_genre: values.music_genre,

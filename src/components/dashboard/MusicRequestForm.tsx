@@ -17,8 +17,8 @@ import ImageUpload from "./ImageUpload";
 const musicRequestSchema = z.object({
   honoree_name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
   relationship_type: z.enum([
-    "partner", "friend", "family", "colleague", "mentor", 
-    "child", "sibling", "parent", "other"
+    "esposa", "noiva", "namorada", "amigo_especial", "partner", "friend", "family", 
+    "colleague", "mentor", "child", "sibling", "parent", "other"
   ], {
     required_error: "Selecione o tipo de relacionamento",
   }),
@@ -179,6 +179,10 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="esposa">Esposa</SelectItem>
+                        <SelectItem value="noiva">Noiva</SelectItem>
+                        <SelectItem value="namorada">Namorada</SelectItem>
+                        <SelectItem value="amigo_especial">Amigo(a) "Especial"</SelectItem>
                         <SelectItem value="partner">Parceiro(a)/Cônjuge</SelectItem>
                         <SelectItem value="friend">Amigo(a)</SelectItem>
                         <SelectItem value="family">Familiar (Geral)</SelectItem>

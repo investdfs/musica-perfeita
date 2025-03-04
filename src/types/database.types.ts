@@ -12,7 +12,7 @@ export type MusicRequest = {
   created_at: string;
   user_id: string;
   honoree_name: string;
-  relationship_type: 'partner' | 'friend' | 'family' | 'colleague' | 'mentor' | 'child' | 'sibling' | 'parent' | 'other';
+  relationship_type: 'esposa' | 'noiva' | 'namorada' | 'amigo_especial' | 'partner' | 'friend' | 'family' | 'colleague' | 'mentor' | 'child' | 'sibling' | 'parent' | 'other';
   custom_relationship: string | null;
   music_genre: 'romantic' | 'mpb' | 'classical' | 'jazz' | 'hiphop' | 'rock' | 'country' | 'reggae' | 'electronic' | 'samba' | 'folk' | 'pop';
   include_names: boolean;

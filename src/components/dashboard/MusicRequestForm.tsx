@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
 import { UserProfile } from "@/types/database.types";
+import ImageUpload from "./ImageUpload";
 
 const musicRequestSchema = z.object({
   honoree_name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres" }),
@@ -35,6 +36,7 @@ interface MusicRequestFormProps {
 
 const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [coverImage, setCoverImage] = useState<File | null>(null);
 
   // Configure the form
   const form = useForm<MusicRequestFormValues>({
@@ -49,11 +51,30 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
     },
   });
 
+  const handleImageSelected = (file: File) => {
+    setCoverImage(file);
+  };
+
   // Handle form submission
   const onSubmit = async (values: MusicRequestFormValues) => {
     setIsSubmitting(true);
     
     try {
+      // Upload image if provided
+      let coverUrl = null;
+      if (coverImage) {
+        const fileName = `covers/${userProfile.id}/${Date.now()}-${coverImage.name}`;
+        const { data: imageData, error: imageError } = await supabase.storage
+          .from('music-covers')
+          .upload(fileName, coverImage);
+          
+        if (imageError) {
+          throw imageError;
+        }
+        
+        coverUrl = imageData?.path;
+      }
+      
       const newRequest = {
         user_id: userProfile.id,
         honoree_name: values.honoree_name,
@@ -62,6 +83,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
         include_names: values.include_names,
         names_to_include: values.include_names ? values.names_to_include : null,
         story: values.story,
+        cover_image_url: coverUrl,
         status: 'pending',
         preview_url: null,
         full_song_url: null,
@@ -101,70 +123,75 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
   const includeNames = form.watch("include_names");
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-xl font-semibold mb-6">Novo Pedido de Música</h2>
+    <div className="bg-white rounded-xl shadow-md p-8">
+      <h2 className="text-2xl font-semibold mb-6 text-pink-600">Crie Sua Música Especial</h2>
       
-      <div className="mb-6 bg-yellow-50 p-4 rounded-md border border-yellow-200">
-        <p className="text-sm">
-          Aqui você transforma sua história em música! Quanto mais detalhes emocionantes e fatos relevantes você compartilhar, melhor será o resultado. A qualidade da música depende da sua narrativa!
+      <div className="mb-8 bg-gradient-to-r from-purple-50 to-pink-50 p-5 rounded-md border border-purple-100">
+        <p className="text-sm text-gray-700 leading-relaxed">
+          Transforme sua história em uma música única! Quanto mais detalhes emocionantes e fatos relevantes você compartilhar, 
+          melhor será o resultado. A qualidade da música depende da sua narrativa!
         </p>
       </div>
       
+      <ImageUpload onImageSelected={handleImageSelected} />
+      
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="honoree_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Quem é a pessoa homenageada?</FormLabel>
-                <FormControl>
-                  <Input placeholder="Nome da pessoa homenageada" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="relationship_type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Qual seu tipo de relacionamento com essa pessoa?</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  defaultValue={field.value}
-                >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="honoree_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-purple-700">Para quem é esta música?</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o tipo de relacionamento" />
-                    </SelectTrigger>
+                    <Input placeholder="Nome da pessoa homenageada" className="border-pink-200 focus-visible:ring-pink-400" {...field} />
                   </FormControl>
-                  <SelectContent>
-                    <SelectItem value="partner">Parceiro(a)</SelectItem>
-                    <SelectItem value="friend">Amigo(a)</SelectItem>
-                    <SelectItem value="family">Familiar</SelectItem>
-                    <SelectItem value="other">Outro</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="relationship_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-purple-700">Tipo de relacionamento</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="border-pink-200 focus-visible:ring-pink-400">
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="partner">Parceiro(a)</SelectItem>
+                      <SelectItem value="friend">Amigo(a)</SelectItem>
+                      <SelectItem value="family">Familiar</SelectItem>
+                      <SelectItem value="other">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           
           <FormField
             control={form.control}
             name="music_genre"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Gênero de referência da música</FormLabel>
+                <FormLabel className="text-purple-700">Gênero de referência da música</FormLabel>
                 <Select 
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="border-pink-200 focus-visible:ring-pink-400">
                       <SelectValue placeholder="Selecione o gênero musical" />
                     </SelectTrigger>
                   </FormControl>
@@ -184,7 +211,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
             )}
           />
           
-          <p className="text-sm italic text-gray-600">
+          <p className="text-sm italic text-gray-600 bg-gray-50 p-3 rounded-md border border-gray-100">
             A música não será exatamente o texto cantado; o texto serve como inspiração para o desenvolvimento.
           </p>
           
@@ -192,15 +219,16 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
             control={form.control}
             name="include_names"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 bg-pink-50 p-4 rounded-md">
                 <FormControl>
                   <Checkbox 
                     checked={field.value} 
                     onCheckedChange={field.onChange}
+                    className="border-pink-400 data-[state=checked]:bg-pink-500"
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel>Citar até 3 nomes na música?</FormLabel>
+                  <FormLabel className="text-gray-700">Citar até 3 nomes na música?</FormLabel>
                 </div>
               </FormItem>
             )}
@@ -211,11 +239,12 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
               control={form.control}
               name="names_to_include"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Quais os nomes?</FormLabel>
+                <FormItem className="bg-pink-50 p-4 rounded-md -mt-2">
+                  <FormLabel className="text-gray-700">Quais os nomes?</FormLabel>
                   <FormControl>
                     <Input 
                       placeholder="Separe os nomes por vírgula" 
+                      className="border-pink-200 focus-visible:ring-pink-400"
                       {...field} 
                     />
                   </FormControl>
@@ -233,11 +262,11 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
             name="story"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Conte sua história aqui</FormLabel>
+                <FormLabel className="text-purple-700">Conte sua história aqui</FormLabel>
                 <FormControl>
                   <Textarea
                     placeholder="Escreva detalhes emocionantes, momentos especiais e sentimentos."
-                    className="min-h-[200px]"
+                    className="min-h-[200px] border-pink-200 focus-visible:ring-pink-400"
                     {...field}
                   />
                 </FormControl>
@@ -248,7 +277,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormP
           
           <Button 
             type="submit" 
-            className="w-full bg-pink-500 hover:bg-pink-600" 
+            className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-6 text-lg" 
             disabled={isSubmitting}
           >
             {isSubmitting ? "Enviando..." : "Enviar Pedido"}

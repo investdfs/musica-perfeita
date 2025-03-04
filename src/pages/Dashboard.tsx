@@ -22,12 +22,13 @@ const Dashboard = () => {
     
     // In development or preview, create a test user if none exists
     if (!storedUser && isDevelopmentOrPreview()) {
-      const testUser: UserProfile = {
+      const testUser = {
         id: 'dev-user-id',
         name: 'Usuário de Desenvolvimento',
         email: 'dev@example.com',
-        created_at: new Date().toISOString()
-      };
+        created_at: new Date().toISOString(),
+        whatsapp: '+5511999999999'
+      } as UserProfile;
       
       localStorage.setItem("musicaperfeita_user", JSON.stringify(testUser));
       setUserProfile(testUser);
@@ -99,12 +100,12 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white">
+    <div className="min-h-screen bg-gradient-to-tr from-purple-50 via-pink-50 to-white">
       <Header />
       <main className="py-12 px-6">
         <div className="max-w-4xl mx-auto">
           {userProfile && (
-            <h1 className="text-3xl font-bold mb-8">
+            <h1 className="text-3xl font-bold mb-8 text-center">
               Olá, <span className="text-pink-500">{userProfile.name}</span>! Crie sua música perfeita!
             </h1>
           )}
@@ -123,7 +124,7 @@ const Dashboard = () => {
           )}
         </div>
       </main>
-      <footer className="bg-gray-800 text-white py-8 text-center">
+      <footer className="bg-gradient-to-r from-purple-700 to-pink-500 text-white py-8 text-center mt-12">
         <div className="max-w-5xl mx-auto px-6">
           <p>&copy; {new Date().getFullYear()} Musicaperfeita. Todos os direitos reservados.</p>
         </div>

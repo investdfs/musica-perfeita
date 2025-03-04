@@ -81,10 +81,17 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
       <h2 className="text-xl font-semibold mb-4">Ouça 1/3 da sua música!</h2>
-      <audio controls className="w-full mb-4" disabled={!isCompleted}>
-        <source src={previewUrl} type="audio/mpeg" />
-        Seu navegador não suporta áudio HTML5.
-      </audio>
+      
+      {isCompleted ? (
+        <audio controls className="w-full mb-4">
+          <source src={previewUrl} type="audio/mpeg" />
+          Seu navegador não suporta áudio HTML5.
+        </audio>
+      ) : (
+        <div className="w-full mb-4 bg-gray-100 rounded-md p-4 text-center text-gray-500">
+          <p>Player de áudio estará disponível quando a música estiver pronta.</p>
+        </div>
+      )}
       
       <div className="flex flex-col sm:flex-row gap-4 mt-6">
         <Button 

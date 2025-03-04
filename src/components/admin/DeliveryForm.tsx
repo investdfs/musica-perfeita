@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
   Dialog, 
@@ -9,6 +10,8 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import { MusicRequest, UserProfile } from "@/types/database.types";
+import { sendEmail, emailTemplates } from "@/lib/email";
+import { toast } from "@/hooks/use-toast";
 
 interface DeliveryFormProps {
   showDeliveryForm: boolean;
@@ -16,6 +19,7 @@ interface DeliveryFormProps {
   selectedRequest: MusicRequest | null;
   handleSendEmail: () => void;
   getUserName: (userId: string) => string;
+  getUserEmail: (userId: string) => string | undefined;
 }
 
 const DeliveryForm = ({ 
@@ -23,8 +27,73 @@ const DeliveryForm = ({
   setShowDeliveryForm, 
   selectedRequest, 
   handleSendEmail,
-  getUserName
+  getUserName,
+  getUserEmail
 }: DeliveryFormProps) => {
+  const [customMessage, setCustomMessage] = useState(
+    "Olá! Sua música personalizada está pronta. Esperamos que goste do resultado final. Clique no link abaixo para acessar a música completa."
+  );
+  const [isSending, setIsSending] = useState(false);
+
+  const handleSendEmailClick = async () => {
+    if (!selectedRequest) return;
+
+    setIsSending(true);
+    try {
+      const userName = getUserName(selectedRequest.user_id);
+      const userEmail = getUserEmail(selectedRequest.user_id);
+      
+      if (!userEmail) {
+        throw new Error("Email do usuário não encontrado");
+      }
+
+      // Cria uma URL fictícia para o link da música em ambiente de desenvolvimento
+      // Em produção, use a URL real da música
+      const musicLink = selectedRequest.full_song_url || 
+        `https://musicaperfeita.com/musica/${selectedRequest.id}`;
+
+      // Cria um template personalizado com a mensagem customizada
+      const emailTemplate = emailTemplates.musicDelivery(
+        userName, 
+        selectedRequest.honoree_name, 
+        musicLink
+      );
+
+      // Adiciona a mensagem customizada ao template
+      const customizedHtml = emailTemplate.html.replace(
+        '<p>Estamos muito felizes em informar', 
+        `<p>${customMessage}</p><p>Estamos muito felizes em informar`
+      );
+
+      // Envia o email
+      const result = await sendEmail({
+        to: userEmail,
+        subject: emailTemplate.subject,
+        html: customizedHtml
+      });
+
+      if (result.success) {
+        toast({
+          title: "Email enviado com sucesso!",
+          description: "O cliente foi notificado sobre a entrega da música."
+        });
+        handleSendEmail(); // Função original para atualizar o estado no componente pai
+        setShowDeliveryForm(false);
+      } else {
+        throw new Error(result.message || "Erro ao enviar email");
+      }
+    } catch (error) {
+      console.error("Erro ao enviar email:", error);
+      toast({
+        title: "Erro ao enviar email",
+        description: "Não foi possível enviar o email. Tente novamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <Dialog open={showDeliveryForm} onOpenChange={setShowDeliveryForm}>
       <DialogContent className="sm:max-w-md">
@@ -68,7 +137,8 @@ const DeliveryForm = ({
               <textarea 
                 className="w-full p-2 border rounded"
                 rows={4}
-                defaultValue="Olá! Sua música personalizada está pronta. Esperamos que goste do resultado final. Clique no link abaixo para acessar a música completa."
+                value={customMessage}
+                onChange={(e) => setCustomMessage(e.target.value)}
               />
             </div>
           </div>
@@ -79,10 +149,10 @@ const DeliveryForm = ({
             Cancelar
           </Button>
           <Button 
-            onClick={handleSendEmail}
-            disabled={selectedRequest?.payment_status !== 'completed'}
+            onClick={handleSendEmailClick}
+            disabled={selectedRequest?.payment_status !== 'completed' || isSending}
           >
-            Enviar por E-mail
+            {isSending ? "Enviando..." : "Enviar por E-mail"}
           </Button>
         </DialogFooter>
       </DialogContent>

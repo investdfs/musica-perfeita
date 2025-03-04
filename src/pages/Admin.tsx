@@ -79,6 +79,11 @@ const Admin = () => {
   const [filterPaymentStatus, setFilterPaymentStatus] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const getUserEmail = (userId: string): string | undefined => {
+    const user = users.find(u => u.id === userId);
+    return user?.email;
+  };
+
   useEffect(() => {
     const checkAuth = async () => {
       if (isDevelopmentOrPreview()) {
@@ -243,6 +248,7 @@ const Admin = () => {
                   users={users}
                   setRequests={setRequests}
                   isLoading={isLoading}
+                  getUserEmail={getUserEmail}
                 />
               </div>
             </TabsContent>

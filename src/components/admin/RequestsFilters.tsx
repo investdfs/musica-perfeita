@@ -1,5 +1,5 @@
 
-import { Search } from "lucide-react";
+import { Search, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -9,6 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
 
 interface RequestsFiltersProps {
   onSearch: (query: string) => void;
@@ -29,6 +32,20 @@ const RequestsFilters = ({
   filterStatus,
   filterPaymentStatus
 }: RequestsFiltersProps) => {
+  const handleNotificationsToggle = (enabled: boolean) => {
+    if (enabled) {
+      toast({
+        title: "Notificações por email ativadas",
+        description: "Você receberá notificações por email para novos pedidos e atualizações de status.",
+      });
+    } else {
+      toast({
+        title: "Notificações por email desativadas",
+        description: "Você não receberá mais notificações por email.",
+      });
+    }
+  };
+
   return (
     <div className="mb-6 space-y-4">
       <h2 className="text-xl font-semibold mb-4">Filtrar Pedidos</h2>
@@ -77,6 +94,14 @@ const RequestsFilters = ({
         <Button variant="outline" onClick={onClearFilters}>
           Limpar Filtros
         </Button>
+      </div>
+      
+      <div className="flex items-center space-x-2 pt-2">
+        <Switch id="email-notifications" onCheckedChange={handleNotificationsToggle} />
+        <Label htmlFor="email-notifications" className="flex items-center cursor-pointer">
+          <Bell className="h-4 w-4 mr-2 text-gray-500" />
+          Notificações por email para novos pedidos
+        </Label>
       </div>
     </div>
   );

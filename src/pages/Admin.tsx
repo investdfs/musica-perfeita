@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -41,6 +40,60 @@ import {
   Send 
 } from "lucide-react";
 
+const mockUsers: UserProfile[] = [
+  {
+    id: "1",
+    created_at: new Date().toISOString(),
+    name: "João Silva",
+    email: "joao@teste.com",
+    whatsapp: "+5511999999991"
+  },
+  {
+    id: "2",
+    created_at: new Date().toISOString(),
+    name: "Maria Oliveira",
+    email: "maria@teste.com",
+    whatsapp: "+5511999999992"
+  }
+];
+
+const mockRequests: MusicRequest[] = [
+  {
+    id: "1",
+    created_at: new Date().toISOString(),
+    user_id: "1",
+    honoree_name: "Ana Pereira",
+    relationship_type: "esposa",
+    custom_relationship: null,
+    music_genre: "romantic",
+    include_names: true,
+    names_to_include: "João e Ana",
+    story: "Esta é uma história de teste para o sistema. João quer uma música romântica para sua esposa Ana que está completando 10 anos de casamento.",
+    status: "pending",
+    payment_status: "completed",
+    preview_url: null,
+    full_song_url: null,
+    cover_image_url: null
+  },
+  {
+    id: "2",
+    created_at: new Date().toISOString(),
+    user_id: "2",
+    honoree_name: "Pedro Santos",
+    relationship_type: "friend",
+    custom_relationship: null,
+    music_genre: "rock",
+    include_names: false,
+    names_to_include: null,
+    story: "Pedro é meu melhor amigo desde a escola. Sempre gostamos de rock e queremos compartilhar momentos especiais com uma música personalizada sobre nossa amizade.",
+    status: "in_production",
+    payment_status: "completed",
+    preview_url: null,
+    full_song_url: null,
+    cover_image_url: null
+  }
+];
+
 const Admin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [requests, setRequests] = useState<MusicRequest[]>([]);
@@ -74,117 +127,23 @@ const Admin = () => {
   }, [navigate]);
 
   useEffect(() => {
-    const createTestData = async () => {
+    const initializeData = async () => {
+      if (isDevelopmentOrPreview()) {
+        setUsers(mockUsers);
+        setRequests(mockRequests);
+        setIsLoading(false);
+        return;
+      }
+      
       try {
-        // Clear existing test data
-        const { data: existingUsers } = await supabase
-          .from('user_profiles')
-          .select('id')
-          .or('email.eq.joao@teste.com,email.eq.maria@teste.com');
-
-        if (existingUsers && existingUsers.length > 0) {
-          for (const user of existingUsers) {
-            // Delete any existing music requests for these users
-            await supabase
-              .from('music_requests')
-              .delete()
-              .eq('user_id', user.id);
-          }
-          
-          // Delete the test users
-          await supabase
-            .from('user_profiles')
-            .delete()
-            .in('id', existingUsers.map(u => u.id));
-        }
-
-        // Create first test user
-        const { data: testUser1, error: userError1 } = await supabase
-          .from('user_profiles')
-          .insert([
-            {
-              name: 'João Silva',
-              email: 'joao@teste.com',
-              whatsapp: '+5511999999991'
-            }
-          ])
-          .select();
-
-        if (userError1) throw userError1;
-
-        // Create second test user
-        const { data: testUser2, error: userError2 } = await supabase
-          .from('user_profiles')
-          .insert([
-            {
-              name: 'Maria Oliveira',
-              email: 'maria@teste.com',
-              whatsapp: '+5511999999992'
-            }
-          ])
-          .select();
-
-        if (userError2) throw userError2;
-
-        // Create music request for the first user
-        if (testUser1 && testUser1.length > 0) {
-          const { error: requestError1 } = await supabase
-            .from('music_requests')
-            .insert([
-              {
-                user_id: testUser1[0].id,
-                honoree_name: 'Ana Pereira',
-                relationship_type: 'esposa',
-                custom_relationship: null,
-                music_genre: 'romantic',
-                include_names: true,
-                names_to_include: 'João e Ana',
-                story: 'Esta é uma história de teste para o sistema. João quer uma música romântica para sua esposa Ana que está completando 10 anos de casamento.',
-                status: 'pending' as MusicRequest['status'],
-                payment_status: 'completed' as MusicRequest['payment_status']
-              }
-            ]);
-
-          if (requestError1) throw requestError1;
-        }
-
-        // Create music request for the second user
-        if (testUser2 && testUser2.length > 0) {
-          const { error: requestError2 } = await supabase
-            .from('music_requests')
-            .insert([
-              {
-                user_id: testUser2[0].id,
-                honoree_name: 'Pedro Santos',
-                relationship_type: 'friend',
-                custom_relationship: null,
-                music_genre: 'rock',
-                include_names: false,
-                names_to_include: null,
-                story: 'Pedro é meu melhor amigo desde a escola. Sempre gostamos de rock e queremos compartilhar momentos especiais com uma música personalizada sobre nossa amizade.',
-                status: 'in_production' as MusicRequest['status'],
-                payment_status: 'completed' as MusicRequest['payment_status']
-              }
-            ]);
-
-          if (requestError2) throw requestError2;
-        }
-        
-        console.log("Test data created successfully");
         await fetchRequests();
         await fetchUsers();
       } catch (error) {
-        console.error('Error creating test data:', error);
+        console.error("Error initializing data:", error);
+        setUsers(mockUsers);
+        setRequests(mockRequests);
       }
-    };
-
-    const initializeData = async () => {
-      if (isDevelopmentOrPreview()) {
-        await createTestData();
-      } else {
-        await fetchRequests();
-        await fetchUsers();
-      }
+      
       setIsLoading(false);
     };
 
@@ -210,6 +169,7 @@ const Admin = () => {
         description: "Não foi possível carregar a lista de pedidos",
         variant: "destructive",
       });
+      throw error;
     }
   };
   
@@ -227,6 +187,7 @@ const Admin = () => {
       }
     } catch (error) {
       console.error('Error fetching users:', error);
+      throw error;
     }
   };
 
@@ -402,12 +363,14 @@ const Admin = () => {
       if (status) updates.status = status as MusicRequest['status'];
       if (paymentStatus) updates.payment_status = paymentStatus;
       
-      const { error } = await supabase
-        .from('music_requests')
-        .update(updates)
-        .eq('id', requestId);
-        
-      if (error) throw error;
+      if (!isDevelopmentOrPreview()) {
+        const { error } = await supabase
+          .from('music_requests')
+          .update(updates)
+          .eq('id', requestId);
+          
+        if (error) throw error;
+      }
       
       const updatedRequests = requests.map(req => 
         req.id === requestId 
@@ -434,6 +397,11 @@ const Admin = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
+  };
+
+  const getUserName = (userId: string): string => {
+    const user = users.find(u => u.id === userId);
+    return user ? user.name : userId;
   };
 
   return (
@@ -474,7 +442,7 @@ const Admin = () => {
                       {requests.map((request) => (
                         <TableRow key={request.id}>
                           <TableCell className="font-mono">{request.id.substring(0, 8)}...</TableCell>
-                          <TableCell>{request.user_id}</TableCell>
+                          <TableCell>{getUserName(request.user_id)}</TableCell>
                           <TableCell>{request.honoree_name}</TableCell>
                           <TableCell>
                             <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -758,7 +726,7 @@ const Admin = () => {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <h3 className="text-sm font-medium">Cliente</h3>
-                <p className="p-2 bg-gray-50 rounded">{selectedRequest.user_id}</p>
+                <p className="p-2 bg-gray-50 rounded">{getUserName(selectedRequest.user_id)}</p>
               </div>
               
               <div className="space-y-2">

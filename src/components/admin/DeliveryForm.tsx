@@ -17,7 +17,7 @@ interface DeliveryFormProps {
   showDeliveryForm: boolean;
   setShowDeliveryForm: (show: boolean) => void;
   selectedRequest: MusicRequest | null;
-  handleSendEmail: () => void;
+  handleSendEmail: () => Promise<void>;
   getUserName: (userId: string) => string;
   getUserEmail: (userId: string) => string | undefined;
 }

@@ -29,13 +29,15 @@ interface RequestsManagementProps {
   users: UserProfile[];
   setRequests: (requests: MusicRequest[]) => void;
   isLoading: boolean;
+  getUserEmail: (userId: string) => string | undefined;
 }
 
 const RequestsManagement = ({ 
   requests, 
   users, 
   setRequests, 
-  isLoading 
+  isLoading,
+  getUserEmail
 }: RequestsManagementProps) => {
   const [selectedRequest, setSelectedRequest] = useState<MusicRequest | null>(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -275,6 +277,7 @@ const RequestsManagement = ({
         selectedRequest={selectedRequest}
         handleSendEmail={handleSendEmail}
         getUserName={getUserName}
+        getUserEmail={getUserEmail}
       />
     </>
   );

@@ -43,7 +43,7 @@ export async function sendEmail(options: EmailOptions) {
         text: text || 'Versão em texto não fornecida',
         cc,
         bcc,
-        reply_to: replyTo
+        replyTo
       });
       
       return {

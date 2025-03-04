@@ -74,17 +74,28 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState("requests");
   const navigate = useNavigate();
 
+  // Check admin authentication status
   useEffect(() => {
-    const isAdmin = localStorage.getItem("musicaperfeita_admin");
+    const checkAuth = async () => {
+      // Auto-login for development environment and Lovable preview
+      if (isDevelopmentOrPreview()) {
+        // Automatically authenticate as admin
+        localStorage.setItem("musicaperfeita_admin", "true");
+        toast({
+          title: "Acesso de desenvolvimento/preview",
+          description: "Autenticação automática como administrador em modo de desenvolvimento ou preview",
+        });
+        return; // Skip further authentication checks
+      }
+      
+      // For production: check for admin authentication
+      const isAdmin = localStorage.getItem("musicaperfeita_admin");
+      if (!isAdmin) {
+        navigate("/admin-login");
+      }
+    };
     
-    if (isDevelopmentOrPreview()) {
-      localStorage.setItem("musicaperfeita_admin", "true");
-      return;
-    }
-    
-    if (!isAdmin) {
-      navigate("/admin-login");
-    }
+    checkAuth();
   }, [navigate]);
 
   useEffect(() => {

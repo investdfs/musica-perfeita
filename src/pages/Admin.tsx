@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -9,8 +8,10 @@ import { MusicRequest, UserProfile } from "@/types/database.types";
 import { isDevelopmentOrPreview } from "@/lib/environment";
 import UserManagement from "@/components/admin/UserManagement";
 import RequestsManagement from "@/components/admin/RequestsManagement";
+import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
+import NotificationsPanel from "@/components/admin/NotificationsPanel";
+import RequestsFilters from "@/components/admin/RequestsFilters";
 
-// Mock data for development mode
 const mockUsers: UserProfile[] = [
   {
     id: "1",
@@ -72,23 +73,23 @@ const Admin = () => {
   const [requests, setRequests] = useState<MusicRequest[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [activeTab, setActiveTab] = useState("requests");
+  const [filteredRequests, setFilteredRequests] = useState<MusicRequest[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string | null>(null);
+  const [filterPaymentStatus, setFilterPaymentStatus] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Check admin authentication status
   useEffect(() => {
     const checkAuth = async () => {
-      // Auto-login for development environment and Lovable preview
       if (isDevelopmentOrPreview()) {
-        // Automatically authenticate as admin
         localStorage.setItem("musicaperfeita_admin", "true");
         toast({
           title: "Acesso de desenvolvimento/preview",
           description: "Autenticação automática como administrador em modo de desenvolvimento ou preview",
         });
-        return; // Skip further authentication checks
+        return;
       }
       
-      // For production: check for admin authentication
       const isAdmin = localStorage.getItem("musicaperfeita_admin");
       if (!isAdmin) {
         navigate("/admin-login");
@@ -103,6 +104,7 @@ const Admin = () => {
       if (isDevelopmentOrPreview()) {
         setUsers(mockUsers);
         setRequests(mockRequests);
+        setFilteredRequests(mockRequests);
         setIsLoading(false);
         return;
       }
@@ -114,6 +116,7 @@ const Admin = () => {
         console.error("Error initializing data:", error);
         setUsers(mockUsers);
         setRequests(mockRequests);
+        setFilteredRequests(mockRequests);
       }
       
       setIsLoading(false);
@@ -121,6 +124,31 @@ const Admin = () => {
 
     initializeData();
   }, []);
+
+  useEffect(() => {
+    if (requests.length === 0) return;
+    
+    let result = [...requests];
+    
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(request => {
+        const userName = users.find(u => u.id === request.user_id)?.name?.toLowerCase() || '';
+        const honoreeName = request.honoree_name?.toLowerCase() || '';
+        return userName.includes(query) || honoreeName.includes(query) || request.id.includes(query);
+      });
+    }
+    
+    if (filterStatus) {
+      result = result.filter(request => request.status === filterStatus);
+    }
+    
+    if (filterPaymentStatus) {
+      result = result.filter(request => request.payment_status === filterPaymentStatus);
+    }
+    
+    setFilteredRequests(result);
+  }, [requests, searchQuery, filterStatus, filterPaymentStatus, users]);
 
   const fetchRequests = async () => {
     try {
@@ -163,26 +191,64 @@ const Admin = () => {
     }
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  const handleFilterByStatus = (status: string | null) => {
+    setFilterStatus(status);
+  };
+
+  const handleFilterByPaymentStatus = (status: string | null) => {
+    setFilterPaymentStatus(status);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setFilterStatus(null);
+    setFilterPaymentStatus(null);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
       <Header />
       <main className="py-12 px-6">
         <div className="max-w-6xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8">Painel do Administrador</h1>
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-bold">Painel do Administrador</h1>
+            <NotificationsPanel />
+          </div>
           
           <Tabs defaultValue="requests" onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-2 mb-8">
+            <TabsList className="grid grid-cols-3 mb-8">
               <TabsTrigger value="requests">Pedidos de Música</TabsTrigger>
+              <TabsTrigger value="analytics">Análises</TabsTrigger>
               <TabsTrigger value="users">Gerenciar Clientes</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="requests" className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <RequestsManagement 
-                requests={requests} 
-                users={users}
-                setRequests={setRequests}
-                isLoading={isLoading}
-              />
+            <TabsContent value="requests" className="mb-8">
+              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                <RequestsFilters 
+                  onSearch={handleSearch} 
+                  onFilterByStatus={handleFilterByStatus}
+                  onFilterByPaymentStatus={handleFilterByPaymentStatus}
+                  onClearFilters={handleClearFilters}
+                  searchQuery={searchQuery}
+                  filterStatus={filterStatus}
+                  filterPaymentStatus={filterPaymentStatus}
+                />
+                
+                <RequestsManagement 
+                  requests={filteredRequests} 
+                  users={users}
+                  setRequests={setRequests}
+                  isLoading={isLoading}
+                />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="analytics" className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <AnalyticsDashboard requests={requests} users={users} />
             </TabsContent>
             
             <TabsContent value="users" className="bg-white rounded-lg shadow-md p-6 mb-8">

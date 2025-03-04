@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -60,28 +59,22 @@ const Admin = () => {
   const [activeTab, setActiveTab] = useState("requests");
   const navigate = useNavigate();
 
-  // Check authentication
   useEffect(() => {
     const isAdmin = localStorage.getItem("musicaperfeita_admin");
     
-    // Skip authentication check in development mode or preview
     if (isDevelopmentOrPreview()) {
-      // Auto-authenticate in development mode or preview
       localStorage.setItem("musicaperfeita_admin", "true");
       return;
     }
     
-    // Only redirect in production
     if (!isAdmin) {
       navigate("/admin-login");
     }
   }, [navigate]);
 
-  // Create test clients and orders
   useEffect(() => {
     const createTestData = async () => {
       try {
-        // Check if we already have test data
         const { data: existingData } = await supabase
           .from('user_profiles')
           .select('*')
@@ -89,10 +82,9 @@ const Admin = () => {
           .single();
 
         if (existingData) {
-          return; // Test data already exists
+          return;
         }
 
-        // Create test user 1
         const { data: testUser1, error: userError1 } = await supabase
           .from('user_profiles')
           .insert([
@@ -106,7 +98,6 @@ const Admin = () => {
 
         if (userError1) throw userError1;
 
-        // Create test user 2
         const { data: testUser2, error: userError2 } = await supabase
           .from('user_profiles')
           .insert([
@@ -121,7 +112,6 @@ const Admin = () => {
         if (userError2) throw userError2;
 
         if (testUser1 && testUser1.length > 0) {
-          // Create test request for user 1
           const { error: requestError1 } = await supabase
             .from('music_requests')
             .insert([
@@ -143,7 +133,6 @@ const Admin = () => {
         }
 
         if (testUser2 && testUser2.length > 0) {
-          // Create test request for user 2
           const { error: requestError2 } = await supabase
             .from('music_requests')
             .insert([
@@ -164,10 +153,8 @@ const Admin = () => {
           if (requestError2) throw requestError2;
         }
         
-        // After creating test data, refresh the lists
         await fetchRequests();
         await fetchUsers();
-        
       } catch (error) {
         console.error('Error creating test data:', error);
       }
@@ -178,7 +165,6 @@ const Admin = () => {
     }
   }, []);
 
-  // Fetch requests
   const fetchRequests = async () => {
     try {
       setIsLoading(true);
@@ -204,7 +190,6 @@ const Admin = () => {
     }
   };
   
-  // Fetch users
   const fetchUsers = async () => {
     try {
       const { data, error } = await supabase
@@ -222,11 +207,9 @@ const Admin = () => {
     }
   };
 
-  // Handle user form
   const handleUserFormSubmit = async () => {
     try {
       if (selectedUser) {
-        // Update existing user
         const { error } = await supabase
           .from('user_profiles')
           .update({
@@ -243,7 +226,6 @@ const Admin = () => {
           description: "As informações foram atualizadas com sucesso",
         });
       } else {
-        // Create new user
         const { error } = await supabase
           .from('user_profiles')
           .insert([{
@@ -260,7 +242,6 @@ const Admin = () => {
         });
       }
       
-      // Reset form and refetch users
       setNewUser({ name: "", email: "", whatsapp: "" });
       setSelectedUser(null);
       setShowUserForm(false);
@@ -276,7 +257,6 @@ const Admin = () => {
     }
   };
 
-  // Handle user actions
   const handleEditUser = (user: UserProfile) => {
     setSelectedUser(user);
     setNewUser({
@@ -289,7 +269,6 @@ const Admin = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      // Check if user has any requests
       const { data } = await supabase
         .from('music_requests')
         .select('id')
@@ -304,7 +283,6 @@ const Admin = () => {
         return;
       }
       
-      // Delete user
       const { error } = await supabase
         .from('user_profiles')
         .delete()
@@ -328,7 +306,6 @@ const Admin = () => {
     }
   };
 
-  // Music delivery functions
   const handleViewDetails = (request: MusicRequest) => {
     setSelectedRequest(request);
     setShowDetails(true);
@@ -346,16 +323,11 @@ const Admin = () => {
     setIsUploading(true);
     
     try {
-      // In a real application, we would upload to Supabase storage
-      // and create a full song and preview (1/3) version
-      
-      // Mock success for demo purposes
       toast({
         title: "Upload Simulado",
         description: "Em um ambiente real, o arquivo seria processado e enviado.",
       });
       
-      // Simulate updating the request status and URL
       const updatedRequests = requests.map(req => 
         req.id === selectedRequest.id 
           ? { ...req, status: 'completed' as MusicRequest['status'], preview_url: 'URL_SIMULADA' } 
@@ -404,7 +376,7 @@ const Admin = () => {
     try {
       const updates: { status?: MusicRequest['status'], payment_status?: MusicRequest['payment_status'] } = {};
       
-      if (status) updates.status = status;
+      if (status) updates.status = status as MusicRequest['status'];
       if (paymentStatus) updates.payment_status = paymentStatus;
       
       const { error } = await supabase
@@ -628,7 +600,6 @@ const Admin = () => {
         </div>
       </main>
       
-      {/* User Form Dialog */}
       <Dialog open={showUserForm} onOpenChange={setShowUserForm}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -679,7 +650,6 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Music Details Dialog */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
         <DialogContent className="max-w-3xl">
           <DialogHeader>
@@ -752,7 +722,6 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
       
-      {/* Music Delivery Dialog */}
       <Dialog open={showDeliveryForm} onOpenChange={setShowDeliveryForm}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>

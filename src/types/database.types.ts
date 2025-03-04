@@ -22,4 +22,5 @@ export type MusicRequest = {
   preview_url: string | null;
   full_song_url: string | null;
   payment_status: 'pending' | 'completed' | null;
+  cover_image_url?: string | null;
 };

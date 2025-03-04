@@ -3,7 +3,7 @@ import { useState } from "react";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Play, Info } from "lucide-react";
+import { Play, Pause, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import FormInfoDialog from "./FormInfoDialog";
 import { UseFormReturn } from "react-hook-form";
@@ -51,15 +51,24 @@ const StoryField = ({ form, audioExplanationUrl }: StoryFieldProps) => {
                       type="button" 
                       variant="ghost" 
                       size="icon" 
-                      className="h-8 w-8 rounded-full bg-purple-100 hover:bg-purple-200 text-purple-700"
+                      className={`h-8 w-8 rounded-full transition-all duration-300 
+                        ${isAudioPlaying 
+                          ? "bg-purple-200 hover:bg-purple-300 text-purple-900 scale-110" 
+                          : "bg-purple-100 hover:bg-purple-200 text-purple-700"}`}
                       onClick={toggleAudio}
                     >
-                      <Play className={`h-4 w-4 ${isAudioPlaying ? 'text-purple-900' : 'text-purple-700'}`} />
-                      <span className="sr-only">Ouvir explicação</span>
+                      {isAudioPlaying ? (
+                        <Pause className="h-4 w-4 animate-pulse" />
+                      ) : (
+                        <Play className="h-4 w-4" />
+                      )}
+                      <span className="sr-only">
+                        {isAudioPlaying ? "Pausar explicação" : "Ouvir explicação"}
+                      </span>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Ouça uma explicação sobre a importância deste campo</p>
+                    <p>{isAudioPlaying ? "Pausar explicação" : "Ouça uma explicação sobre a importância deste campo"}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>

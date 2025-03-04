@@ -46,14 +46,16 @@ const mockUsers: UserProfile[] = [
     created_at: new Date().toISOString(),
     name: "João Silva",
     email: "joao@teste.com",
-    whatsapp: "+5511999999991"
+    whatsapp: "+5511999999991",
+    password: "senha123"
   },
   {
     id: "2",
     created_at: new Date().toISOString(),
     name: "Maria Oliveira",
     email: "maria@teste.com",
-    whatsapp: "+5511999999992"
+    whatsapp: "+5511999999992",
+    password: "senha456"
   }
 ];
 
@@ -108,7 +110,8 @@ const Admin = () => {
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
-    whatsapp: ""
+    whatsapp: "",
+    password: ""
   });
   const [activeTab, setActiveTab] = useState("requests");
   const navigate = useNavigate();
@@ -199,7 +202,8 @@ const Admin = () => {
           .update({
             name: newUser.name,
             email: newUser.email,
-            whatsapp: newUser.whatsapp
+            whatsapp: newUser.whatsapp,
+            password: newUser.password
           })
           .eq('id', selectedUser.id);
           
@@ -215,7 +219,8 @@ const Admin = () => {
           .insert([{
             name: newUser.name,
             email: newUser.email,
-            whatsapp: newUser.whatsapp
+            whatsapp: newUser.whatsapp,
+            password: newUser.password
           }]);
           
         if (error) throw error;
@@ -226,7 +231,7 @@ const Admin = () => {
         });
       }
       
-      setNewUser({ name: "", email: "", whatsapp: "" });
+      setNewUser({ name: "", email: "", whatsapp: "", password: "" });
       setSelectedUser(null);
       setShowUserForm(false);
       
@@ -246,7 +251,8 @@ const Admin = () => {
     setNewUser({
       name: user.name,
       email: user.email,
-      whatsapp: user.whatsapp
+      whatsapp: user.whatsapp,
+      password: user.password
     });
     setShowUserForm(true);
   };
@@ -532,7 +538,7 @@ const Admin = () => {
                 <Button 
                   onClick={() => {
                     setSelectedUser(null);
-                    setNewUser({ name: "", email: "", whatsapp: "" });
+                    setNewUser({ name: "", email: "", whatsapp: "", password: "" });
                     setShowUserForm(true);
                   }}
                 >
@@ -550,6 +556,7 @@ const Admin = () => {
                       <TableRow>
                         <TableHead>Nome</TableHead>
                         <TableHead>Email</TableHead>
+                        <TableHead>Senha</TableHead>
                         <TableHead>WhatsApp</TableHead>
                         <TableHead>Data de Cadastro</TableHead>
                         <TableHead>Ações</TableHead>
@@ -560,6 +567,7 @@ const Admin = () => {
                         <TableRow key={user.id}>
                           <TableCell className="font-medium">{user.name}</TableCell>
                           <TableCell>{user.email}</TableCell>
+                          <TableCell>{user.password}</TableCell>
                           <TableCell>{user.whatsapp}</TableCell>
                           <TableCell>{formatDate(user.created_at)}</TableCell>
                           <TableCell>
@@ -617,6 +625,16 @@ const Admin = () => {
                 type="email"
                 value={newUser.email}
                 onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium">Senha</label>
+              <Input
+                id="password"
+                type="text"
+                value={newUser.password}
+                onChange={(e) => setNewUser({...newUser, password: e.target.value})}
               />
             </div>
             

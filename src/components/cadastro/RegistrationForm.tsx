@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import supabase from "@/lib/supabase";
 import { UserProfile } from "@/types/database.types";
+import { Eye, EyeOff } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
@@ -17,10 +18,12 @@ const formSchema = z.object({
   whatsapp: z.string().regex(/^\(\d{2}\) \d{5}-\d{4}$/, { 
     message: "WhatsApp deve estar no formato (XX) XXXXX-XXXX" 
   }),
+  password: z.string().min(6, { message: "Senha deve ter pelo menos 6 caracteres" }),
 });
 
 const RegistrationForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -29,6 +32,7 @@ const RegistrationForm = () => {
       name: "",
       email: "",
       whatsapp: "",
+      password: "",
     },
   });
 
@@ -82,6 +86,11 @@ const RegistrationForm = () => {
     }
   };
 
+  // Toggle password visibility
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
     <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Crie sua conta</h2>
@@ -128,6 +137,37 @@ const RegistrationForm = () => {
                     {...field}
                     onChange={handleWhatsAppChange}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Senha</FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input 
+                      type={showPassword ? "text" : "password"} 
+                      placeholder="Senha" 
+                      {...field} 
+                    />
+                    <button 
+                      type="button"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -5,7 +5,8 @@ CREATE TABLE public.user_profiles (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
-  whatsapp TEXT NOT NULL
+  whatsapp TEXT NOT NULL,
+  password TEXT NOT NULL
 );
 
 -- Create music_requests table

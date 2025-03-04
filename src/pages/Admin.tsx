@@ -77,9 +77,9 @@ const Admin = () => {
     }
   }, [navigate]);
 
-  // Create test order
+  // Create test clients and orders
   useEffect(() => {
-    const createTestOrder = async () => {
+    const createTestData = async () => {
       try {
         // Check if we already have test data
         const { data: existingData } = await supabase
@@ -92,102 +92,135 @@ const Admin = () => {
           return; // Test data already exists
         }
 
-        // Create test user
-        const { data: testUser, error: userError } = await supabase
+        // Create test user 1
+        const { data: testUser1, error: userError1 } = await supabase
           .from('user_profiles')
           .insert([
             {
-              name: 'Cliente Teste',
-              email: 'teste@musicaperfeita.com',
-              whatsapp: '+5511999999999'
+              name: 'João Silva',
+              email: 'joao@teste.com',
+              whatsapp: '+5511999999991'
             }
           ])
           .select();
 
-        if (userError) throw userError;
+        if (userError1) throw userError1;
 
-        if (testUser && testUser.length > 0) {
-          // Create test request
-          const { error: requestError } = await supabase
+        // Create test user 2
+        const { data: testUser2, error: userError2 } = await supabase
+          .from('user_profiles')
+          .insert([
+            {
+              name: 'Maria Oliveira',
+              email: 'maria@teste.com',
+              whatsapp: '+5511999999992'
+            }
+          ])
+          .select();
+
+        if (userError2) throw userError2;
+
+        if (testUser1 && testUser1.length > 0) {
+          // Create test request for user 1
+          const { error: requestError1 } = await supabase
             .from('music_requests')
             .insert([
               {
-                user_id: testUser[0].id,
-                honoree_name: 'Maria da Silva',
+                user_id: testUser1[0].id,
+                honoree_name: 'Ana Pereira',
                 relationship_type: 'esposa',
                 custom_relationship: null,
                 music_genre: 'romantic',
                 include_names: true,
-                names_to_include: 'João e Maria',
-                story: 'Esta é uma história de teste para o sistema. Estamos criando um pedido de música personalizada para testar todas as funcionalidades do painel administrativo.',
+                names_to_include: 'João e Ana',
+                story: 'Esta é uma história de teste para o sistema. João quer uma música romântica para sua esposa Ana que está completando 10 anos de casamento.',
                 status: 'pending',
                 payment_status: 'pending'
               }
             ]);
 
-          if (requestError) throw requestError;
+          if (requestError1) throw requestError1;
         }
+
+        if (testUser2 && testUser2.length > 0) {
+          // Create test request for user 2
+          const { error: requestError2 } = await supabase
+            .from('music_requests')
+            .insert([
+              {
+                user_id: testUser2[0].id,
+                honoree_name: 'Pedro Santos',
+                relationship_type: 'friend',
+                custom_relationship: null,
+                music_genre: 'rock',
+                include_names: false,
+                names_to_include: null,
+                story: 'Pedro é meu melhor amigo desde a escola. Sempre gostamos de rock e queremos compartilhar momentos especiais com uma música personalizada sobre nossa amizade.',
+                status: 'in_production',
+                payment_status: 'completed'
+              }
+            ]);
+
+          if (requestError2) throw requestError2;
+        }
+        
+        // After creating test data, refresh the lists
+        await fetchRequests();
+        await fetchUsers();
+        
       } catch (error) {
         console.error('Error creating test data:', error);
       }
     };
 
     if (isDevelopmentOrPreview()) {
-      createTestOrder();
+      createTestData();
     }
   }, []);
 
   // Fetch requests
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        setIsLoading(true);
-        const { data, error } = await supabase
-          .from('music_requests')
-          .select('*')
-          .order('created_at', { ascending: false });
-          
-        if (error) throw error;
+  const fetchRequests = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('music_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
         
-        if (data) {
-          setRequests(data);
-        }
-      } catch (error) {
-        console.error('Error fetching requests:', error);
-        toast({
-          title: "Erro ao carregar pedidos",
-          description: "Não foi possível carregar a lista de pedidos",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
+      if (error) throw error;
+      
+      if (data) {
+        setRequests(data as MusicRequest[]);
       }
-    };
-    
-    fetchRequests();
-  }, []);
-
+    } catch (error) {
+      console.error('Error fetching requests:', error);
+      toast({
+        title: "Erro ao carregar pedidos",
+        description: "Não foi possível carregar a lista de pedidos",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   // Fetch users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .order('name', { ascending: true });
-          
-        if (error) throw error;
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .order('name', { ascending: true });
         
-        if (data) {
-          setUsers(data);
-        }
-      } catch (error) {
-        console.error('Error fetching users:', error);
+      if (error) throw error;
+      
+      if (data) {
+        setUsers(data as UserProfile[]);
       }
-    };
-    
-    fetchUsers();
-  }, []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
 
   // Handle user form
   const handleUserFormSubmit = async () => {
@@ -232,14 +265,7 @@ const Admin = () => {
       setSelectedUser(null);
       setShowUserForm(false);
       
-      const { data } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .order('name', { ascending: true });
-        
-      if (data) {
-        setUsers(data);
-      }
+      await fetchUsers();
     } catch (error) {
       console.error('Error managing user:', error);
       toast({
@@ -291,15 +317,7 @@ const Admin = () => {
         description: "Cliente excluído com sucesso",
       });
       
-      // Refetch users
-      const { data: users } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .order('name', { ascending: true });
-        
-      if (users) {
-        setUsers(users);
-      }
+      await fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
       toast({
@@ -340,7 +358,7 @@ const Admin = () => {
       // Simulate updating the request status and URL
       const updatedRequests = requests.map(req => 
         req.id === selectedRequest.id 
-          ? { ...req, status: 'completed' as const, preview_url: 'URL_SIMULADA' } 
+          ? { ...req, status: 'completed' as MusicRequest['status'], preview_url: 'URL_SIMULADA' } 
           : req
       );
       
@@ -382,9 +400,9 @@ const Admin = () => {
     }
   };
 
-  const handleUpdateStatus = async (requestId: string, status: MusicRequest['status'], paymentStatus?: MusicRequest['payment_status']) => {
+  const handleUpdateStatus = async (requestId: string, status?: MusicRequest['status'], paymentStatus?: MusicRequest['payment_status']) => {
     try {
-      const updates: { status?: string, payment_status?: string } = {};
+      const updates: { status?: MusicRequest['status'], payment_status?: MusicRequest['payment_status'] } = {};
       
       if (status) updates.status = status;
       if (paymentStatus) updates.payment_status = paymentStatus;

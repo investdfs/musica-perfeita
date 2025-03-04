@@ -43,7 +43,7 @@ interface MusicRequestFormProps {
   onRequestSubmitted: (newRequest: any) => void;
 }
 
-const audioExplanationUrl = "https://example.com/audio-explanation.mp3";
+const audioExplanationUrl = "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/ElevenLabs_2025-03-04T15_03_46_ScheilaSMTy_pvc_s86_sb98_se25_b_m2.mp3";
 
 const MusicRequestForm = ({ userProfile, onRequestSubmitted }: MusicRequestFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);

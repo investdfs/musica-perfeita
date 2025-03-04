@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -75,16 +76,29 @@ const Admin = () => {
   useEffect(() => {
     const createTestData = async () => {
       try {
-        const { data: existingData } = await supabase
+        // Clear existing test data
+        const { data: existingUsers } = await supabase
           .from('user_profiles')
-          .select('*')
-          .eq('email', 'teste@musicaperfeita.com')
-          .single();
+          .select('id')
+          .or('email.eq.joao@teste.com,email.eq.maria@teste.com');
 
-        if (existingData) {
-          return;
+        if (existingUsers && existingUsers.length > 0) {
+          for (const user of existingUsers) {
+            // Delete any existing music requests for these users
+            await supabase
+              .from('music_requests')
+              .delete()
+              .eq('user_id', user.id);
+          }
+          
+          // Delete the test users
+          await supabase
+            .from('user_profiles')
+            .delete()
+            .in('id', existingUsers.map(u => u.id));
         }
 
+        // Create first test user
         const { data: testUser1, error: userError1 } = await supabase
           .from('user_profiles')
           .insert([
@@ -98,6 +112,7 @@ const Admin = () => {
 
         if (userError1) throw userError1;
 
+        // Create second test user
         const { data: testUser2, error: userError2 } = await supabase
           .from('user_profiles')
           .insert([
@@ -111,6 +126,7 @@ const Admin = () => {
 
         if (userError2) throw userError2;
 
+        // Create music request for the first user
         if (testUser1 && testUser1.length > 0) {
           const { error: requestError1 } = await supabase
             .from('music_requests')
@@ -124,14 +140,15 @@ const Admin = () => {
                 include_names: true,
                 names_to_include: 'João e Ana',
                 story: 'Esta é uma história de teste para o sistema. João quer uma música romântica para sua esposa Ana que está completando 10 anos de casamento.',
-                status: 'pending',
-                payment_status: 'pending'
+                status: 'pending' as MusicRequest['status'],
+                payment_status: 'completed' as MusicRequest['payment_status']
               }
             ]);
 
           if (requestError1) throw requestError1;
         }
 
+        // Create music request for the second user
         if (testUser2 && testUser2.length > 0) {
           const { error: requestError2 } = await supabase
             .from('music_requests')
@@ -145,14 +162,15 @@ const Admin = () => {
                 include_names: false,
                 names_to_include: null,
                 story: 'Pedro é meu melhor amigo desde a escola. Sempre gostamos de rock e queremos compartilhar momentos especiais com uma música personalizada sobre nossa amizade.',
-                status: 'in_production',
-                payment_status: 'completed'
+                status: 'in_production' as MusicRequest['status'],
+                payment_status: 'completed' as MusicRequest['payment_status']
               }
             ]);
 
           if (requestError2) throw requestError2;
         }
         
+        console.log("Test data created successfully");
         await fetchRequests();
         await fetchUsers();
       } catch (error) {
@@ -160,14 +178,21 @@ const Admin = () => {
       }
     };
 
-    if (isDevelopmentOrPreview()) {
-      createTestData();
-    }
+    const initializeData = async () => {
+      if (isDevelopmentOrPreview()) {
+        await createTestData();
+      } else {
+        await fetchRequests();
+        await fetchUsers();
+      }
+      setIsLoading(false);
+    };
+
+    initializeData();
   }, []);
 
   const fetchRequests = async () => {
     try {
-      setIsLoading(true);
       const { data, error } = await supabase
         .from('music_requests')
         .select('*')
@@ -185,8 +210,6 @@ const Admin = () => {
         description: "Não foi possível carregar a lista de pedidos",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
   

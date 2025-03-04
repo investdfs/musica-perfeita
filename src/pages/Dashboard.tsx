@@ -99,6 +99,10 @@ const Dashboard = () => {
     setCurrentProgress(33); // Set to first stage
   };
 
+  // Check if the latest request is completed and has a preview URL
+  const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';
+  const hasPreviewUrl = userRequests.length > 0 && userRequests[0].preview_url;
+
   return (
     <div className="min-h-screen bg-gradient-to-tr from-purple-50 via-pink-50 to-white">
       <Header />
@@ -112,8 +116,12 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} />
           
-          {userRequests.length > 0 && userRequests[0].preview_url && (
-            <MusicPreviewPlayer previewUrl={userRequests[0].preview_url} />
+          {hasPreviewUrl && (
+            <MusicPreviewPlayer 
+              previewUrl={userRequests[0].preview_url || ''} 
+              fullSongUrl={userRequests[0].full_song_url}
+              isCompleted={hasCompletedRequest}
+            />
           )}
           
           {userProfile && (

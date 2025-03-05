@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,15 +13,11 @@ import { UserProfile } from "@/types/database.types";
 import { Eye, EyeOff } from "lucide-react";
 
 const formSchema = z.object({
-  name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
   email: z.string().email({ message: "Email inválido" }),
-  whatsapp: z.string().regex(/^\(\d{2}\) \d{5}-\d{4}$/, { 
-    message: "WhatsApp deve estar no formato (XX) XXXXX-XXXX" 
-  }),
   password: z.string().min(6, { message: "Senha deve ter pelo menos 6 caracteres" }),
 });
 
-const RegistrationForm = () => {
+const LoginForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -28,9 +25,7 @@ const RegistrationForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
       email: "",
-      whatsapp: "",
       password: "",
     },
   });
@@ -39,29 +34,39 @@ const RegistrationForm = () => {
     setIsSubmitting(true);
     
     try {
+      // Fetch user from Supabase
       const { data, error } = await supabase
         .from('user_profiles')
-        .insert([values])
-        .select();
+        .select()
+        .eq('email', values.email)
+        .eq('password', values.password)
+        .single();
         
       if (error) throw error;
       
-      if (data && data.length > 0) {
-        const userProfile: UserProfile = data[0];
+      if (data) {
+        // Store in localStorage with proper typing
+        const userProfile: UserProfile = data;
         localStorage.setItem("musicaperfeita_user", JSON.stringify(userProfile));
         
         toast({
-          title: "Conta criada com sucesso!",
-          description: "Bem-vindo ao Musicaperfeita!",
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo de volta ao Musicaperfeita!",
         });
         
         navigate("/dashboard");
+      } else {
+        toast({
+          title: "Credenciais inválidas",
+          description: "Email ou senha incorretos. Por favor, tente novamente.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.error('Error creating user:', error);
+      console.error('Error logging in:', error);
       toast({
-        title: "Erro ao criar conta",
-        description: "Ocorreu um erro ao criar sua conta. Tente novamente.",
+        title: "Erro ao fazer login",
+        description: "Ocorreu um erro ao tentar fazer login. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -69,43 +74,18 @@ const RegistrationForm = () => {
     }
   };
 
-  const handleWhatsAppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, "");
-    if (value.length <= 11) {
-      if (value.length > 2) {
-        value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
-      }
-      if (value.length > 10) {
-        value = `${value.substring(0, 10)}-${value.substring(10)}`;
-      }
-      form.setValue("whatsapp", value);
-    }
-  };
-
+  // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Crie sua conta</h2>
+    <div className="w-full max-w-md">
+      <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">Bem-vindo de volta</h2>
+      <p className="text-gray-600 mb-8">Entre com suas credenciais para acessar sua conta</p>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nome</FormLabel>
-                <FormControl>
-                  <Input placeholder="Seu nome completo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
           <FormField
             control={form.control}
             name="email"
@@ -122,24 +102,6 @@ const RegistrationForm = () => {
           
           <FormField
             control={form.control}
-            name="whatsapp"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>WhatsApp</FormLabel>
-                <FormControl>
-                  <Input 
-                    placeholder="(XX) XXXXX-XXXX" 
-                    {...field}
-                    onChange={handleWhatsAppChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
             name="password"
             render={({ field }) => (
               <FormItem>
@@ -148,7 +110,7 @@ const RegistrationForm = () => {
                   <div className="relative">
                     <Input 
                       type={showPassword ? "text" : "password"} 
-                      placeholder="Senha" 
+                      placeholder="Sua senha" 
                       {...field} 
                     />
                     <button 
@@ -170,24 +132,21 @@ const RegistrationForm = () => {
           />
           
           <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-600" disabled={isSubmitting}>
-            {isSubmitting ? "Criando conta..." : "Criar Minha Conta"}
+            {isSubmitting ? "Entrando..." : "Entrar"}
           </Button>
         </form>
       </Form>
       
       <div className="mt-6">
         <p className="text-center text-sm text-gray-600">
-          Já tem uma conta?{" "}
-          <a href="/login" className="font-medium text-pink-500 hover:text-pink-600">
-            Faça login
+          Ainda não tem uma conta?{" "}
+          <a href="/cadastro" className="font-medium text-pink-500 hover:text-pink-600">
+            Cadastre-se
           </a>
-        </p>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Não pedimos cartão de crédito. Cadastre-se grátis e comece agora!
         </p>
       </div>
     </div>
   );
 };
 
-export default RegistrationForm;
+export default LoginForm;

@@ -1,5 +1,5 @@
 
-import { Home, UserPlus, Info } from "lucide-react";
+import { Home, UserPlus, Info, LogIn } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -34,6 +34,18 @@ const Navigation = ({ className }: { className?: string }) => {
       >
         <UserPlus className="h-4 w-4" />
         <span>Cadastro</span>
+      </Link>
+      <Link 
+        to="/login" 
+        className={cn(
+          "flex items-center gap-1 transition-colors",
+          isActive("/login") 
+            ? "text-primary font-medium" 
+            : "hover:text-primary/80"
+        )}
+      >
+        <LogIn className="h-4 w-4" />
+        <span>Login</span>
       </Link>
       <Link 
         to="/sobre" 

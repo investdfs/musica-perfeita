@@ -51,6 +51,7 @@ const AdminLogin = () => {
 
   const onSubmit = async (values: AdminLoginValues) => {
     setIsSubmitting(true);
+    console.log('Tentando login com:', values);
     
     try {
       const { data, error } = await supabase
@@ -58,10 +59,11 @@ const AdminLogin = () => {
         .select('*')
         .eq('email', values.email)
         .eq('password', values.password)
-        .eq('is_admin', true)
-        .single();
+        .eq('is_admin', true);
 
-      if (error || !data) {
+      console.log('Resultado da consulta:', data, error);
+
+      if (error || !data || data.length === 0) {
         toast({
           title: "Credenciais inválidas",
           description: "Email ou senha incorretos, ou você não tem permissões de administrador",
@@ -144,7 +146,7 @@ const AdminLogin = () => {
                 Administrador principal:
               </p>
               <p className="text-gray-600">
-                Email: contato@musicaperfeita@gmail.com
+                Email: contato@musicaperfeita.com
               </p>
               <p className="text-gray-600">
                 Senha: 212300Lr@

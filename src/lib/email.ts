@@ -86,6 +86,36 @@ export async function sendEmail(options: EmailOptions) {
 }
 
 /**
+ * Test function to check if Resend integration is working
+ */
+export async function testEmailIntegration(testEmail: string) {
+  try {
+    const template = emailTemplates.welcome("Usuário Teste");
+    
+    const result = await sendEmail({
+      to: testEmail,
+      subject: template.subject,
+      html: template.html
+    });
+    
+    return {
+      ...result,
+      resendApiKey: RESEND_API_KEY.substring(0, 8) + '...',
+      isDevelopment: isDevelopmentOrPreview()
+    };
+  } catch (error) {
+    console.error('Error testing email integration:', error);
+    return {
+      success: false,
+      error,
+      message: 'Failed to test email integration',
+      resendApiKey: RESEND_API_KEY.substring(0, 8) + '...',
+      isDevelopment: isDevelopmentOrPreview()
+    };
+  }
+}
+
+/**
  * Common email layout wrapper
  */
 const emailLayout = (content: string) => `
@@ -176,6 +206,8 @@ const emailLayout = (content: string) => `
       <div class="footer">
         <p>© ${new Date().getFullYear()} Música Perfeita. Todos os direitos reservados.</p>
         <p>Esta é uma mensagem automática, por favor não responda.</p>
+        <p>Email para contato: <a href="mailto:contato.musicaperfeita@gmail.com">contato.musicaperfeita@gmail.com</a></p>
+        <p>WhatsApp: (32) 998847713 (somente WhatsApp)</p>
       </div>
     </div>
   </body>
@@ -186,6 +218,37 @@ const emailLayout = (content: string) => `
  * Pre-defined email templates
  */
 export const emailTemplates = {
+  // Welcome email template
+  welcome: (userName: string) => {
+    const content = `
+      <h2>Bem-vindo à Música Perfeita!</h2>
+      <p>Olá <span class="highlight">${userName}</span>,</p>
+      <p>Estamos muito felizes em ter você conosco na Música Perfeita!</p>
+      
+      <p>Aqui você poderá transformar seus sentimentos em melodias personalizadas e criar presentes inesquecíveis para pessoas especiais.</p>
+      
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="https://musicaperfeita.com/dashboard" class="button">
+          Criar Minha Primeira Música
+        </a>
+      </div>
+      
+      <div class="note">
+        <p><strong>Dica:</strong> Pense em detalhes, memórias e sentimentos significativos para incluir no seu pedido. Quanto mais informações você nos fornecer, mais especial será a música!</p>
+      </div>
+      
+      <div class="divider"></div>
+      
+      <p>Se tiver alguma dúvida, estamos sempre à disposição para ajudar.</p>
+      <p>Obrigado por escolher a <span class="highlight">Música Perfeita</span> para transformar seus sentimentos em música!</p>
+    `;
+    
+    return {
+      subject: `Bem-vindo à Música Perfeita!`,
+      html: emailLayout(content)
+    };
+  },
+  
   // Template for new request notification
   newRequest: (userName: string, requestId: string) => {
     const content = `

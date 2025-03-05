@@ -5,30 +5,42 @@ import Footer from "@/components/Footer";
 
 const Cadastro = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white">
+    <div className="min-h-screen bg-white">
       <Header />
-      <main className="py-16 px-6">
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-center mb-10 bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">
-            Cadastre-se para Começar
-          </h1>
-          
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-10">
-              <p className="text-lg text-gray-700">
-                Transforme seus sentimentos em melodia com apenas alguns passos.
-                Crie sua conta gratuitamente e comece a jornada musical!
-              </p>
-              <p className="mt-4 text-sm text-gray-600">
-                Ao criar uma conta, você receberá um email de boas-vindas e terá acesso 
-                ao nosso painel para solicitar músicas personalizadas.
-              </p>
-            </div>
+      
+      <main className="grid grid-cols-1 md:grid-cols-2 min-h-[calc(100vh-64px)]">
+        {/* Lado esquerdo - Formulário de Cadastro */}
+        <div className="flex items-center justify-center p-8 md:p-12 bg-gradient-to-b from-gray-50 to-white">
+          <div className="max-w-md w-full">
+            <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">
+              Cadastre-se para Começar
+            </h1>
+            <p className="text-gray-600 mb-8">
+              Transforme seus sentimentos em melodia com apenas alguns passos.
+              Crie sua conta gratuitamente!
+            </p>
             
             <RegistrationForm />
           </div>
         </div>
+        
+        {/* Lado direito - Imagem */}
+        <div className="hidden md:block relative bg-gray-900">
+          <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-yellow-500/20 mix-blend-overlay z-10"></div>
+          <img 
+            src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-vibrant-and-emotional-image-of-a-daugh_J7ITx4AISfmXcxt8o0phKg_K4Lq53NqRHqCT0q4LHF0qQ.jpeg" 
+            alt="Pessoa emocionada ouvindo música" 
+            className="object-cover h-full w-full opacity-70"
+          />
+          <div className="absolute bottom-0 left-0 right-0 p-8 text-white z-20">
+            <h2 className="text-3xl font-bold mb-2">A emoção da música perfeita</h2>
+            <p className="text-white/80">
+              Músicas exclusivas para momentos especiais e emocionantes
+            </p>
+          </div>
+        </div>
       </main>
+      
       <Footer />
     </div>
   );

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,7 +40,6 @@ const RegistrationForm = () => {
     setIsSubmitting(true);
     
     try {
-      // Primeiro, registra o usuário no Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
@@ -64,26 +62,23 @@ const RegistrationForm = () => {
       
       console.log('Usuário criado com sucesso na autenticação', authData.user.id);
       
-      // Depois salva os detalhes adicionais do usuário na tabela user_profiles
       const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
         .insert([{
-          id: authData.user.id, // Vincula ao ID do usuário na autenticação
+          id: authData.user.id,
           name: values.name,
           email: values.email,
           whatsapp: values.whatsapp,
-          password: "" // Não armazena a senha no perfil, pois já está na autenticação
+          password: ""
         }])
         .select();
         
       if (profileError) {
         console.error('Erro ao criar perfil de usuário:', profileError);
-        // Tenta continuar mesmo se a criação do perfil falhar
       } else {
         console.log('Perfil de usuário criado com sucesso');
       }
       
-      // Armazena o perfil do usuário no localStorage
       const userProfile: UserProfile = profileData?.[0] || {
         id: authData.user.id,
         created_at: new Date().toISOString(),
@@ -96,19 +91,13 @@ const RegistrationForm = () => {
       localStorage.setItem("musicaperfeita_user", JSON.stringify(userProfile));
       console.log('Perfil salvo no localStorage');
       
-      // Envia email de boas-vindas
-      try {
-        const emailTemplate = emailTemplates.welcome(values.name);
-        await sendEmail({
-          to: values.email,
-          subject: emailTemplate.subject,
-          html: emailTemplate.html
-        });
-        console.log('Email de boas-vindas enviado com sucesso');
-      } catch (emailError) {
-        console.error('Erro ao enviar email de boas-vindas:', emailError);
-        // Continua mesmo se o envio de email falhar
-      }
+      const emailTemplate = emailTemplates.welcome(values.name);
+      await sendEmail({
+        to: values.email,
+        subject: emailTemplate.subject,
+        html: emailTemplate.html
+      });
+      console.log('Email de boas-vindas enviado com sucesso');
       
       toast({
         title: "Conta criada com sucesso!",
@@ -120,7 +109,6 @@ const RegistrationForm = () => {
       console.error('Erro ao criar usuário:', error);
       let errorMessage = "Ocorreu um erro ao criar sua conta. Tente novamente.";
       
-      // Verifica se é um erro específico do Supabase
       if (typeof error === 'object' && error !== null && 'message' in error) {
         const supabaseError = error as { message: string };
         if (supabaseError.message.includes('already registered')) {
@@ -156,9 +144,7 @@ const RegistrationForm = () => {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Crie sua conta</h2>
-      
+    <div className="w-full">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -250,9 +236,6 @@ const RegistrationForm = () => {
           <a href="/login" className="font-medium text-pink-500 hover:text-pink-600">
             Faça login
           </a>
-        </p>
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Não pedimos cartão de crédito. Cadastre-se grátis e comece agora!
         </p>
       </div>
     </div>

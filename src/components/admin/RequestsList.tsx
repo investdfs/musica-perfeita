@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MusicRequest } from "@/types/database.types";
-import { Send, Upload } from "lucide-react";
+import { Send, Upload, Download } from "lucide-react";
 
 interface RequestsListProps {
   requests: MusicRequest[];
@@ -27,6 +27,7 @@ interface RequestsListProps {
   onUpdateStatus: (requestId: string, status?: MusicRequest['status'], paymentStatus?: MusicRequest['payment_status']) => void;
   onFileUpload: (e: React.ChangeEvent<HTMLInputElement>, request: MusicRequest) => void;
   onDeliverMusic: (request: MusicRequest) => void;
+  onDownloadFile?: (request: MusicRequest) => void;
   isUploading: boolean;
   selectedRequestId: string | null;
 }
@@ -39,6 +40,7 @@ const RequestsList = ({
   onUpdateStatus, 
   onFileUpload, 
   onDeliverMusic,
+  onDownloadFile,
   isUploading,
   selectedRequestId
 }: RequestsListProps) => {
@@ -163,14 +165,27 @@ const RequestsList = ({
                       </div>
                       
                       {request.status === 'completed' && (
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => onDeliverMusic(request)}
-                        >
-                          <Send className="w-4 h-4 mr-1" />
-                          Entregar
-                        </Button>
+                        <>
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => onDeliverMusic(request)}
+                          >
+                            <Send className="w-4 h-4 mr-1" />
+                            Entregar
+                          </Button>
+                          
+                          {onDownloadFile && request.full_song_url && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onDownloadFile(request)}
+                            >
+                              <Download className="w-4 h-4 mr-1" />
+                              Download
+                            </Button>
+                          )}
+                        </>
                       )}
                     </div>
                   </TableCell>

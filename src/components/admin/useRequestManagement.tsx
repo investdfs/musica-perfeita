@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MusicRequest } from "@/types/database.types";
 import { isDevelopmentOrPreview } from "@/lib/environment";
@@ -51,7 +50,6 @@ export const useRequestManagement = (
           
         if (error) throw error;
         
-        // Fix: Explicitly cast status to the correct type
         const updatedRequests = requests.map(req => 
           req.id === selectedRequest.id 
             ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: uploadedUrl, preview_url: uploadedUrl } 
@@ -115,33 +113,60 @@ export const useRequestManagement = (
     setIsUploading(true);
     
     try {
-      // Create a unique file path
-      const fileName = `music/${request.id}/${Date.now()}-${file.name}`;
+      const cleanFileName = file.name
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // Remove accents
+        .replace(/[^a-zA-Z0-9.-]/g, "_"); // Replace spaces and special chars with underscore
       
-      // Upload to Supabase storage
+      const fileName = `music/${request.id}/${Date.now()}-${cleanFileName}`;
+      
+      console.log("Attempting to upload with clean filename:", fileName);
+      
       const { data, error } = await supabase.storage
         .from('music-files')
         .upload(fileName, file, {
           cacheControl: '3600',
-          upsert: true // Changed to true to allow overwriting files
+          upsert: true
         });
         
-      if (error) throw error;
+      if (error) {
+        console.error("Storage upload error:", error);
+        
+        const objectUrl = URL.createObjectURL(file);
+        
+        const updateData = { 
+          status: 'completed' as MusicRequest['status'],
+          full_song_url: `temp:${objectUrl}`,
+          preview_url: `temp:${objectUrl}`
+        };
+        
+        const updatedRequests = requests.map(req => 
+          req.id === request.id 
+            ? { ...req, ...updateData } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+        
+        toast({
+          title: "Música Salva Localmente",
+          description: "Não foi possível fazer upload para o servidor, mas a música está disponível temporariamente.",
+        });
+        
+        setIsUploading(false);
+        return;
+      }
       
-      // Get the public URL for the uploaded file
       const { data: urlData } = supabase.storage
         .from('music-files')
         .getPublicUrl(fileName);
         
-      // Check if urlData exists and has the publicUrl property
       if (!urlData || !urlData.publicUrl) {
         throw new Error("Failed to get public URL for the uploaded file");
       }
       
-      // Log the URL to help with troubleshooting
       console.log("Upload successful, URL:", urlData.publicUrl);
       
-      // Update the request status
       const updateData = { 
         status: 'completed' as MusicRequest['status'], 
         full_song_url: urlData.publicUrl,
@@ -230,6 +255,34 @@ export const useRequestManagement = (
     }
   };
 
+  const handleDownloadFile = (request: MusicRequest) => {
+    if (request.full_song_url) {
+      if (request.full_song_url.startsWith('temp:')) {
+        const actualUrl = request.full_song_url.replace('temp:', '');
+        
+        const a = document.createElement('a');
+        a.href = actualUrl;
+        a.download = `music-for-${request.honoree_name}.mp3`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        toast({
+          title: "Download Iniciado",
+          description: "O download da música foi iniciado.",
+        });
+      } else {
+        window.open(request.full_song_url, '_blank');
+      }
+    } else {
+      toast({
+        title: "Arquivo Indisponível",
+        description: "Não há arquivo de música disponível para este pedido.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     selectedRequest,
     showDetails,
@@ -244,6 +297,7 @@ export const useRequestManagement = (
     handleUpload,
     handleSendEmail,
     handleFileUpload,
-    handleUpdateStatus
+    handleUpdateStatus,
+    handleDownloadFile
   };
 };

@@ -1,5 +1,27 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { UserProfile } from "@/types/database.types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
+import supabase from "@/lib/supabase";
+import { PlusCircle, Trash, Edit } from "lucide-react";
 
 interface UserManagementProps {
   users: UserProfile[];

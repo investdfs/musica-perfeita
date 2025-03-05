@@ -101,13 +101,51 @@ const PossibilitiesSection = () => {
         </div>
 
         <div className="mt-12 text-center">
-          <p className="text-xl text-purple-800 font-medium mb-8">Eternize seus sentimentos em melodias únicas</p>
-          <div className="max-w-4xl mx-auto h-[300px] bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg flex items-center justify-center overflow-hidden shadow-md">
-            <img 
-              src="/lovable-uploads/efa43e31-1060-4bd1-bbb2-706856632d39.png" 
-              alt="Deixe que a magia da música personalize suas emoções e momentos"
-              className="max-w-full max-h-full object-contain"
-            />
+          <p className="text-xl text-purple-800 font-medium mb-8">Mais ocasiões para eternizar com música</p>
+          <div className="max-w-4xl mx-auto bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 shadow-md">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-purple-600 p-2 rounded-full">
+                  <Gift className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-medium text-purple-800">Bodas de Casamento</span>
+              </div>
+              
+              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-purple-600 p-2 rounded-full">
+                  <Leaf className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-medium text-purple-800">Formatura</span>
+              </div>
+              
+              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-purple-600 p-2 rounded-full">
+                  <Sparkles className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-medium text-purple-800">Pedido de Namoro</span>
+              </div>
+              
+              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-purple-600 p-2 rounded-full">
+                  <Heart className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-medium text-purple-800">Pedido de Noivado</span>
+              </div>
+              
+              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-purple-600 p-2 rounded-full">
+                  <Music className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-medium text-purple-800">Jubileu</span>
+              </div>
+              
+              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-purple-600 p-2 rounded-full">
+                  <Cake className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-medium text-purple-800">Bodas de Ouro</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

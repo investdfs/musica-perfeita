@@ -9,7 +9,95 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      music_requests: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string | null
+          custom_relationship: string | null
+          full_song_url: string | null
+          honoree_name: string
+          id: string
+          include_names: boolean
+          music_genre: string
+          names_to_include: string | null
+          payment_status: string | null
+          preview_url: string | null
+          relationship_type: string
+          status: string
+          story: string
+          user_id: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          custom_relationship?: string | null
+          full_song_url?: string | null
+          honoree_name: string
+          id?: string
+          include_names?: boolean
+          music_genre: string
+          names_to_include?: string | null
+          payment_status?: string | null
+          preview_url?: string | null
+          relationship_type: string
+          status?: string
+          story: string
+          user_id: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          custom_relationship?: string | null
+          full_song_url?: string | null
+          honoree_name?: string
+          id?: string
+          include_names?: boolean
+          music_genre?: string
+          names_to_include?: string | null
+          payment_status?: string | null
+          preview_url?: string | null
+          relationship_type?: string
+          status?: string
+          story?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          password: string
+          whatsapp: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          name: string
+          password: string
+          whatsapp: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          password?: string
+          whatsapp?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

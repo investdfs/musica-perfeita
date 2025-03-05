@@ -5,7 +5,7 @@ export type UserProfile = {
   name: string;
   email: string;
   whatsapp: string;
-  password: string; // Added password field
+  password: string;
 };
 
 export type MusicRequest = {

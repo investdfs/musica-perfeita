@@ -123,7 +123,7 @@ export const useRequestManagement = (
         .from('music-files')
         .upload(fileName, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: true // Changed to true to allow overwriting files
         });
         
       if (error) throw error;
@@ -133,30 +133,43 @@ export const useRequestManagement = (
         .from('music-files')
         .getPublicUrl(fileName);
         
+      // Check if urlData exists and has the publicUrl property
+      if (!urlData || !urlData.publicUrl) {
+        throw new Error("Failed to get public URL for the uploaded file");
+      }
+      
+      // Log the URL to help with troubleshooting
+      console.log("Upload successful, URL:", urlData.publicUrl);
+      
       // Update the request status
+      const updateData = { 
+        status: 'completed' as MusicRequest['status'], 
+        full_song_url: urlData.publicUrl,
+        preview_url: urlData.publicUrl 
+      };
+      
       if (isDevelopmentOrPreview()) {
         const updatedRequests = requests.map(req => 
           req.id === request.id 
-            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: urlData.publicUrl, preview_url: urlData.publicUrl } 
+            ? { ...req, ...updateData } 
             : req
         );
         
         setRequests(updatedRequests);
       } else {
-        const { error } = await supabase
+        const { error: updateError } = await supabase
           .from('music_requests')
-          .update({ 
-            status: 'completed' as MusicRequest['status'], 
-            full_song_url: urlData.publicUrl,
-            preview_url: urlData.publicUrl
-          })
+          .update(updateData)
           .eq('id', request.id);
           
-        if (error) throw error;
+        if (updateError) {
+          console.error('Database update error:', updateError);
+          throw updateError;
+        }
         
         const updatedRequests = requests.map(req => 
           req.id === request.id 
-            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: urlData.publicUrl, preview_url: urlData.publicUrl } 
+            ? { ...req, ...updateData } 
             : req
         );
         

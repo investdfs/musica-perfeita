@@ -1,5 +1,5 @@
 
-import { Music, Cake, Gift, Heart, Leaf, Baby, Ring, HeartHandshake, BabyBottle } from "lucide-react";
+import { Music, Cake, Gift, Heart, Leaf, Baby, Sparkles, Award, PartyPopper } from "lucide-react";
 
 const PossibilitiesSection = () => {
   return (
@@ -61,7 +61,7 @@ const PossibilitiesSection = () => {
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
             <div className="flex justify-center mb-4">
               <div className="bg-purple-700 p-4 rounded-full">
-                <Ring className="h-8 w-8 text-white" />
+                <Heart className="h-8 w-8 text-white" />
               </div>
             </div>
             <h3 className="text-xl font-semibold mb-3 text-center text-purple-700">Casamento</h3>
@@ -75,7 +75,7 @@ const PossibilitiesSection = () => {
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
             <div className="flex justify-center mb-4">
               <div className="bg-purple-700 p-4 rounded-full">
-                <HeartHandshake className="h-8 w-8 text-white" />
+                <Award className="h-8 w-8 text-white" />
               </div>
             </div>
             <h3 className="text-xl font-semibold mb-3 text-center text-purple-700">Homenagens</h3>
@@ -89,7 +89,7 @@ const PossibilitiesSection = () => {
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
             <div className="flex justify-center mb-4">
               <div className="bg-purple-700 p-4 rounded-full">
-                <BabyBottle className="h-8 w-8 text-white" />
+                <PartyPopper className="h-8 w-8 text-white" />
               </div>
             </div>
             <h3 className="text-xl font-semibold mb-3 text-center text-purple-700">Chá Revelação</h3>

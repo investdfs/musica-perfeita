@@ -1,6 +1,6 @@
 
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, Clock, Music, UserCheck } from "lucide-react";
+import { CheckCircle, Clock, Music, UserCheck, Factory } from "lucide-react";
 
 interface ProgressIndicatorProps {
   currentProgress: number;
@@ -35,9 +35,9 @@ const ProgressIndicator = ({ currentProgress, hasAnyRequest }: ProgressIndicator
           <span className="text-sm font-medium text-center">Pedido Enviado</span>
         </div>
         
-        <div className={`flex flex-col items-center p-3 rounded-lg transition-all ${currentProgress >= 50 ? 'bg-purple-50 text-purple-600' : 'text-gray-400'}`}>
-          <div className={`rounded-full p-2 mb-2 ${currentProgress >= 50 ? 'bg-purple-100' : 'bg-gray-100'}`}>
-            <Clock className={`h-5 w-5 ${currentProgress >= 50 ? 'text-purple-500' : 'text-gray-400'}`} />
+        <div className={`flex flex-col items-center p-3 rounded-lg transition-all ${currentProgress >= 50 ? 'bg-green-50 text-green-600' : 'text-gray-400'}`}>
+          <div className={`rounded-full p-2 mb-2 ${currentProgress >= 50 ? 'bg-green-100' : 'bg-gray-100'}`}>
+            <Factory className={`h-5 w-5 ${currentProgress >= 50 ? 'text-green-500' : 'text-gray-400'}`} />
           </div>
           <span className="text-sm font-medium text-center">Em Produção</span>
         </div>

@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect } from "react";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import { toast } from "@/hooks/use-toast";
@@ -81,9 +82,15 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
           
           if (admin) {
             setCurrentUserProfile(admin);
+            console.log("Setting isMainAdmin to:", admin.is_main_admin);
             setIsMainAdmin(admin.is_main_admin === true);
-            console.log("Is main admin:", admin.is_main_admin);
+          } else {
+            console.log("Admin não encontrado com o email:", adminEmail);
+            setIsMainAdmin(false);
           }
+        } else {
+          console.log("Email do admin não encontrado no localStorage");
+          setIsMainAdmin(false);
         }
       }
     } catch (error) {

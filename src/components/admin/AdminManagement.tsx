@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { UserProfile } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
-import { Shield, Trash, Edit } from "lucide-react";
+import { Shield, Trash, Edit, PlusCircle } from "lucide-react";
 
 interface AdminManagementProps {
   users: UserProfile[];
@@ -206,7 +207,7 @@ const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, is
               setShowAdminForm(true);
             }}
           >
-            <Shield className="w-4 h-4 mr-2" />
+            <PlusCircle className="w-4 h-4 mr-2" />
             Novo Administrador
           </Button>
         )}

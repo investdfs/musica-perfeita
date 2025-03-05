@@ -13,7 +13,7 @@ import RequestsFilters from "@/components/admin/RequestsFilters";
 import { useAdminFilters } from "@/contexts/AdminContext";
 
 const AdminDashboard = () => {
-  const { isLoading, requests, users, filteredRequests, setRequests, getUserEmail } = useAdmin();
+  const { isLoading, requests, users, filteredRequests, setRequests, getUserEmail, fetchUsers } = useAdmin();
   const {
     searchQuery,
     filterStatus,
@@ -74,7 +74,7 @@ const AdminDashboard = () => {
       </Card>
       
       <Card className="bg-white rounded-lg shadow-md p-6">
-        <UserManagement users={users} fetchUsers={() => {}} />
+        <UserManagement users={users} fetchUsers={fetchUsers} />
       </Card>
     </div>
   );

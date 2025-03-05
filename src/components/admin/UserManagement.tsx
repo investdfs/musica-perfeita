@@ -1,35 +1,12 @@
-
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogDescription,
-  DialogFooter
-} from "@/components/ui/dialog";
-import { toast } from "@/hooks/use-toast";
+import React from "react";
 import { UserProfile } from "@/types/database.types";
-import { isDevelopmentOrPreview } from "@/lib/environment";
-import supabase from "@/lib/supabase";
-import { PlusCircle, Trash, Edit } from "lucide-react";
 
 interface UserManagementProps {
   users: UserProfile[];
-  fetchUsers: () => Promise<void>;
+  fetchUsers: () => void | Promise<void>;
 }
 
-const UserManagement = ({ users, fetchUsers }: UserManagementProps) => {
+const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) => {
   const [showUserForm, setShowUserForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [newUser, setNewUser] = useState({

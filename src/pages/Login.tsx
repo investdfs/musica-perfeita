@@ -8,11 +8,16 @@ const Login = () => {
       <Header />
       
       <main className="grid grid-cols-1 md:grid-cols-2 min-h-[calc(100vh-64px)]">
-        {/* Lado esquerdo - Imagem */}
+        {/* Lado esquerdo - Formulário de Login */}
+        <div className="flex items-center justify-center p-8 md:p-12 bg-gradient-to-b from-gray-50 to-white">
+          <LoginForm />
+        </div>
+        
+        {/* Lado direito - Imagem */}
         <div className="hidden md:block relative bg-gray-900">
           <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-yellow-500/20 mix-blend-overlay z-10"></div>
           <img 
-            src="https://images.unsplash.com/photo-1531685250784-7569952593d2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80" 
+            src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-vibrant-and-emotional-image-of-a-daugh_J7ITx4AISfmXcxt8o0phKg_K4Lq53NqRHqCT0q4LHF0qQ.jpeg" 
             alt="Pessoa emocionada ouvindo música" 
             className="object-cover h-full w-full opacity-70"
           />
@@ -22,11 +27,6 @@ const Login = () => {
               Músicas exclusivas para momentos especiais e emocionantes
             </p>
           </div>
-        </div>
-        
-        {/* Lado direito - Formulário de Login */}
-        <div className="flex items-center justify-center p-8 md:p-12 bg-gradient-to-b from-gray-50 to-white">
-          <LoginForm />
         </div>
       </main>
       

@@ -18,7 +18,7 @@ const PossibilitiesSection = () => {
           {/* Card 1: Dias Comemorativos */}
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
             <div className="flex justify-center mb-4">
-              <div className="bg-purple-700 p-4 rounded-full">
+              <div className="bg-pink-500 p-4 rounded-full">
                 <Music className="h-8 w-8 text-white" />
               </div>
             </div>
@@ -32,7 +32,7 @@ const PossibilitiesSection = () => {
           {/* Card 2: Aniversários */}
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
             <div className="flex justify-center mb-4">
-              <div className="bg-purple-700 p-4 rounded-full">
+              <div className="bg-pink-500 p-4 rounded-full">
                 <Cake className="h-8 w-8 text-white" />
               </div>
             </div>
@@ -46,7 +46,7 @@ const PossibilitiesSection = () => {
           {/* Card 3: Celebração do Nascimento */}
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
             <div className="flex justify-center mb-4">
-              <div className="bg-purple-700 p-4 rounded-full">
+              <div className="bg-pink-500 p-4 rounded-full">
                 <Baby className="h-8 w-8 text-white" />
               </div>
             </div>
@@ -60,7 +60,7 @@ const PossibilitiesSection = () => {
           {/* Card 4: Casamento */}
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
             <div className="flex justify-center mb-4">
-              <div className="bg-purple-700 p-4 rounded-full">
+              <div className="bg-pink-500 p-4 rounded-full">
                 <Heart className="h-8 w-8 text-white" />
               </div>
             </div>
@@ -74,7 +74,7 @@ const PossibilitiesSection = () => {
           {/* Card 5: Homenagens */}
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
             <div className="flex justify-center mb-4">
-              <div className="bg-purple-700 p-4 rounded-full">
+              <div className="bg-pink-500 p-4 rounded-full">
                 <Award className="h-8 w-8 text-white" />
               </div>
             </div>
@@ -88,7 +88,7 @@ const PossibilitiesSection = () => {
           {/* Card 6: Chá Revelação */}
           <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
             <div className="flex justify-center mb-4">
-              <div className="bg-purple-700 p-4 rounded-full">
+              <div className="bg-pink-500 p-4 rounded-full">
                 <PartyPopper className="h-8 w-8 text-white" />
               </div>
             </div>
@@ -105,42 +105,42 @@ const PossibilitiesSection = () => {
           <div className="max-w-4xl mx-auto bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 shadow-md">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-purple-600 p-2 rounded-full">
+                <div className="bg-pink-500 p-2 rounded-full">
                   <Gift className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-medium text-purple-800">Bodas de Casamento</span>
               </div>
               
               <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-purple-600 p-2 rounded-full">
+                <div className="bg-pink-500 p-2 rounded-full">
                   <Leaf className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-medium text-purple-800">Formatura</span>
               </div>
               
               <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-purple-600 p-2 rounded-full">
+                <div className="bg-pink-500 p-2 rounded-full">
                   <Sparkles className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-medium text-purple-800">Pedido de Namoro</span>
               </div>
               
               <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-purple-600 p-2 rounded-full">
+                <div className="bg-pink-500 p-2 rounded-full">
                   <Heart className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-medium text-purple-800">Pedido de Noivado</span>
               </div>
               
               <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-purple-600 p-2 rounded-full">
+                <div className="bg-pink-500 p-2 rounded-full">
                   <Music className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-medium text-purple-800">Jubileu</span>
               </div>
               
               <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-purple-600 p-2 rounded-full">
+                <div className="bg-pink-500 p-2 rounded-full">
                   <Cake className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-medium text-purple-800">Bodas de Ouro</span>

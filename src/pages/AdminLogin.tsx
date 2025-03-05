@@ -186,7 +186,7 @@ const AdminLogin = () => {
                 Email: contato@musicaperfeita.com
               </p>
               <p className="text-gray-600">
-                Senha: 212300Lr@
+                Senha: 212300
               </p>
             </div>
           </div>

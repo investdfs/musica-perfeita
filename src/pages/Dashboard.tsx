@@ -101,6 +101,50 @@ const Dashboard = () => {
 
   const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';
   const hasPreviewUrl = userRequests.length > 0 && userRequests[0].preview_url;
+  const hasAnyRequest = userRequests.length > 0;
+
+  // Configurar o polling para verificar atualizações a cada 30 segundos
+  useEffect(() => {
+    if (!userProfile?.id) return;
+    
+    const checkForStatusUpdates = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('music_requests')
+          .select('*')
+          .eq('user_id', userProfile.id);
+          
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          const latestRequest = data[0];
+          setUserRequests(data);
+          
+          switch (latestRequest.status) {
+            case 'pending':
+              setCurrentProgress(25);
+              break;
+            case 'in_production':
+              setCurrentProgress(50);
+              break;
+            case 'completed':
+              setCurrentProgress(100);
+              break;
+            default:
+              setCurrentProgress(0);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking for status updates:', error);
+      }
+    };
+    
+    // Verificar atualizações imediatamente e depois a cada 30 segundos
+    const intervalId = setInterval(checkForStatusUpdates, 30000);
+    
+    // Limpar o intervalo quando o componente for desmontado
+    return () => clearInterval(intervalId);
+  }, [userProfile]);
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-purple-50 via-pink-50 to-white">
@@ -113,7 +157,7 @@ const Dashboard = () => {
             </h1>
           )}
           
-          <ProgressIndicator currentProgress={currentProgress} />
+          <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={hasAnyRequest} />
           
           {hasPreviewUrl && (
             <MusicPreviewPlayer 

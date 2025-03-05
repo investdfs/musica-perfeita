@@ -4,9 +4,10 @@ import { CheckCircle, Clock, Music, UserCheck } from "lucide-react";
 
 interface ProgressIndicatorProps {
   currentProgress: number;
+  hasAnyRequest: boolean;
 }
 
-const ProgressIndicator = ({ currentProgress }: ProgressIndicatorProps) => {
+const ProgressIndicator = ({ currentProgress, hasAnyRequest }: ProgressIndicatorProps) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
       <h2 className="text-xl font-semibold mb-4 text-purple-700">Status do seu pedido</h2>
@@ -27,9 +28,9 @@ const ProgressIndicator = ({ currentProgress }: ProgressIndicatorProps) => {
           <span className="text-sm font-medium text-center">Cadastro Realizado</span>
         </div>
 
-        <div className={`flex flex-col items-center p-3 rounded-lg transition-all ${currentProgress >= 25 ? 'bg-pink-50 text-pink-600' : 'text-gray-400'}`}>
-          <div className={`rounded-full p-2 mb-2 ${currentProgress >= 25 ? 'bg-pink-100' : 'bg-gray-100'}`}>
-            <CheckCircle className={`h-5 w-5 ${currentProgress >= 25 ? 'text-pink-500' : 'text-gray-400'}`} />
+        <div className={`flex flex-col items-center p-3 rounded-lg transition-all ${hasAnyRequest ? 'bg-pink-50 text-pink-600' : 'text-gray-400'}`}>
+          <div className={`rounded-full p-2 mb-2 ${hasAnyRequest ? 'bg-pink-100' : 'bg-gray-100'}`}>
+            <CheckCircle className={`h-5 w-5 ${hasAnyRequest ? 'text-pink-500' : 'text-gray-400'}`} />
           </div>
           <span className="text-sm font-medium text-center">Pedido Enviado</span>
         </div>

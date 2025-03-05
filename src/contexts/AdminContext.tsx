@@ -59,6 +59,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   
   const fetchUsers = async () => {
     try {
+      setIsLoading(true);
+      
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -67,9 +69,9 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       
       if (data) {
+        console.log("Users data fetched:", data);
         setUsers(data as UserProfile[]);
         
-        // Check if current user is the main admin
         const adminEmail = localStorage.getItem('admin_email');
         if (adminEmail) {
           const admin = data.find(user => user.email === adminEmail);
@@ -87,6 +89,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         variant: "destructive",
       });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { UserProfile } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
@@ -43,13 +42,11 @@ const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, is
     is_main_admin: false
   });
 
-  // Filter only admin users
   const admins = users.filter(user => user.is_admin);
 
   const handleFormSubmit = async () => {
     try {
       if (selectedUser) {
-        // Only main admin can change is_main_admin status
         if (!isMainAdmin && formData.is_main_admin) {
           toast({
             title: "Operação não permitida",
@@ -78,7 +75,6 @@ const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, is
           description: "As informações foram atualizadas com sucesso",
         });
       } else {
-        // Only main admin can create new admins
         if (!isMainAdmin) {
           toast({
             title: "Operação não permitida",
@@ -153,7 +149,6 @@ const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, is
         return;
       }
 
-      // Check if this is a main admin being removed
       const adminToRemove = users.find(user => user.id === userId);
       if (adminToRemove?.is_main_admin) {
         toast({
@@ -192,45 +187,33 @@ const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, is
     return date.toLocaleDateString('pt-BR');
   };
 
-  if (!isMainAdmin) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Administradores</h2>
-        </div>
-        
-        <p className="text-center py-8 text-gray-500">
-          Somente o administrador principal pode gerenciar outros administradores.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Gerenciar Administradores</h2>
-        <Button 
-          onClick={() => {
-            setSelectedUser(null);
-            setFormData({ 
-              name: "", 
-              email: "", 
-              whatsapp: "", 
-              password: "", 
-              is_admin: true,
-              is_main_admin: false 
-            });
-            setShowAdminForm(true);
-          }}
-        >
-          <Shield className="w-4 h-4 mr-2" />
-          Novo Administrador
-        </Button>
+        {isMainAdmin && (
+          <Button 
+            onClick={() => {
+              setSelectedUser(null);
+              setFormData({ 
+                name: "", 
+                email: "", 
+                whatsapp: "", 
+                password: "", 
+                is_admin: true,
+                is_main_admin: false 
+              });
+              setShowAdminForm(true);
+            }}
+          >
+            <Shield className="w-4 h-4 mr-2" />
+            Novo Administrador
+          </Button>
+        )}
       </div>
       
       {admins.length === 0 ? (
-        <p className="text-center py-8">Nenhum administrador cadastrado além de você.</p>
+        <p className="text-center py-8">Nenhum administrador cadastrado.</p>
       ) : (
         <div className="overflow-x-auto">
           <Table>
@@ -241,7 +224,7 @@ const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, is
                 <TableHead>WhatsApp</TableHead>
                 <TableHead>Data de Cadastro</TableHead>
                 <TableHead>Principal</TableHead>
-                <TableHead>Ações</TableHead>
+                {isMainAdmin && <TableHead>Ações</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -262,26 +245,28 @@ const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, is
                       </span>
                     )}
                   </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEditAdmin(admin)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      {!admin.is_main_admin && (
+                  {isMainAdmin && (
+                    <TableCell>
+                      <div className="flex space-x-2">
                         <Button 
-                          variant="destructive" 
+                          variant="outline" 
                           size="sm"
-                          onClick={() => handleRemoveAdmin(admin.id)}
+                          onClick={() => handleEditAdmin(admin)}
                         >
-                          <Trash className="w-4 h-4" />
+                          <Edit className="w-4 h-4" />
                         </Button>
-                      )}
-                    </div>
-                  </TableCell>
+                        {!admin.is_main_admin && (
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => handleRemoveAdmin(admin.id)}
+                          >
+                            <Trash className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>

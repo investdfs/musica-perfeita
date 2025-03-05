@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -20,7 +19,7 @@ import { MusicRequest, UserProfile } from "@/types/database.types";
 import { isDevelopmentOrPreview } from "@/lib/environment";
 import supabase from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
-import { Send } from "lucide-react";
+import { Send, Upload } from "lucide-react";
 import RequestDetails from "./RequestDetails";
 import DeliveryForm from "./DeliveryForm";
 
@@ -135,6 +134,85 @@ const RequestsManagement = ({
         description: "Não foi possível enviar o e-mail",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, request: MusicRequest) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAudioFile(file);
+      setSelectedRequest(request);
+      uploadMusicFile(file, request);
+    }
+  };
+  
+  const uploadMusicFile = async (file: File, request: MusicRequest) => {
+    if (!file) return;
+    
+    setIsUploading(true);
+    
+    try {
+      // Create a unique file path
+      const fileName = `music/${request.id}/${Date.now()}-${file.name}`;
+      
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('music-files')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+        
+      if (error) throw error;
+      
+      // Get the public URL for the uploaded file
+      const { data: urlData } = supabase.storage
+        .from('music-files')
+        .getPublicUrl(fileName);
+        
+      // Update the request status
+      if (isDevelopmentOrPreview()) {
+        const updatedRequests = requests.map(req => 
+          req.id === request.id 
+            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: urlData.publicUrl, preview_url: urlData.publicUrl } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      } else {
+        const { error } = await supabase
+          .from('music_requests')
+          .update({ 
+            status: 'completed' as MusicRequest['status'], 
+            full_song_url: urlData.publicUrl,
+            preview_url: urlData.publicUrl
+          })
+          .eq('id', request.id);
+          
+        if (error) throw error;
+        
+        const updatedRequests = requests.map(req => 
+          req.id === request.id 
+            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: urlData.publicUrl, preview_url: urlData.publicUrl } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      }
+      
+      toast({
+        title: "Música Enviada",
+        description: "A música foi enviada e o status do pedido foi atualizado para Concluído.",
+      });
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Erro ao fazer upload",
+        description: error.message || "Não foi possível fazer o upload do arquivo",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -265,6 +343,31 @@ const RequestsManagement = ({
                           <SelectItem value="completed">Pago</SelectItem>
                         </SelectContent>
                       </Select>
+                      
+                      {/* Botão de Upload de Música */}
+                      <div className="relative">
+                        <input
+                          type="file"
+                          id={`upload-music-${request.id}`}
+                          className="sr-only"
+                          accept="audio/mp3,audio/mpeg,audio/wav"
+                          onChange={(e) => handleFileUpload(e, request)}
+                          disabled={isUploading}
+                        />
+                        <label
+                          htmlFor={`upload-music-${request.id}`}
+                          className={`inline-flex items-center justify-center gap-2 whitespace-nowrap h-9 rounded-md px-3 text-sm font-medium ${
+                            isUploading
+                              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                              : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                          }`}
+                        >
+                          <Upload className="w-4 h-4" />
+                          {isUploading && request.id === selectedRequest?.id
+                            ? "Enviando..."
+                            : "Upload"}
+                        </label>
+                      </div>
                       
                       {request.status === 'completed' && (
                         <Button

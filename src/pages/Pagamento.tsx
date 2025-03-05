@@ -1,7 +1,7 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
@@ -60,11 +60,7 @@ const Pagamento = () => {
           </div>
         </div>
       </main>
-      <footer className="bg-gray-800 text-white py-8 text-center">
-        <div className="max-w-5xl mx-auto px-6">
-          <p>&copy; {new Date().getFullYear()} Musicaperfeita. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

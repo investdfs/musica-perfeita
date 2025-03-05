@@ -1,7 +1,7 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import supabase from "@/lib/supabase";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import ProgressIndicator from "@/components/dashboard/ProgressIndicator";
@@ -16,11 +16,9 @@ const Dashboard = () => {
   const [currentProgress, setCurrentProgress] = useState(0);
   const navigate = useNavigate();
 
-  // Get the user info from localStorage or create a test user in development/preview
   useEffect(() => {
     const storedUser = localStorage.getItem("musicaperfeita_user");
     
-    // In development or preview, create a test user if none exists
     if (!storedUser && isDevelopmentOrPreview()) {
       const testUser = {
         id: 'dev-user-id',
@@ -41,7 +39,6 @@ const Dashboard = () => {
       return;
     }
     
-    // Redirect to registration in production if no user is found
     if (!storedUser && !isDevelopmentOrPreview()) {
       navigate("/cadastro");
       return;
@@ -50,7 +47,6 @@ const Dashboard = () => {
     const userInfo = storedUser ? JSON.parse(storedUser) : null;
     setUserProfile(userInfo);
     
-    // Fetch user's music requests
     const fetchUserRequests = async () => {
       try {
         if (!userInfo?.id) return;
@@ -65,7 +61,6 @@ const Dashboard = () => {
         if (data) {
           setUserRequests(data);
           
-          // Set progress based on latest request status
           if (data.length > 0) {
             const latestRequest = data[0];
             switch (latestRequest.status) {
@@ -93,13 +88,11 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
-  // Handle new request submission
   const handleRequestSubmitted = (data: MusicRequest[]) => {
     setUserRequests([...data, ...userRequests]);
-    setCurrentProgress(33); // Set to first stage
+    setCurrentProgress(33);
   };
 
-  // Check if the latest request is completed and has a preview URL
   const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';
   const hasPreviewUrl = userRequests.length > 0 && userRequests[0].preview_url;
 
@@ -132,11 +125,7 @@ const Dashboard = () => {
           )}
         </div>
       </main>
-      <footer className="bg-gradient-to-r from-purple-700 to-pink-500 text-white py-8 text-center mt-12">
-        <div className="max-w-5xl mx-auto px-6">
-          <p>&copy; {new Date().getFullYear()} Musicaperfeita. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import WelcomeSection from "@/components/home/WelcomeSection";
 import PossibilitiesSection from "@/components/home/PossibilitiesSection";
 import DifferentialsSection from "@/components/home/DifferentialsSection";
 import CallToAction from "@/components/home/CallToAction";
+import Footer from "@/components/Footer";
 
 const Home = () => {
   return (
@@ -15,11 +16,7 @@ const Home = () => {
         <DifferentialsSection />
         <CallToAction />
       </main>
-      <footer className="bg-gray-800 text-white py-8 text-center">
-        <div className="max-w-5xl mx-auto px-6">
-          <p>&copy; {new Date().getFullYear()} Musicaperfeita. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

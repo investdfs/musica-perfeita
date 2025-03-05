@@ -1,6 +1,7 @@
 
 import Header from "@/components/Header";
 import LoginForm from "@/components/auth/LoginForm";
+import Footer from "@/components/Footer";
 
 const Login = () => {
   return (
@@ -30,11 +31,7 @@ const Login = () => {
         </div>
       </main>
       
-      <footer className="bg-gray-800 text-white py-8 text-center">
-        <div className="max-w-5xl mx-auto px-6">
-          <p>&copy; {new Date().getFullYear()} Musicaperfeita. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

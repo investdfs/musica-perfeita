@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,7 +15,6 @@ const Confirmacao = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Countdown timer
     if (countdown > 0 && showTerms) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
       return () => clearTimeout(timer);
@@ -34,7 +33,6 @@ const Confirmacao = () => {
   };
 
   const handleDownload = () => {
-    // In a real application, this would download the file
     toast({
       title: "Download iniciado",
       description: "Sua música está sendo baixada...",
@@ -42,7 +40,6 @@ const Confirmacao = () => {
   };
 
   const handleShare = () => {
-    // In a real application, this would open share options
     toast({
       title: "Compartilhamento",
       description: "Opções de compartilhamento abertas",
@@ -152,11 +149,7 @@ const Confirmacao = () => {
         </DialogContent>
       </Dialog>
       
-      <footer className="bg-gray-800 text-white py-8 text-center">
-        <div className="max-w-5xl mx-auto px-6">
-          <p>&copy; {new Date().getFullYear()} Musicaperfeita. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

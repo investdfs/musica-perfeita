@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -22,13 +22,9 @@ const AdminLogin = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  // Auto-login for development environment and Lovable preview
   useEffect(() => {
-    // Check if we're in development mode or preview URL
     if (isDevelopmentOrPreview()) {
-      // Automatically authenticate as admin
       localStorage.setItem("musicaperfeita_admin", "true");
-      // Redirect to admin panel after a short delay to allow toast to be visible
       const timer = setTimeout(() => {
         navigate("/admin");
       }, 1000);
@@ -53,10 +49,7 @@ const AdminLogin = () => {
   const onSubmit = async (values: AdminLoginValues) => {
     setIsSubmitting(true);
     
-    // This is just a mock authentication
-    // In a real application, you would verify credentials with Supabase Auth
     if (values.email === "admin@musicaperfeita.com" && values.password === "admin123") {
-      // Store authentication state
       localStorage.setItem("musicaperfeita_admin", "true");
       
       toast({
@@ -138,11 +131,7 @@ const AdminLogin = () => {
           </div>
         </div>
       </main>
-      <footer className="bg-gray-800 text-white py-8 text-center">
-        <div className="max-w-5xl mx-auto px-6">
-          <p>&copy; {new Date().getFullYear()} Musicaperfeita. Todos os direitos reservados.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

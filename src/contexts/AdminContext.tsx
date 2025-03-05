@@ -77,13 +77,16 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("Admin email from localStorage:", adminEmail);
         
         if (adminEmail) {
+          // Procurar o usuário admin pelo email exato
           const admin = data.find(user => user.email === adminEmail);
           console.log("Found admin:", admin);
           
           if (admin) {
             setCurrentUserProfile(admin);
-            console.log("Setting isMainAdmin to:", admin.is_main_admin);
-            setIsMainAdmin(admin.is_main_admin === true);
+            // Garantir que is_main_admin seja um booleano
+            const isMainAdminValue = admin.is_main_admin === true;
+            console.log("Setting isMainAdmin to:", isMainAdminValue);
+            setIsMainAdmin(isMainAdminValue);
           } else {
             console.log("Admin não encontrado com o email:", adminEmail);
             setIsMainAdmin(false);

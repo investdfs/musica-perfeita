@@ -1,11 +1,21 @@
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import NotificationsPanel from "@/components/admin/NotificationsPanel";
 import AdminDashboard from "@/components/admin/AdminDashboard";
-import { AdminProvider, useAdmin } from "@/contexts/AdminContext";
+import { AdminProvider } from "@/contexts/AdminContext";
 
 const AdminPage = () => {
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const isAdmin = localStorage.getItem("musicaperfeita_admin");
+    if (!isAdmin) {
+      navigate("/admin-login");
+    }
+  }, [navigate]);
+  
   return (
     <AdminProvider>
       <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">

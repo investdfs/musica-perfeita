@@ -27,7 +27,7 @@ const AdminLogin = () => {
   useEffect(() => {
     if (isDevelopmentOrPreview()) {
       localStorage.setItem("musicaperfeita_admin", "true");
-      localStorage.setItem("admin_email", "admin@musicaperfeita.com");
+      localStorage.setItem("admin_email", "contato@musicaperfeita.com");
       const timer = setTimeout(() => {
         navigate("/admin");
       }, 1000);
@@ -54,15 +54,16 @@ const AdminLogin = () => {
     console.log('Tentando login com:', values);
     
     try {
+      // Busca o usuário no Supabase com email e senha exatos
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('email', values.email)
-        .eq('password', values.password)
-        .eq('is_admin', true);
+        .eq('password', values.password);
 
       console.log('Resultado da consulta:', data, error);
 
+      // Verifica se retornou dados e se o usuário é admin
       if (error || !data || data.length === 0) {
         toast({
           title: "Credenciais inválidas",
@@ -73,6 +74,19 @@ const AdminLogin = () => {
         return;
       }
       
+      // Verifica se o usuário tem a flag is_admin
+      const user = data[0];
+      if (!user.is_admin) {
+        toast({
+          title: "Acesso negado",
+          description: "Você não tem permissões de administrador",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Armazena informações do admin no localStorage
       localStorage.setItem("musicaperfeita_admin", "true");
       localStorage.setItem("admin_email", values.email);
       

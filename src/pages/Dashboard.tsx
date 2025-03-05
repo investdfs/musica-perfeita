@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -11,7 +10,7 @@ import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
 import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, LogOut } from "lucide-react";
 
 const Dashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -20,44 +19,64 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("musicaperfeita_user");
-    
-    if (!storedUser && isDevelopmentOrPreview()) {
-      const testUser = {
-        id: 'dev-user-id',
-        name: 'Usuário de Desenvolvimento',
-        email: 'dev@example.com',
-        created_at: new Date().toISOString(),
-        whatsapp: '+5511999999999'
-      } as UserProfile;
+    const checkUserAuth = () => {
+      const storedUser = localStorage.getItem("musicaperfeita_user");
       
-      localStorage.setItem("musicaperfeita_user", JSON.stringify(testUser));
-      setUserProfile(testUser);
+      if (!storedUser && isDevelopmentOrPreview()) {
+        const testUser = {
+          id: 'dev-user-id',
+          name: 'Usuário de Desenvolvimento',
+          email: 'dev@example.com',
+          created_at: new Date().toISOString(),
+          whatsapp: '+5511999999999'
+        } as UserProfile;
+        
+        localStorage.setItem("musicaperfeita_user", JSON.stringify(testUser));
+        setUserProfile(testUser);
+        
+        toast({
+          title: "Modo de desenvolvimento/preview",
+          description: "Usuário de teste criado automaticamente",
+        });
+        
+        return;
+      }
       
-      toast({
-        title: "Modo de desenvolvimento/preview",
-        description: "Usuário de teste criado automaticamente",
-      });
+      if (!storedUser && !isDevelopmentOrPreview()) {
+        toast({
+          title: "Acesso restrito",
+          description: "Você precisa fazer login para acessar esta página",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
+      }
       
-      return;
-    }
+      const userInfo = storedUser ? JSON.parse(storedUser) : null;
+      setUserProfile(userInfo);
+    };
     
-    if (!storedUser && !isDevelopmentOrPreview()) {
-      navigate("/cadastro");
-      return;
-    }
+    // Check auth immediately
+    checkUserAuth();
     
-    const userInfo = storedUser ? JSON.parse(storedUser) : null;
-    setUserProfile(userInfo);
+    // Add event listener for when the page becomes visible again (user returns to tab)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkUserAuth();
+      }
+    };
     
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Regular user data fetching code
     const fetchUserRequests = async () => {
       try {
-        if (!userInfo?.id) return;
+        if (!userProfile?.id) return;
         
         const { data, error } = await supabase
           .from('music_requests')
           .select('*')
-          .eq('user_id', userInfo.id);
+          .eq('user_id', userProfile.id);
           
         if (error) throw error;
         
@@ -91,10 +110,15 @@ const Dashboard = () => {
       }
     };
     
-    if (userInfo) {
+    if (userProfile) {
       fetchUserRequests();
     }
-  }, [navigate]);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [navigate, userProfile]);
 
   const handleRequestSubmitted = (data: MusicRequest[]) => {
     setUserRequests([...data, ...userRequests]);
@@ -105,7 +129,7 @@ const Dashboard = () => {
   const hasPreviewUrl = userRequests.length > 0 && userRequests[0].preview_url;
   const hasAnyRequest = userRequests.length > 0;
 
-  // Configurar o polling para verificar atualizações a cada 30 segundos
+  // Polling for updates
   useEffect(() => {
     if (!userProfile?.id) return;
     
@@ -148,18 +172,38 @@ const Dashboard = () => {
     return () => clearInterval(intervalId);
   }, [userProfile]);
 
+  const handleUserLogout = () => {
+    localStorage.removeItem("musicaperfeita_user");
+    
+    toast({
+      title: "Logout realizado",
+      description: "Você saiu da sua conta com sucesso"
+    });
+    
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-tr from-purple-50 via-pink-50 to-white">
       <Header />
       <main className="py-12 px-6">
         <div className="max-w-4xl mx-auto">
           {userProfile && (
-            <h1 className="text-3xl font-bold mb-8 text-center">
-              Olá, <span className="text-pink-500">{userProfile.name}</span>! Crie sua música perfeita!
-            </h1>
+            <div className="flex items-center justify-between mb-8">
+              <h1 className="text-3xl font-bold">
+                Olá, <span className="text-pink-500">{userProfile.name}</span>! Crie sua música perfeita!
+              </h1>
+              <button
+                onClick={handleUserLogout}
+                className="flex items-center gap-1 px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sair</span>
+              </button>
+            </div>
           )}
           
-          <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={hasAnyRequest} />
+          <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={userRequests.length > 0} />
           
           {hasCompletedRequest && (
             <div className="text-center mb-8">

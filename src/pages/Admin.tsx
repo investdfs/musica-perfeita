@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -6,35 +5,71 @@ import NotificationsPanel from "@/components/admin/NotificationsPanel";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { toast } from "@/hooks/use-toast";
+import { LogOut } from "lucide-react";
 
 const AdminPage = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Verifica se o usuário está logado como admin
-    const isAdmin = localStorage.getItem("musicaperfeita_admin");
-    if (!isAdmin) {
-      toast({
-        title: "Acesso restrito",
-        description: "Você precisa fazer login como administrador para acessar esta página",
-        variant: "destructive",
-      });
-      navigate("/admin-login");
-      return;
-    }
+    // Verify admin authentication on every page visit
+    const checkAdminAuth = () => {
+      // Check if admin is logged in
+      const isAdmin = localStorage.getItem("musicaperfeita_admin");
+      if (!isAdmin) {
+        toast({
+          title: "Acesso restrito",
+          description: "Você precisa fazer login como administrador para acessar esta página",
+          variant: "destructive",
+        });
+        navigate("/admin-login");
+        return;
+      }
+      
+      // Check if we have admin email
+      const adminEmail = localStorage.getItem("admin_email");
+      if (!adminEmail) {
+        toast({
+          title: "Sessão inválida",
+          description: "Sua sessão expirou ou está inválida. Por favor, faça login novamente",
+          variant: "destructive",
+        });
+        localStorage.removeItem("musicaperfeita_admin");
+        navigate("/admin-login");
+      }
+    };
+
+    // Check auth immediately
+    checkAdminAuth();
     
-    // Verifica se temos o email do admin
-    const adminEmail = localStorage.getItem("admin_email");
-    if (!adminEmail) {
-      toast({
-        title: "Sessão inválida",
-        description: "Sua sessão expirou ou está inválida. Por favor, faça login novamente",
-        variant: "destructive",
-      });
-      localStorage.removeItem("musicaperfeita_admin");
-      navigate("/admin-login");
-    }
+    // Add event listener for when the page becomes visible again (user returns to tab)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkAdminAuth();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [navigate]);
+  
+  // Add admin logout handler
+  const handleAdminLogout = () => {
+    localStorage.removeItem("musicaperfeita_admin");
+    localStorage.removeItem("admin_email");
+    localStorage.removeItem("admin_id");
+    localStorage.removeItem("admin_is_main");
+    
+    toast({
+      title: "Logout realizado",
+      description: "Você saiu da conta de administrador com sucesso"
+    });
+    
+    navigate("/admin-login");
+  };
   
   return (
     <AdminProvider>
@@ -46,6 +81,13 @@ const AdminPage = () => {
               <h1 className="text-3xl font-bold">Painel do Administrador</h1>
               <div className="flex items-center gap-4">
                 <NotificationsPanel />
+                <button
+                  onClick={handleAdminLogout}
+                  className="flex items-center gap-1 px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sair</span>
+                </button>
               </div>
             </div>
             

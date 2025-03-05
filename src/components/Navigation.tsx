@@ -1,11 +1,13 @@
 
 import { Home, UserPlus, Info, LogIn, LogOut } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { toast } from "@/hooks/use-toast";
 
 const Navigation = ({ className }: { className?: string }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   
   // Helper function to determine if a link is active
@@ -20,7 +22,11 @@ const Navigation = ({ className }: { className?: string }) => {
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("musicaperfeita_user");
-    window.location.href = "/"; // Redirect to home after logout
+    toast({
+      title: "Logout realizado",
+      description: "Você saiu da sua conta com sucesso."
+    });
+    navigate("/"); // Redirect to home after logout
   };
 
   return (

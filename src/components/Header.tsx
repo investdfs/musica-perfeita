@@ -21,7 +21,7 @@ const Header = () => {
           className="h-10 mr-2"
         />
         <span className="text-2xl font-bold bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">
-          Musicaperfeita
+          Música Perfeita
         </span>
       </div>
       <Navigation />

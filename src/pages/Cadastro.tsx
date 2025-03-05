@@ -28,8 +28,8 @@ const Cadastro = () => {
         <div className="hidden md:block relative bg-gray-900">
           <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-yellow-500/20 mix-blend-overlay z-10"></div>
           <img 
-            src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-vibrant-and-emotional-image-of-a-daugh_J7ITx4AISfmXcxt8o0phKg_K4Lq53NqRHqCT0q4LHF0qQ.jpeg" 
-            alt="Pessoa emocionada ouvindo música" 
+            src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-photo-of-a-couple-in-their-40s-enjoyin_t2ttoIKDQyunxoGpJnBZ6w__hxiyb1_S_2T_POWqpwATg.jpeg" 
+            alt="Casal desfrutando de música" 
             className="object-cover h-full w-full opacity-70"
           />
           <div className="absolute bottom-0 left-0 right-0 p-8 text-white z-20">

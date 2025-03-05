@@ -1,4 +1,5 @@
-import { Music, Cake, Gift, Heart, Leaf, Baby, Sparkles, Award, PartyPopper, GraduationCap, Ring } from "lucide-react";
+
+import { Music, Cake, Gift, Heart, Leaf, Baby, Sparkles, Award, PartyPopper, GraduationCap, Diamond } from "lucide-react";
 
 const PossibilitiesSection = () => {
   return (
@@ -127,7 +128,7 @@ const PossibilitiesSection = () => {
               
               <div className="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
                 <div className="bg-pink-500 p-2 rounded-full mb-2">
-                  <Ring className="h-5 w-5 text-white" />
+                  <Diamond className="h-5 w-5 text-white" />
                 </div>
                 <span className="font-medium text-purple-800 text-sm text-center">Pedido de Noivado</span>
               </div>

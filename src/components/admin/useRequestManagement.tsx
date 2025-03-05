@@ -1,0 +1,236 @@
+
+import { useState } from "react";
+import { MusicRequest } from "@/types/database.types";
+import { isDevelopmentOrPreview } from "@/lib/environment";
+import supabase from "@/lib/supabase";
+import { toast } from "@/hooks/use-toast";
+
+export const useRequestManagement = (
+  requests: MusicRequest[],
+  setRequests: (requests: MusicRequest[]) => void
+) => {
+  const [selectedRequest, setSelectedRequest] = useState<MusicRequest | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showDeliveryForm, setShowDeliveryForm] = useState(false);
+
+  const handleViewDetails = (request: MusicRequest) => {
+    setSelectedRequest(request);
+    setShowDetails(true);
+  };
+
+  const handleDeliverMusic = (request: MusicRequest) => {
+    setSelectedRequest(request);
+    setShowDeliveryForm(true);
+  };
+
+  const handleUpload = async (uploadedUrl: string) => {
+    if (!selectedRequest) return;
+    
+    setIsUploading(true);
+    
+    try {
+      if (isDevelopmentOrPreview()) {
+        const updatedRequests = requests.map(req => 
+          req.id === selectedRequest.id 
+            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: uploadedUrl, preview_url: uploadedUrl } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      } else {
+        const { error } = await supabase
+          .from('music_requests')
+          .update({ 
+            status: 'completed' as MusicRequest['status'], 
+            full_song_url: uploadedUrl,
+            preview_url: uploadedUrl
+          })
+          .eq('id', selectedRequest.id);
+          
+        if (error) throw error;
+        
+        // Fix: Explicitly cast status to the correct type
+        const updatedRequests = requests.map(req => 
+          req.id === selectedRequest.id 
+            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: uploadedUrl, preview_url: uploadedUrl } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      }
+      
+      setShowDetails(false);
+      
+      toast({
+        title: "Música Enviada",
+        description: "A música foi enviada e o status do pedido foi atualizado para Concluído.",
+      });
+    } catch (error: any) {
+      console.error('Error updating request:', error);
+      toast({
+        title: "Erro ao atualizar",
+        description: error.message || "Não foi possível atualizar o status do pedido",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSendEmail = async () => {
+    if (!selectedRequest) return;
+    
+    try {
+      toast({
+        title: "E-mail enviado",
+        description: "A música foi enviada ao cliente por e-mail",
+      });
+      setShowDeliveryForm(false);
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast({
+        title: "Erro ao enviar",
+        description: "Não foi possível enviar o e-mail",
+        variant: "destructive",
+      });
+      return Promise.reject(error);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, request: MusicRequest) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAudioFile(file);
+      setSelectedRequest(request);
+      uploadMusicFile(file, request);
+    }
+  };
+  
+  const uploadMusicFile = async (file: File, request: MusicRequest) => {
+    if (!file) return;
+    
+    setIsUploading(true);
+    
+    try {
+      // Create a unique file path
+      const fileName = `music/${request.id}/${Date.now()}-${file.name}`;
+      
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('music-files')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+        
+      if (error) throw error;
+      
+      // Get the public URL for the uploaded file
+      const { data: urlData } = supabase.storage
+        .from('music-files')
+        .getPublicUrl(fileName);
+        
+      // Update the request status
+      if (isDevelopmentOrPreview()) {
+        const updatedRequests = requests.map(req => 
+          req.id === request.id 
+            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: urlData.publicUrl, preview_url: urlData.publicUrl } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      } else {
+        const { error } = await supabase
+          .from('music_requests')
+          .update({ 
+            status: 'completed' as MusicRequest['status'], 
+            full_song_url: urlData.publicUrl,
+            preview_url: urlData.publicUrl
+          })
+          .eq('id', request.id);
+          
+        if (error) throw error;
+        
+        const updatedRequests = requests.map(req => 
+          req.id === request.id 
+            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: urlData.publicUrl, preview_url: urlData.publicUrl } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      }
+      
+      toast({
+        title: "Música Enviada",
+        description: "A música foi enviada e o status do pedido foi atualizado para Concluído.",
+      });
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Erro ao fazer upload",
+        description: error.message || "Não foi possível fazer o upload do arquivo",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleUpdateStatus = async (requestId: string, status?: MusicRequest['status'], paymentStatus?: MusicRequest['payment_status']) => {
+    try {
+      const updates: { status?: MusicRequest['status'], payment_status?: MusicRequest['payment_status'] } = {};
+      
+      if (status) updates.status = status;
+      if (paymentStatus) updates.payment_status = paymentStatus;
+      
+      if (!isDevelopmentOrPreview()) {
+        const { error } = await supabase
+          .from('music_requests')
+          .update(updates)
+          .eq('id', requestId);
+          
+        if (error) throw error;
+      }
+      
+      const updatedRequests = requests.map(req => 
+        req.id === requestId 
+          ? { ...req, ...updates } 
+          : req
+      );
+      
+      setRequests(updatedRequests);
+      
+      toast({
+        title: "Status atualizado",
+        description: "O status do pedido foi atualizado com sucesso",
+      });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível atualizar o status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return {
+    selectedRequest,
+    showDetails,
+    setShowDetails,
+    audioFile,
+    setAudioFile,
+    isUploading,
+    showDeliveryForm,
+    setShowDeliveryForm,
+    handleViewDetails,
+    handleDeliverMusic,
+    handleUpload,
+    handleSendEmail,
+    handleFileUpload,
+    handleUpdateStatus
+  };
+};

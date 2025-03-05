@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -62,6 +63,7 @@ const RegistrationForm = () => {
       
       console.log('Usuário criado com sucesso na autenticação', authData.user.id);
       
+      // Modified this part to store the actual password in the profiles table
       const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
         .insert([{
@@ -69,7 +71,7 @@ const RegistrationForm = () => {
           name: values.name,
           email: values.email,
           whatsapp: values.whatsapp,
-          password: ""
+          password: values.password // Store the actual password instead of empty string
         }])
         .select();
         
@@ -85,7 +87,7 @@ const RegistrationForm = () => {
         name: values.name,
         email: values.email,
         whatsapp: values.whatsapp,
-        password: ""
+        password: values.password // Update this field as well
       };
       
       localStorage.setItem("musicaperfeita_user", JSON.stringify(userProfile));

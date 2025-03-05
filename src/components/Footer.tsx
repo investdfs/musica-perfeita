@@ -26,24 +26,24 @@ const Footer = () => {
   return (
     <footer className="bg-gradient-to-r from-pink-600 to-purple-700 text-white">
       {/* Top section with newsletter */}
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-8 pb-8 border-b border-white/20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center mb-8 pb-8 border-b border-white/20">
           <div>
-            <h3 className="text-2xl font-bold mb-2">Fique por dentro das novidades!</h3>
-            <p className="text-white/80">
+            <h3 className="text-xl sm:text-2xl font-bold mb-2">Fique por dentro das novidades!</h3>
+            <p className="text-white/80 text-sm sm:text-base">
               Receba inspirações, dicas exclusivas e promoções especiais.
             </p>
           </div>
           <div>
-            <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2">
               <Input 
                 type="email" 
                 name="email"
                 placeholder="Seu melhor e-mail" 
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white w-full"
                 required
               />
-              <Button type="submit" className="bg-yellow-400 hover:bg-yellow-500 text-gray-800">
+              <Button type="submit" className="bg-yellow-400 hover:bg-yellow-500 text-gray-800 whitespace-nowrap">
                 Inscrever <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </form>
@@ -51,7 +51,7 @@ const Footer = () => {
         </div>
         
         {/* Main footer content */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {/* About column */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
@@ -113,7 +113,7 @@ const Footer = () => {
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="h-5 w-5 text-yellow-300 mt-0.5" />
-                <span className="text-white/80">contato.musicaperfeita@gmail.com</span>
+                <span className="text-white/80 break-all">contato.musicaperfeita@gmail.com</span>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-5 w-5 text-yellow-300 mt-0.5" />
@@ -158,7 +158,7 @@ const Footer = () => {
         {/* Bottom copyright section */}
         <div className="pt-8 mt-8 border-t border-white/20 text-center text-white/70">
           <p>&copy; {currentYear} Musicaperfeita. Todos os direitos reservados.</p>
-          <div className="flex justify-center gap-4 mt-2 text-sm">
+          <div className="flex flex-wrap justify-center gap-4 mt-2 text-sm">
             <Link to="#" className="hover:text-white">Termos de Uso</Link>
             <Link to="#" className="hover:text-white">Política de Privacidade</Link>
             <Link to="#" className="hover:text-white">FAQ</Link>

@@ -83,7 +83,7 @@ const Navigation = ({ className }: { className?: string }) => {
         )}
       >
         <Info className="h-4 w-4" />
-        <span>Sobre o Projeto</span>
+        <span>Sobre</span>
       </Link>
     </nav>
   );

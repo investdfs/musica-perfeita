@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Phone, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -104,7 +103,7 @@ const Footer = () => {
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="h-5 w-5 text-yellow-300 mt-0.5" />
-                <span className="text-white/80">contato@musicaperfeita.com</span>
+                <span className="text-white/80">contato.musicaperfeita@gmail.com</span>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-5 w-5 text-yellow-300 mt-0.5" />

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
 import { MusicRequest, UserProfile } from "@/types/database.types";
@@ -11,6 +10,7 @@ import RequestsManagement from "@/components/admin/RequestsManagement";
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import NotificationsPanel from "@/components/admin/NotificationsPanel";
 import RequestsFilters from "@/components/admin/RequestsFilters";
+import { Card } from "@/components/ui/card";
 
 const mockUsers: UserProfile[] = [
   {
@@ -72,7 +72,6 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [requests, setRequests] = useState<MusicRequest[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const [activeTab, setActiveTab] = useState("requests");
   const [filteredRequests, setFilteredRequests] = useState<MusicRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
@@ -224,43 +223,37 @@ const Admin = () => {
             <NotificationsPanel />
           </div>
           
-          <Tabs defaultValue="requests" onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-3 mb-8">
-              <TabsTrigger value="requests">Pedidos de Música</TabsTrigger>
-              <TabsTrigger value="analytics">Análises</TabsTrigger>
-              <TabsTrigger value="users">Gerenciar Clientes</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="requests" className="mb-8">
-              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                <RequestsFilters 
-                  onSearch={handleSearch} 
-                  onFilterByStatus={handleFilterByStatus}
-                  onFilterByPaymentStatus={handleFilterByPaymentStatus}
-                  onClearFilters={handleClearFilters}
-                  searchQuery={searchQuery}
-                  filterStatus={filterStatus}
-                  filterPaymentStatus={filterPaymentStatus}
-                />
-                
-                <RequestsManagement 
-                  requests={filteredRequests} 
-                  users={users}
-                  setRequests={setRequests}
-                  isLoading={isLoading}
-                  getUserEmail={getUserEmail}
-                />
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="analytics" className="bg-white rounded-lg shadow-md p-6 mb-8">
+          <div className="space-y-8">
+            <Card className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold mb-4">Análises</h2>
               <AnalyticsDashboard requests={requests} users={users} />
-            </TabsContent>
+            </Card>
             
-            <TabsContent value="users" className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <Card className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold mb-4">Pedidos de Música</h2>
+              <RequestsFilters 
+                onSearch={handleSearch} 
+                onFilterByStatus={handleFilterByStatus}
+                onFilterByPaymentStatus={handleFilterByPaymentStatus}
+                onClearFilters={handleClearFilters}
+                searchQuery={searchQuery}
+                filterStatus={filterStatus}
+                filterPaymentStatus={filterPaymentStatus}
+              />
+              
+              <RequestsManagement 
+                requests={filteredRequests} 
+                users={users}
+                setRequests={setRequests}
+                isLoading={isLoading}
+                getUserEmail={getUserEmail}
+              />
+            </Card>
+            
+            <Card className="bg-white rounded-lg shadow-md p-6">
               <UserManagement users={users} fetchUsers={fetchUsers} />
-            </TabsContent>
-          </Tabs>
+            </Card>
+          </div>
         </div>
       </main>
       

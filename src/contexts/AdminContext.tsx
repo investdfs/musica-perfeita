@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect } from "react";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import { toast } from "@/hooks/use-toast";
@@ -82,11 +81,15 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (error) {
       console.error('Error fetching users:', error);
+      toast({
+        title: "Erro ao carregar usuários",
+        description: "Não foi possível carregar a lista de usuários",
+        variant: "destructive",
+      });
       throw error;
     }
   };
 
-  // Apply filters when dependencies change
   useEffect(() => {
     if (requests.length === 0) return;
     
@@ -112,7 +115,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     setFilteredRequests(result);
   }, [requests, searchQuery, filterStatus, filterPaymentStatus, users]);
 
-  // Initialize data
   useEffect(() => {
     const initializeData = async () => {
       setIsLoading(true);
@@ -134,7 +136,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     initializeData();
     
-    // Set up real-time subscription for data changes
     const requestsChannel = supabase
       .channel('music_requests_changes')
       .on('postgres_changes', { 
@@ -165,7 +166,6 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  // Export public methods/state
   const value = {
     isLoading,
     requests,

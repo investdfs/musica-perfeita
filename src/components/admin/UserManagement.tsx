@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { UserProfile } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
@@ -145,6 +144,9 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) =>
     return date.toLocaleDateString('pt-BR');
   };
 
+  // Filter out any admin users that might have been passed to this component
+  const regularUsers = users.filter(user => !user.is_admin);
+
   return (
     <>
       <div className="flex justify-between items-center mb-6">
@@ -161,7 +163,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) =>
         </Button>
       </div>
       
-      {users.length === 0 ? (
+      {regularUsers.length === 0 ? (
         <p className="text-center py-8">Nenhum cliente cadastrado.</p>
       ) : (
         <div className="overflow-x-auto">
@@ -177,7 +179,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) =>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
+              {regularUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="font-medium">{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>

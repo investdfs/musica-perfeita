@@ -47,11 +47,14 @@ const AdminDashboard = () => {
     checkAuth();
   }, [navigate]);
 
+  // Filter regular users (non-admin)
+  const regularUsers = users.filter(user => !user.is_admin);
+
   return (
     <div className="space-y-8">
       <Card className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">Análises</h2>
-        <AnalyticsDashboard requests={requests} users={users} />
+        <AnalyticsDashboard requests={requests} users={regularUsers} />
       </Card>
       
       <Card className="bg-white rounded-lg shadow-md p-6">
@@ -76,6 +79,7 @@ const AdminDashboard = () => {
       </Card>
       
       <Card className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-4">Administradores</h2>
         <AdminManagement 
           users={users} 
           fetchUsers={fetchUsers} 
@@ -84,7 +88,8 @@ const AdminDashboard = () => {
       </Card>
       
       <Card className="bg-white rounded-lg shadow-md p-6">
-        <UserManagement users={users} fetchUsers={fetchUsers} />
+        <h2 className="text-xl font-semibold mb-4">Clientes</h2>
+        <UserManagement users={regularUsers} fetchUsers={fetchUsers} />
       </Card>
     </div>
   );

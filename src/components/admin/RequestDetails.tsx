@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,12 +11,13 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { MusicRequest } from "@/types/database.types";
+import supabase from "@/lib/supabase";
 
 interface RequestDetailsProps {
   showDetails: boolean;
   setShowDetails: (show: boolean) => void;
   selectedRequest: MusicRequest | null;
-  handleUpload: () => void;
+  handleUpload: (uploadedUrl: string) => void;
   isUploading: boolean;
   setAudioFile: (file: File | null) => void;
 }
@@ -30,10 +30,60 @@ const RequestDetails = ({
   isUploading,
   setAudioFile 
 }: RequestDetailsProps) => {
+  const [audioFileLocal, setAudioFileLocal] = useState<File | null>(null);
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setAudioFile(e.target.files[0]);
+      const file = e.target.files[0];
+      setAudioFileLocal(file);
+      setAudioFile(file);
+    }
+  };
+
+  const uploadToSupabase = async () => {
+    if (!audioFileLocal || !selectedRequest) {
+      toast({
+        title: "Erro",
+        description: "Selecione um arquivo de áudio para enviar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Create a unique file path
+      const fileName = `music/${selectedRequest.id}/${Date.now()}-${audioFileLocal.name}`;
+      
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('music-files')
+        .upload(fileName, audioFileLocal, {
+          cacheControl: '3600',
+          upsert: false
+        });
+        
+      if (error) throw error;
+      
+      // Get the public URL for the uploaded file
+      const { data: urlData } = supabase.storage
+        .from('music-files')
+        .getPublicUrl(fileName);
+        
+      // Pass the URL back to the parent component
+      handleUpload(urlData.publicUrl);
+      
+      toast({
+        title: "Sucesso",
+        description: "Arquivo de áudio enviado com sucesso!",
+      });
+      
+    } catch (error: any) {
+      console.error('Error uploading file:', error);
+      toast({
+        title: "Erro no upload",
+        description: error.message || "Não foi possível enviar o arquivo de áudio",
+        variant: "destructive",
+      });
     }
   };
 
@@ -83,11 +133,11 @@ const RequestDetails = ({
               <h3 className="text-sm font-medium text-gray-500 mb-2">Enviar Música</h3>
               <Input 
                 type="file" 
-                accept="audio/mp3,audio/mpeg" 
+                accept="audio/mp3,audio/mpeg,audio/wav" 
                 onChange={handleFileChange}
               />
               <p className="text-xs text-gray-500 mt-1">
-                Envie o arquivo da música em formato MP3.
+                Envie o arquivo da música em formato MP3 ou WAV (máximo 15MB).
               </p>
             </div>
           </div>
@@ -101,8 +151,8 @@ const RequestDetails = ({
             Cancelar
           </Button>
           <Button 
-            onClick={handleUpload}
-            disabled={isUploading}
+            onClick={uploadToSupabase}
+            disabled={isUploading || !audioFileLocal}
           >
             {isUploading ? "Enviando..." : "Enviar Música"}
           </Button>

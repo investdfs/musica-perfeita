@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -65,30 +64,52 @@ const RequestsManagement = ({
     setShowDeliveryForm(true);
   };
 
-  const handleUpload = async () => {
-    if (!audioFile || !selectedRequest) return;
+  const handleUpload = async (uploadedUrl: string) => {
+    if (!selectedRequest) return;
     
     setIsUploading(true);
     
     try {
-      toast({
-        title: "Upload Simulado",
-        description: "Em um ambiente real, o arquivo seria processado e enviado.",
-      });
+      if (isDevelopmentOrPreview()) {
+        const updatedRequests = requests.map(req => 
+          req.id === selectedRequest.id 
+            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: uploadedUrl, preview_url: uploadedUrl } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      } else {
+        const { error } = await supabase
+          .from('music_requests')
+          .update({ 
+            status: 'completed', 
+            full_song_url: uploadedUrl,
+            preview_url: uploadedUrl
+          })
+          .eq('id', selectedRequest.id);
+          
+        if (error) throw error;
+        
+        const updatedRequests = requests.map(req => 
+          req.id === selectedRequest.id 
+            ? { ...req, status: 'completed', full_song_url: uploadedUrl, preview_url: uploadedUrl } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      }
       
-      const updatedRequests = requests.map(req => 
-        req.id === selectedRequest.id 
-          ? { ...req, status: 'completed' as MusicRequest['status'], preview_url: 'URL_SIMULADA' } 
-          : req
-      );
-      
-      setRequests(updatedRequests);
       setShowDetails(false);
-    } catch (error) {
-      console.error('Error uploading file:', error);
+      
       toast({
-        title: "Erro no upload",
-        description: "Não foi possível processar o arquivo de áudio",
+        title: "Música Enviada",
+        description: "A música foi enviada e o status do pedido foi atualizado para Concluído.",
+      });
+    } catch (error: any) {
+      console.error('Error updating request:', error);
+      toast({
+        title: "Erro ao atualizar",
+        description: error.message || "Não foi possível atualizar o status do pedido",
         variant: "destructive",
       });
     } finally {

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -82,7 +83,7 @@ const RequestsManagement = ({
         const { error } = await supabase
           .from('music_requests')
           .update({ 
-            status: 'completed', 
+            status: 'completed' as MusicRequest['status'], 
             full_song_url: uploadedUrl,
             preview_url: uploadedUrl
           })
@@ -90,9 +91,10 @@ const RequestsManagement = ({
           
         if (error) throw error;
         
+        // Fix: Explicitly cast status to the correct type
         const updatedRequests = requests.map(req => 
           req.id === selectedRequest.id 
-            ? { ...req, status: 'completed', full_song_url: uploadedUrl, preview_url: uploadedUrl } 
+            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: uploadedUrl, preview_url: uploadedUrl } 
             : req
         );
         
@@ -140,7 +142,7 @@ const RequestsManagement = ({
     try {
       const updates: { status?: MusicRequest['status'], payment_status?: MusicRequest['payment_status'] } = {};
       
-      if (status) updates.status = status as MusicRequest['status'];
+      if (status) updates.status = status;
       if (paymentStatus) updates.payment_status = paymentStatus;
       
       if (!isDevelopmentOrPreview()) {

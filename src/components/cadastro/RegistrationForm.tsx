@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import supabase from "@/lib/supabase";
 import { UserProfile } from "@/types/database.types";
 import { Eye, EyeOff } from "lucide-react";
+import { sendEmail, emailTemplates } from "@/lib/email";
 
 const formSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
@@ -39,24 +41,68 @@ const RegistrationForm = () => {
     setIsSubmitting(true);
     
     try {
-      const { data, error } = await supabase
+      // First, register the user with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+        options: {
+          data: {
+            name: values.name,
+            whatsapp: values.whatsapp,
+          }
+        }
+      });
+      
+      if (authError) throw authError;
+      
+      // Then save additional user details to the user_profiles table
+      const { data: profileData, error: profileError } = await supabase
         .from('user_profiles')
-        .insert([values])
+        .insert([{
+          id: authData.user?.id, // Link to the auth user id
+          name: values.name,
+          email: values.email,
+          whatsapp: values.whatsapp,
+          password: "" // Store an empty string as the password is already in auth
+        }])
         .select();
         
-      if (error) throw error;
-      
-      if (data && data.length > 0) {
-        const userProfile: UserProfile = data[0];
-        localStorage.setItem("musicaperfeita_user", JSON.stringify(userProfile));
-        
-        toast({
-          title: "Conta criada com sucesso!",
-          description: "Bem-vindo ao Musicaperfeita!",
-        });
-        
-        navigate("/dashboard");
+      if (profileError) {
+        console.error('Error creating user profile:', profileError);
+        // Try to continue even if profile creation fails
       }
+      
+      // Store user profile in localStorage
+      const userProfile: UserProfile = profileData?.[0] || {
+        id: authData.user?.id || '',
+        created_at: new Date().toISOString(),
+        name: values.name,
+        email: values.email,
+        whatsapp: values.whatsapp,
+        password: ""
+      };
+      
+      localStorage.setItem("musicaperfeita_user", JSON.stringify(userProfile));
+      
+      // Send welcome email
+      try {
+        const emailTemplate = emailTemplates.welcome(values.name);
+        await sendEmail({
+          to: values.email,
+          subject: emailTemplate.subject,
+          html: emailTemplate.html
+        });
+      } catch (emailError) {
+        console.error('Error sending welcome email:', emailError);
+        // Continue even if email fails
+      }
+      
+      toast({
+        title: "Conta criada com sucesso!",
+        description: "Bem-vindo ao Musicaperfeita!",
+      });
+      
+      navigate("/dashboard");
     } catch (error) {
       console.error('Error creating user:', error);
       toast({

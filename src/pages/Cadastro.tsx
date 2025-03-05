@@ -19,6 +19,10 @@ const Cadastro = () => {
                 Transforme seus sentimentos em melodia com apenas alguns passos.
                 Crie sua conta gratuitamente e comece a jornada musical!
               </p>
+              <p className="mt-4 text-sm text-gray-600">
+                Ao criar uma conta, você receberá um email de boas-vindas e terá acesso 
+                ao nosso painel para solicitar músicas personalizadas.
+              </p>
             </div>
             
             <RegistrationForm />

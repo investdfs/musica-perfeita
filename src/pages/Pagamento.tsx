@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -53,6 +54,16 @@ const Pagamento = () => {
             >
               {isProcessing ? "Processando..." : "Pagar com Mercado Pago"}
             </Button>
+            
+            {/* Mercado Pago Image */}
+            <div className="mt-4 mb-6">
+              <img 
+                src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/chamada-pix-mercado-pago.jpg" 
+                alt="Mercado Pago - Pagamento via PIX" 
+                className="max-w-full h-auto mx-auto rounded-lg shadow-sm"
+                style={{ maxHeight: "180px" }}
+              />
+            </div>
             
             <p className="text-sm text-gray-600">
               Sem custo antecipado. Pague só após aprovar!

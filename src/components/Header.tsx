@@ -15,6 +15,11 @@ const Header = () => {
         onClick={handleLogoClick}
         className="flex items-center cursor-pointer"
       >
+        <img 
+          src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-circular-logo-with-the-text-musica-per_lTHz7DfkRDyfkfvtzn6fig_aeKfBaktQAqReJjqARN5jQ-removebg-preview-1.png" 
+          alt="Musicaperfeita Logo" 
+          className="h-10 mr-2"
+        />
         <span className="text-2xl font-bold bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">
           Musicaperfeita
         </span>

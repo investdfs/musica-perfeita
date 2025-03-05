@@ -42,7 +42,7 @@ const AdminPage = () => {
   );
 };
 
-// New component for Admin Actions including adding new administrators
+// Componente para ações de administrador incluindo adicionar novos administradores
 const AdminActionsButton = () => {
   const { isMainAdmin, fetchUsers } = useAdmin();
   const [showAdminForm, setShowAdminForm] = useState(false);
@@ -55,11 +55,21 @@ const AdminActionsButton = () => {
     is_main_admin: false
   });
 
-  // Only show the button if user is main admin
+  // Se o usuário não for o administrador principal, não mostrar o botão
   if (!isMainAdmin) return null;
 
   const handleFormSubmit = async () => {
     try {
+      // Verificando campos obrigatórios
+      if (!formData.name || !formData.email || !formData.password) {
+        toast({
+          title: "Campos obrigatórios",
+          description: "Preencha todos os campos obrigatórios",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('user_profiles')
         .insert([{
@@ -90,7 +100,7 @@ const AdminActionsButton = () => {
       
       await fetchUsers();
     } catch (error) {
-      console.error('Error adding admin:', error);
+      console.error('Erro ao adicionar administrador:', error);
       toast({
         title: "Erro",
         description: "Não foi possível adicionar o administrador",

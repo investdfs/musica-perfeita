@@ -73,11 +73,16 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         setUsers(data as UserProfile[]);
         
         const adminEmail = localStorage.getItem('admin_email');
+        console.log("Admin email from localStorage:", adminEmail);
+        
         if (adminEmail) {
           const admin = data.find(user => user.email === adminEmail);
+          console.log("Found admin:", admin);
+          
           if (admin) {
             setCurrentUserProfile(admin);
             setIsMainAdmin(admin.is_main_admin === true);
+            console.log("Is main admin:", admin.is_main_admin);
           }
         }
       }

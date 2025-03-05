@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -65,10 +66,10 @@ const Dashboard = () => {
             const latestRequest = data[0];
             switch (latestRequest.status) {
               case 'pending':
-                setCurrentProgress(33);
+                setCurrentProgress(25);
                 break;
               case 'in_production':
-                setCurrentProgress(66);
+                setCurrentProgress(50);
                 break;
               case 'completed':
                 setCurrentProgress(100);
@@ -76,10 +77,15 @@ const Dashboard = () => {
               default:
                 setCurrentProgress(0);
             }
+          } else {
+            // Usuário cadastrado mas sem pedidos ainda
+            setCurrentProgress(10);
           }
         }
       } catch (error) {
         console.error('Error fetching music requests:', error);
+        // Mesmo com erro, mostrar que o cadastro foi realizado
+        setCurrentProgress(10);
       }
     };
     
@@ -90,7 +96,7 @@ const Dashboard = () => {
 
   const handleRequestSubmitted = (data: MusicRequest[]) => {
     setUserRequests([...data, ...userRequests]);
-    setCurrentProgress(33);
+    setCurrentProgress(25);
   };
 
   const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';

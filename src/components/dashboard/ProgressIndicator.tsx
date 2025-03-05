@@ -1,6 +1,6 @@
 
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle, Clock, Music } from "lucide-react";
+import { CheckCircle, Clock, Music, UserCheck } from "lucide-react";
 
 interface ProgressIndicatorProps {
   currentProgress: number;
@@ -19,17 +19,24 @@ const ProgressIndicator = ({ currentProgress }: ProgressIndicatorProps) => {
         }}
       />
       
-      <div className="grid grid-cols-3 gap-2">
-        <div className={`flex flex-col items-center p-3 rounded-lg transition-all ${currentProgress >= 33 ? 'bg-pink-50 text-pink-600' : 'text-gray-400'}`}>
-          <div className={`rounded-full p-2 mb-2 ${currentProgress >= 33 ? 'bg-pink-100' : 'bg-gray-100'}`}>
-            <CheckCircle className={`h-5 w-5 ${currentProgress >= 33 ? 'text-pink-500' : 'text-gray-400'}`} />
+      <div className="grid grid-cols-4 gap-2">
+        <div className={`flex flex-col items-center p-3 rounded-lg transition-all bg-green-50 text-green-600`}>
+          <div className={`rounded-full p-2 mb-2 bg-green-100`}>
+            <UserCheck className={`h-5 w-5 text-green-500`} />
+          </div>
+          <span className="text-sm font-medium text-center">Cadastro Realizado</span>
+        </div>
+
+        <div className={`flex flex-col items-center p-3 rounded-lg transition-all ${currentProgress >= 25 ? 'bg-pink-50 text-pink-600' : 'text-gray-400'}`}>
+          <div className={`rounded-full p-2 mb-2 ${currentProgress >= 25 ? 'bg-pink-100' : 'bg-gray-100'}`}>
+            <CheckCircle className={`h-5 w-5 ${currentProgress >= 25 ? 'text-pink-500' : 'text-gray-400'}`} />
           </div>
           <span className="text-sm font-medium text-center">Pedido Enviado</span>
         </div>
         
-        <div className={`flex flex-col items-center p-3 rounded-lg transition-all ${currentProgress >= 66 ? 'bg-purple-50 text-purple-600' : 'text-gray-400'}`}>
-          <div className={`rounded-full p-2 mb-2 ${currentProgress >= 66 ? 'bg-purple-100' : 'bg-gray-100'}`}>
-            <Clock className={`h-5 w-5 ${currentProgress >= 66 ? 'text-purple-500' : 'text-gray-400'}`} />
+        <div className={`flex flex-col items-center p-3 rounded-lg transition-all ${currentProgress >= 50 ? 'bg-purple-50 text-purple-600' : 'text-gray-400'}`}>
+          <div className={`rounded-full p-2 mb-2 ${currentProgress >= 50 ? 'bg-purple-100' : 'bg-gray-100'}`}>
+            <Clock className={`h-5 w-5 ${currentProgress >= 50 ? 'text-purple-500' : 'text-gray-400'}`} />
           </div>
           <span className="text-sm font-medium text-center">Em Produção</span>
         </div>

@@ -47,7 +47,7 @@ const ImageUpload = ({ onImageSelected }: ImageUploadProps) => {
       <div className="flex flex-col items-center">
         <div 
           className={cn(
-            "w-full aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all",
+            "w-full max-w-sm mx-auto aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer transition-all",
             isNonSquare 
               ? "border-amber-400 bg-amber-50" 
               : previewUrl 

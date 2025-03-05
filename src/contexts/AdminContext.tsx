@@ -73,27 +73,34 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         console.log("Users data fetched:", data);
         setUsers(data as UserProfile[]);
         
+        // Carrega informações do admin do localStorage
         const adminEmail = localStorage.getItem('admin_email');
+        const isAdminMain = localStorage.getItem('admin_is_main') === 'true';
+        
         console.log("Admin email from localStorage:", adminEmail);
+        console.log("Admin is main from localStorage:", isAdminMain);
         
         if (adminEmail) {
-          // Procurar o usuário admin pelo email exato
+          // Procura o usuário admin pelo email
           const admin = data.find(user => user.email === adminEmail);
-          console.log("Found admin:", admin);
+          console.log("Found admin user:", admin);
           
           if (admin) {
             setCurrentUserProfile(admin);
-            // Garantir que is_main_admin seja um booleano
-            const isMainAdminValue = admin.is_main_admin === true;
+            
+            // Definir isMainAdmin com base nos dados do localStorage e do banco
+            const isMainAdminValue = isAdminMain || admin.is_main_admin === true;
             console.log("Setting isMainAdmin to:", isMainAdminValue);
             setIsMainAdmin(isMainAdminValue);
           } else {
             console.log("Admin não encontrado com o email:", adminEmail);
             setIsMainAdmin(false);
+            setCurrentUserProfile(null);
           }
         } else {
           console.log("Email do admin não encontrado no localStorage");
           setIsMainAdmin(false);
+          setCurrentUserProfile(null);
         }
       }
     } catch (error) {

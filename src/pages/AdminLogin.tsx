@@ -25,19 +25,26 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Check if we're already logged in as admin
+    const isAdmin = localStorage.getItem("musicaperfeita_admin");
+    if (isAdmin === "true") {
+      navigate("/admin");
+      return;
+    }
+    
+    // Auto-login in development mode
     if (isDevelopmentOrPreview()) {
       localStorage.setItem("musicaperfeita_admin", "true");
       localStorage.setItem("admin_email", "contato@musicaperfeita.com");
-      const timer = setTimeout(() => {
-        navigate("/admin");
-      }, 1000);
       
       toast({
         title: "Acesso de desenvolvimento/preview",
         description: "Autenticação automática como administrador em modo de desenvolvimento ou preview",
       });
       
-      return () => clearTimeout(timer);
+      setTimeout(() => {
+        navigate("/admin");
+      }, 1000);
     }
   }, [navigate]);
 
@@ -54,7 +61,7 @@ const AdminLogin = () => {
     console.log('Tentando login com:', values);
     
     try {
-      // Busca o usuário no Supabase com email e senha exatos
+      // Busca o usuário no Supabase sem verificar is_admin primeiro
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -63,19 +70,33 @@ const AdminLogin = () => {
 
       console.log('Resultado da consulta:', data, error);
 
-      // Verifica se retornou dados e se o usuário é admin
-      if (error || !data || data.length === 0) {
+      // Se não encontrar usuário ou houver erro
+      if (error) {
+        console.error("Erro na consulta:", error);
         toast({
-          title: "Credenciais inválidas",
-          description: "Email ou senha incorretos, ou você não tem permissões de administrador",
+          title: "Erro ao fazer login",
+          description: "Ocorreu um erro ao tentar autenticar. Tente novamente.",
           variant: "destructive",
         });
         setIsSubmitting(false);
         return;
       }
       
-      // Verifica se o usuário tem a flag is_admin
+      // Se não encontrar nenhum usuário
+      if (!data || data.length === 0) {
+        toast({
+          title: "Credenciais inválidas",
+          description: "Email ou senha incorretos",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Verifica se o usuário tem permissão de admin
       const user = data[0];
+      console.log("Usuário encontrado:", user);
+      
       if (!user.is_admin) {
         toast({
           title: "Acesso negado",
@@ -86,9 +107,11 @@ const AdminLogin = () => {
         return;
       }
       
-      // Armazena informações do admin no localStorage
+      // Login bem-sucedido, salva as informações no localStorage
       localStorage.setItem("musicaperfeita_admin", "true");
       localStorage.setItem("admin_email", values.email);
+      localStorage.setItem("admin_id", user.id);
+      localStorage.setItem("admin_is_main", user.is_main_admin ? "true" : "false");
       
       toast({
         title: "Login bem-sucedido",

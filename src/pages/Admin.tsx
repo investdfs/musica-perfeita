@@ -1,17 +1,37 @@
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import NotificationsPanel from "@/components/admin/NotificationsPanel";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import { AdminProvider } from "@/contexts/AdminContext";
+import { toast } from "@/hooks/use-toast";
 
 const AdminPage = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
+    // Verifica se o usuário está logado como admin
     const isAdmin = localStorage.getItem("musicaperfeita_admin");
     if (!isAdmin) {
+      toast({
+        title: "Acesso restrito",
+        description: "Você precisa fazer login como administrador para acessar esta página",
+        variant: "destructive",
+      });
+      navigate("/admin-login");
+      return;
+    }
+    
+    // Verifica se temos o email do admin
+    const adminEmail = localStorage.getItem("admin_email");
+    if (!adminEmail) {
+      toast({
+        title: "Sessão inválida",
+        description: "Sua sessão expirou ou está inválida. Por favor, faça login novamente",
+        variant: "destructive",
+      });
+      localStorage.removeItem("musicaperfeita_admin");
       navigate("/admin-login");
     }
   }, [navigate]);

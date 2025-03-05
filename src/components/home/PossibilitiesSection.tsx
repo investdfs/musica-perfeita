@@ -1,29 +1,28 @@
-
-import { Music, Cake, Gift, Heart, Leaf, Baby, Sparkles, Award, PartyPopper } from "lucide-react";
+import { Music, Cake, Gift, Heart, Leaf, Baby, Sparkles, Award, PartyPopper, GraduationCap, Ring } from "lucide-react";
 
 const PossibilitiesSection = () => {
   return (
-    <section className="py-16 px-6 bg-gradient-to-b from-purple-50 to-white">
+    <section className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-b from-purple-50 to-white">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl font-bold text-center mb-6 text-purple-800">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4 sm:mb-6 text-purple-800">
           Deixe que a magia da música personalize suas emoções e momentos
         </h2>
         
-        <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-lg">
+        <p className="text-center text-gray-600 mb-8 sm:mb-12 max-w-3xl mx-auto text-base sm:text-lg">
           Cada momento especial merece uma trilha sonora única. Descubra como nossa música personalizada 
           pode tornar suas ocasiões inesquecíveis.
         </p>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {/* Card 1: Dias Comemorativos */}
-          <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
+          <div className="bg-white p-5 sm:p-6 rounded-xl shadow-md hover:shadow-lg transition-all hover:translate-y-[-5px] border border-purple-100">
             <div className="flex justify-center mb-4">
-              <div className="bg-pink-500 p-4 rounded-full">
-                <Music className="h-8 w-8 text-white" />
+              <div className="bg-pink-500 p-3 sm:p-4 rounded-full">
+                <Music className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
               </div>
             </div>
-            <h3 className="text-xl font-semibold mb-3 text-center text-purple-700">Dias Comemorativos</h3>
-            <p className="text-gray-600 text-center">
+            <h3 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3 text-center text-purple-700">Dias Comemorativos</h3>
+            <p className="text-gray-600 text-center text-sm sm:text-base">
               Dia dos Pais, Dia das Mães, Dia do Amigo e outros: Celebre essas datas especiais com uma música 
               personalizada que expressa todo o amor e carinho que você sente.
             </p>
@@ -100,50 +99,51 @@ const PossibilitiesSection = () => {
           </div>
         </div>
 
-        <div className="mt-12 text-center">
-          <p className="text-xl text-purple-800 font-medium mb-8">Mais ocasiões para eternizar com música</p>
-          <div className="max-w-4xl mx-auto bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-8 shadow-md">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-pink-500 p-2 rounded-full">
+        <div className="mt-10 sm:mt-12 text-center">
+          <h3 className="text-xl text-purple-800 font-medium mb-5 sm:mb-6">Mais ocasiões para eternizar com música</h3>
+          
+          <div className="max-w-4xl mx-auto bg-pink-50 rounded-lg p-5 sm:p-8 shadow-md">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6">
+              <div className="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-pink-500 p-2 rounded-full mb-2">
                   <Gift className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-medium text-purple-800">Bodas de Casamento</span>
+                <span className="font-medium text-purple-800 text-sm text-center">Bodas de Casamento</span>
               </div>
               
-              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-pink-500 p-2 rounded-full">
-                  <Leaf className="h-5 w-5 text-white" />
+              <div className="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-pink-500 p-2 rounded-full mb-2">
+                  <GraduationCap className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-medium text-purple-800">Formatura</span>
+                <span className="font-medium text-purple-800 text-sm text-center">Formatura</span>
               </div>
               
-              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-pink-500 p-2 rounded-full">
-                  <Sparkles className="h-5 w-5 text-white" />
-                </div>
-                <span className="font-medium text-purple-800">Pedido de Namoro</span>
-              </div>
-              
-              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-pink-500 p-2 rounded-full">
+              <div className="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-pink-500 p-2 rounded-full mb-2">
                   <Heart className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-medium text-purple-800">Pedido de Noivado</span>
+                <span className="font-medium text-purple-800 text-sm text-center">Pedido de Namoro</span>
               </div>
               
-              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-pink-500 p-2 rounded-full">
+              <div className="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-pink-500 p-2 rounded-full mb-2">
+                  <Ring className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-medium text-purple-800 text-sm text-center">Pedido de Noivado</span>
+              </div>
+              
+              <div className="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-pink-500 p-2 rounded-full mb-2">
                   <Music className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-medium text-purple-800">Jubileu</span>
+                <span className="font-medium text-purple-800 text-sm text-center">Jubileu</span>
               </div>
               
-              <div className="flex items-center space-x-3 bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
-                <div className="bg-pink-500 p-2 rounded-full">
+              <div className="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-pink-500 p-2 rounded-full mb-2">
                   <Cake className="h-5 w-5 text-white" />
                 </div>
-                <span className="font-medium text-purple-800">Bodas de Ouro</span>
+                <span className="font-medium text-purple-800 text-sm text-center">Bodas de Ouro</span>
               </div>
             </div>
           </div>

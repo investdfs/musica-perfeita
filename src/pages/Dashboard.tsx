@@ -10,6 +10,8 @@ import MusicPreviewPlayer from "@/components/dashboard/MusicPreviewPlayer";
 import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
 import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 
 const Dashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -158,6 +160,20 @@ const Dashboard = () => {
           )}
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={hasAnyRequest} />
+          
+          {hasCompletedRequest && (
+            <div className="text-center mb-8">
+              <Button 
+                onClick={() => navigate("/music-preview", { 
+                  state: { musicRequest: userRequests[0] } 
+                })}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
+              >
+                <Eye className="mr-2 h-5 w-5" />
+                Ver meu Pedido
+              </Button>
+            </div>
+          )}
           
           {hasPreviewUrl && (
             <MusicPreviewPlayer 

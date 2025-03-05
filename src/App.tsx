@@ -13,6 +13,7 @@ import Pagamento from "./pages/Pagamento";
 import Confirmacao from "./pages/Confirmacao";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
+import MusicPreview from "./pages/MusicPreview";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/confirmacao" element={<Confirmacao />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/music-preview" element={<MusicPreview />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

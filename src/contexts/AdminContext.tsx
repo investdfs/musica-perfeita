@@ -3,64 +3,6 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
-import { isDevelopmentOrPreview } from "@/lib/environment";
-
-// Mock data for development/preview
-const mockUsers: UserProfile[] = [
-  {
-    id: "1",
-    created_at: new Date().toISOString(),
-    name: "João Silva",
-    email: "joao@teste.com",
-    whatsapp: "+5511999999991",
-    password: "senha123"
-  },
-  {
-    id: "2",
-    created_at: new Date().toISOString(),
-    name: "Maria Oliveira",
-    email: "maria@teste.com",
-    whatsapp: "+5511999999992",
-    password: "senha456"
-  }
-];
-
-const mockRequests: MusicRequest[] = [
-  {
-    id: "1",
-    created_at: new Date().toISOString(),
-    user_id: "1",
-    honoree_name: "Ana Pereira",
-    relationship_type: "esposa",
-    custom_relationship: null,
-    music_genre: "romantic",
-    include_names: true,
-    names_to_include: "João e Ana",
-    story: "Esta é uma história de teste para o sistema. João quer uma música romântica para sua esposa Ana que está completando 10 anos de casamento.",
-    status: "pending",
-    payment_status: "completed",
-    preview_url: null,
-    full_song_url: null,
-    cover_image_url: null
-  },
-  {
-    id: "2",
-    created_at: new Date().toISOString(),
-    user_id: "2",
-    honoree_name: "Pedro Santos",
-    relationship_type: "friend",
-    custom_relationship: null,
-    music_genre: "rock",
-    include_names: false,
-    names_to_include: null,
-    story: "Pedro é meu melhor amigo desde a escola. Sempre gostamos de rock e queremos compartilhar momentos especiais com uma música personalizada sobre nossa amizade.",
-    status: "in_production",
-    payment_status: "completed",
-    preview_url: null,
-    full_song_url: null,
-    cover_image_url: null
-  }
-];
 
 type AdminContextType = {
   isLoading: boolean;
@@ -71,6 +13,8 @@ type AdminContextType = {
   fetchRequests: () => Promise<void>;
   fetchUsers: () => Promise<void>;
   getUserEmail: (userId: string) => string | undefined;
+  currentUserProfile: UserProfile | null;
+  isMainAdmin: boolean;
 };
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -83,6 +27,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [filterPaymentStatus, setFilterPaymentStatus] = useState<string | null>(null);
+  const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile | null>(null);
+  const [isMainAdmin, setIsMainAdmin] = useState(false);
 
   const getUserEmail = (userId: string): string | undefined => {
     const user = users.find(u => u.id === userId);
@@ -123,6 +69,16 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (data) {
         setUsers(data as UserProfile[]);
+        
+        // Check if current user is the main admin
+        const adminEmail = localStorage.getItem('admin_email');
+        if (adminEmail) {
+          const admin = data.find(user => user.email === adminEmail);
+          if (admin) {
+            setCurrentUserProfile(admin);
+            setIsMainAdmin(admin.is_main_admin === true);
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -159,28 +115,54 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   // Initialize data
   useEffect(() => {
     const initializeData = async () => {
-      if (isDevelopmentOrPreview()) {
-        setUsers(mockUsers);
-        setRequests(mockRequests);
-        setFilteredRequests(mockRequests);
-        setIsLoading(false);
-        return;
-      }
+      setIsLoading(true);
       
       try {
         await fetchRequests();
         await fetchUsers();
       } catch (error) {
         console.error("Error initializing data:", error);
-        setUsers(mockUsers);
-        setRequests(mockRequests);
-        setFilteredRequests(mockRequests);
+        toast({
+          title: "Erro ao carregar dados",
+          description: "Verifique sua conexão com a internet e tente novamente",
+          variant: "destructive",
+        });
       }
       
       setIsLoading(false);
     };
 
     initializeData();
+    
+    // Set up real-time subscription for data changes
+    const requestsChannel = supabase
+      .channel('music_requests_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'music_requests' 
+      }, () => {
+        console.log('Music requests changed, refreshing data...');
+        fetchRequests();
+      })
+      .subscribe();
+      
+    const usersChannel = supabase
+      .channel('user_profiles_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'user_profiles' 
+      }, () => {
+        console.log('User profiles changed, refreshing data...');
+        fetchUsers();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(requestsChannel);
+      supabase.removeChannel(usersChannel);
+    };
   }, []);
 
   // Export public methods/state
@@ -193,6 +175,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     fetchRequests,
     fetchUsers,
     getUserEmail,
+    currentUserProfile,
+    isMainAdmin,
   };
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

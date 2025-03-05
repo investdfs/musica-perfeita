@@ -76,6 +76,8 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
+          is_admin: boolean | null
+          is_main_admin: boolean | null
           name: string
           password: string
           whatsapp: string
@@ -84,6 +86,8 @@ export type Database = {
           created_at?: string | null
           email: string
           id?: string
+          is_admin?: boolean | null
+          is_main_admin?: boolean | null
           name: string
           password: string
           whatsapp: string
@@ -92,6 +96,8 @@ export type Database = {
           created_at?: string | null
           email?: string
           id?: string
+          is_admin?: boolean | null
+          is_main_admin?: boolean | null
           name?: string
           password?: string
           whatsapp?: string

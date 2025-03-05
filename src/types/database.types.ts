@@ -6,6 +6,8 @@ export type UserProfile = {
   email: string;
   whatsapp: string;
   password: string;
+  is_admin?: boolean;
+  is_main_admin?: boolean;
 };
 
 export type MusicRequest = {

@@ -3,17 +3,26 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { isDevelopmentOrPreview } from "@/lib/environment";
 import { useAdmin } from "@/contexts/AdminContext";
 import UserManagement from "@/components/admin/UserManagement";
 import RequestsManagement from "@/components/admin/RequestsManagement";
 import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
-import NotificationsPanel from "@/components/admin/NotificationsPanel";
 import RequestsFilters from "@/components/admin/RequestsFilters";
 import { useAdminFilters } from "@/contexts/AdminContext";
+import AdminManagement from "@/components/admin/AdminManagement";
 
 const AdminDashboard = () => {
-  const { isLoading, requests, users, filteredRequests, setRequests, getUserEmail, fetchUsers } = useAdmin();
+  const { 
+    isLoading, 
+    requests, 
+    users, 
+    filteredRequests, 
+    setRequests, 
+    getUserEmail,
+    fetchUsers,
+    isMainAdmin
+  } = useAdmin();
+  
   const {
     searchQuery,
     filterStatus,
@@ -23,22 +32,15 @@ const AdminDashboard = () => {
     handleFilterByPaymentStatus,
     handleClearFilters
   } = useAdminFilters();
+  
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (isDevelopmentOrPreview()) {
-        localStorage.setItem("musicaperfeita_admin", "true");
-        toast({
-          title: "Acesso de desenvolvimento/preview",
-          description: "Autenticação automática como administrador em modo de desenvolvimento ou preview",
-        });
-        return;
-      }
-      
       const isAdmin = localStorage.getItem("musicaperfeita_admin");
       if (!isAdmin) {
         navigate("/admin-login");
+        return;
       }
     };
     
@@ -70,6 +72,14 @@ const AdminDashboard = () => {
           setRequests={setRequests}
           isLoading={isLoading}
           getUserEmail={getUserEmail}
+        />
+      </Card>
+      
+      <Card className="bg-white rounded-lg shadow-md p-6">
+        <AdminManagement 
+          users={users} 
+          fetchUsers={fetchUsers} 
+          isMainAdmin={isMainAdmin}
         />
       </Card>
       

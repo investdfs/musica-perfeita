@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
+import supabase from "@/lib/supabase";
 
 const adminLoginSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
@@ -25,6 +27,7 @@ const AdminLogin = () => {
   useEffect(() => {
     if (isDevelopmentOrPreview()) {
       localStorage.setItem("musicaperfeita_admin", "true");
+      localStorage.setItem("admin_email", "admin@musicaperfeita.com");
       const timer = setTimeout(() => {
         navigate("/admin");
       }, 1000);
@@ -49,8 +52,27 @@ const AdminLogin = () => {
   const onSubmit = async (values: AdminLoginValues) => {
     setIsSubmitting(true);
     
-    if (values.email === "admin@musicaperfeita.com" && values.password === "admin123") {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('email', values.email)
+        .eq('password', values.password)
+        .eq('is_admin', true)
+        .single();
+
+      if (error || !data) {
+        toast({
+          title: "Credenciais inválidas",
+          description: "Email ou senha incorretos, ou você não tem permissões de administrador",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      
       localStorage.setItem("musicaperfeita_admin", "true");
+      localStorage.setItem("admin_email", values.email);
       
       toast({
         title: "Login bem-sucedido",
@@ -58,15 +80,15 @@ const AdminLogin = () => {
       });
       
       navigate("/admin");
-    } else {
+    } catch (error) {
+      console.error('Login error:', error);
       toast({
-        title: "Credenciais inválidas",
-        description: "Email ou senha incorretos",
+        title: "Erro ao fazer login",
+        description: "Ocorreu um erro ao tentar fazer login. Tente novamente.",
         variant: "destructive",
       });
+      setIsSubmitting(false);
     }
-    
-    setIsSubmitting(false);
   };
 
   return (
@@ -119,13 +141,13 @@ const AdminLogin = () => {
             
             <div className="mt-4 text-center text-sm">
               <p className="text-gray-500">
-                Para fins de demonstração, use:
+                Administrador principal:
               </p>
               <p className="text-gray-600">
-                Email: admin@musicaperfeita.com
+                Email: contato@musicaperfeita@gmail.com
               </p>
               <p className="text-gray-600">
-                Senha: admin123
+                Senha: 212300Lr@
               </p>
             </div>
           </div>

@@ -1,5 +1,6 @@
+
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Phone, ArrowRight } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Phone, ArrowRight, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -64,6 +65,15 @@ const Footer = () => {
             <p className="text-sm text-white/80">
               Transformamos histórias de amor e carinho em canções únicas e emocionantes, criadas especialmente para momentos especiais.
             </p>
+            <a 
+              href="https://www.musicaperfeita.com.br" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-white hover:text-yellow-300 transition-colors font-medium mt-2"
+            >
+              <Globe className="h-4 w-4 mr-1" />
+              www.musicaperfeita.com.br
+            </a>
           </div>
           
           {/* Links column */}
@@ -153,6 +163,14 @@ const Footer = () => {
             <Link to="#" className="hover:text-white">Política de Privacidade</Link>
             <Link to="#" className="hover:text-white">FAQ</Link>
           </div>
+          <a 
+            href="https://www.musicaperfeita.com.br" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="block mt-3 text-sm text-yellow-300 hover:text-yellow-100 transition-colors"
+          >
+            Visite nosso site oficial: www.musicaperfeita.com.br
+          </a>
         </div>
       </div>
     </footer>

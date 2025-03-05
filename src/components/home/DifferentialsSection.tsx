@@ -52,6 +52,48 @@ const DifferentialsSection = () => {
                 </a>
               </div>
             </div>
+
+            {/* Example 3 - New */}
+            <div className="bg-white rounded-lg overflow-hidden shadow-md">
+              <iframe 
+                width="100%" 
+                height="300" 
+                scrolling="no" 
+                frameBorder="no" 
+                allow="autoplay" 
+                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/2047330104&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true"
+                className="border-0"
+              ></iframe>
+              <div className="p-3 text-xs text-gray-500 border-t border-gray-100">
+                <a href="https://soundcloud.com/musicaperfeita" title="Música Perfeita 🎶" target="_blank" className="hover:text-pink-500 transition-colors">
+                  Música Perfeita 🎶
+                </a> · 
+                <a href="https://soundcloud.com/musicaperfeita/na-beira-do-rio" title="Na Beira do Rio - Saudades" target="_blank" className="hover:text-pink-500 transition-colors ml-1">
+                  Na Beira do Rio - Saudades
+                </a>
+              </div>
+            </div>
+            
+            {/* Example 4 - New */}
+            <div className="bg-white rounded-lg overflow-hidden shadow-md">
+              <iframe 
+                width="100%" 
+                height="300" 
+                scrolling="no" 
+                frameBorder="no" 
+                allow="autoplay" 
+                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/2047353192&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true"
+                className="border-0"
+              ></iframe>
+              <div className="p-3 text-xs text-gray-500 border-t border-gray-100">
+                <a href="https://soundcloud.com/musicaperfeita" title="Música Perfeita 🎶" target="_blank" className="hover:text-pink-500 transition-colors">
+                  Música Perfeita 🎶
+                </a> · 
+                <a href="https://soundcloud.com/musicaperfeita/raploversp" title="João Gabriel - SP - Rap Lover" target="_blank" className="hover:text-pink-500 transition-colors ml-1">
+                  João Gabriel - SP - Rap Lover
+                </a>
+              </div>
+            </div>
           </div>
         </div>
         

@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -23,13 +22,12 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Função otimizada para verificar autenticação
   const checkUserAuth = useCallback(() => {
     const storedUser = localStorage.getItem("musicaperfeita_user");
     
     if (!storedUser && isDevelopmentOrPreview()) {
       const testUser = {
-        id: uuidv4(), // Usando UUID válido para modo dev
+        id: uuidv4(),
         name: 'Usuário de Desenvolvimento',
         email: 'dev@example.com',
         created_at: new Date().toISOString(),
@@ -60,13 +58,11 @@ const Dashboard = () => {
     const userInfo = storedUser ? JSON.parse(storedUser) : null;
     setUserProfile(userInfo);
   }, [navigate]);
-  
-  // Função otimizada para buscar pedidos do usuário
+
   const fetchUserRequests = useCallback(async () => {
     try {
       if (!userProfile?.id) return;
       
-      // Evita o UUID inválido no modo de desenvolvimento
       if (userProfile.id === 'dev-user-id') {
         setUserRequests([]);
         setCurrentProgress(10);
@@ -114,19 +110,16 @@ const Dashboard = () => {
     }
   }, [userProfile]);
 
-  // Carrega dados iniciais
   useEffect(() => {
     checkUserAuth();
   }, [checkUserAuth]);
 
-  // Busca pedidos quando o perfil do usuário estiver disponível
   useEffect(() => {
     if (userProfile) {
       fetchUserRequests();
     }
   }, [userProfile, fetchUserRequests]);
 
-  // Configura monitoramento de alterações na visibilidade da página
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
@@ -141,13 +134,11 @@ const Dashboard = () => {
     };
   }, [checkUserAuth]);
 
-  // Configura verificação periódica de atualizações
   useEffect(() => {
     if (!userProfile?.id) return;
     
     const checkForStatusUpdates = async () => {
       try {
-        // Evita o UUID inválido no modo de desenvolvimento
         if (userProfile.id === 'dev-user-id') {
           return;
         }
@@ -254,7 +245,7 @@ const Dashboard = () => {
             
             <Button 
               disabled={!(hasCompletedRequest && hasPaidRequest)}
-              onClick={() => navigate("/confirmacao", { state: { musicRequest: userRequests[0] } })}
+              onClick={() => navigate("/minha-musica", { state: { musicRequest: userRequests[0] } })}
               className={`px-6 py-3 rounded-lg shadow-md transition-all text-lg w-full max-w-md ${
                 hasCompletedRequest && hasPaidRequest 
                   ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white" 

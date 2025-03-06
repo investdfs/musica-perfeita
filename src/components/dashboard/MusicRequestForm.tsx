@@ -67,26 +67,12 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md p-8">
-      <div 
-        className="flex justify-between items-center cursor-pointer" 
-        onClick={toggleForm}
-      >
-        <FormIntroduction />
-        {!hasExistingRequest && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-purple-600"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleForm();
-            }}
-          >
-            {isFormExpanded ? <ChevronUp /> : <ChevronDown />}
-          </Button>
-        )}
-      </div>
+    <div className="bg-white rounded-xl shadow-md p-8 relative">
+      <FormIntroduction 
+        isExpanded={isFormExpanded} 
+        toggleForm={toggleForm} 
+        canToggle={!hasExistingRequest}
+      />
       
       {isFormExpanded && (
         <>

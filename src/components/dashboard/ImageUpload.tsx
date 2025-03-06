@@ -37,8 +37,8 @@ const ImageUpload = ({ onImageSelected }: ImageUploadProps) => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg border border-pink-100 shadow-sm mb-6">
-      <h3 className="text-lg font-medium mb-3 text-pink-700">Imagem de Capa</h3>
+    <div className="bg-pink-50 p-6 rounded-lg border border-pink-100 shadow-sm mb-6">
+      <h3 className="text-lg font-medium mb-3 text-pink-600">Imagem de Capa</h3>
       <p className="text-sm text-gray-600 mb-2">
         <span className="font-semibold">IMPORTANTE:</span> A imagem deve ser quadrada (1:1) para melhor 
         visualização. Imagens retangulares podem ficar cortadas ou distorcidas.

@@ -1,12 +1,11 @@
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest } from "@/types/database.types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import MusicPreviewPlayer from "@/components/dashboard/MusicPreviewPlayer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Music, Headphones, Calendar, User, Clock } from "lucide-react";
+import { ArrowLeft, Download, Music } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const MusicPreview = () => {
@@ -52,6 +51,18 @@ const MusicPreview = () => {
     return genreMap[genre] || genre;
   };
 
+  const handleDownload = () => {
+    if (musicRequest.full_song_url) {
+      window.open(musicRequest.full_song_url, '_blank');
+    } else {
+      toast({
+        title: "Arquivo não disponível",
+        description: "O arquivo para download ainda não está disponível",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-900 via-purple-800 to-pink-700 text-white">
       <Header />
@@ -69,7 +80,7 @@ const MusicPreview = () => {
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-4">Sua Música Personalizada</h1>
             <p className="text-lg text-indigo-200">
-              Ouça a prévia da sua música criada para {musicRequest.honoree_name}
+              Música criada especialmente para {musicRequest.honoree_name}
             </p>
           </div>
           
@@ -80,55 +91,82 @@ const MusicPreview = () => {
                 <p className="text-sm text-indigo-200">
                   Música {getGenreText(musicRequest.music_genre)} personalizada
                 </p>
+                <p className="text-sm text-indigo-200 mt-1">
+                  Criada em: {formatDate(musicRequest.created_at)}
+                </p>
               </div>
               <div className="rounded-full bg-indigo-600 p-3">
                 <Music className="h-6 w-6" />
               </div>
             </div>
             
-            <div className="mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-black/20 p-4 rounded-lg">
-                  <p className="text-sm text-indigo-300 mb-1 flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Data do Pedido
-                  </p>
-                  <p>{formatDate(musicRequest.created_at)}</p>
+            {/* Player de vídeo */}
+            <div className="mb-6 bg-black rounded-lg overflow-hidden">
+              {musicRequest.preview_url ? (
+                <div className="aspect-video w-full">
+                  {musicRequest.preview_url.includes('soundcloud.com') ? (
+                    // Player SoundCloud
+                    <iframe 
+                      width="100%" 
+                      height="100%" 
+                      scrolling="no" 
+                      frameBorder="no" 
+                      src={musicRequest.preview_url}
+                      className="w-full h-full"
+                      allow="autoplay"
+                    ></iframe>
+                  ) : (
+                    // Player de Vídeo padrão
+                    <video 
+                      controls 
+                      className="w-full h-full"
+                      poster={musicRequest.cover_image_url || undefined}
+                    >
+                      <source src={musicRequest.preview_url} type="video/mp4" />
+                      Seu navegador não suporta a reprodução de vídeos.
+                    </video>
+                  )}
                 </div>
-                <div className="bg-black/20 p-4 rounded-lg">
-                  <p className="text-sm text-indigo-300 mb-1 flex items-center">
-                    <User className="h-4 w-4 mr-1" />
-                    Para
-                  </p>
-                  <p>{musicRequest.honoree_name}</p>
-                </div>
-                <div className="bg-black/20 p-4 rounded-lg">
-                  <p className="text-sm text-indigo-300 mb-1 flex items-center">
-                    <Clock className="h-4 w-4 mr-1" />
-                    Status
-                  </p>
-                  <p className="flex items-center">
-                    <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
-                      musicRequest.status === 'completed' ? 'bg-green-500' : 'bg-yellow-500'
-                    }`}></span>
-                    {musicRequest.status === 'completed' ? 'Concluído' : 'Em produção'}
+              ) : (
+                <div className="aspect-video w-full flex items-center justify-center bg-gray-900">
+                  <p className="text-gray-400">
+                    Prévia não disponível no momento
                   </p>
                 </div>
-              </div>
+              )}
             </div>
             
-            <MusicPreviewPlayer 
-              previewUrl={musicRequest.preview_url || ''} 
-              fullSongUrl={musicRequest.full_song_url} 
-              isCompleted={musicRequest.status === 'completed'} 
-            />
+            {/* Botão de download */}
+            <div className="text-center mt-8">
+              <Button
+                onClick={handleDownload}
+                disabled={!musicRequest.full_song_url || musicRequest.payment_status !== 'completed'}
+                className={`px-6 py-3 rounded-lg shadow-lg transition-all flex items-center justify-center gap-2 w-full ${
+                  musicRequest.full_song_url && musicRequest.payment_status === 'completed'
+                    ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
+                    : "bg-gray-600 text-gray-300 cursor-not-allowed"
+                }`}
+              >
+                <Download className="h-5 w-5" />
+                {musicRequest.payment_status === 'completed' 
+                  ? "Baixar Música Completa" 
+                  : "Faça o pagamento para baixar a música completa"}
+              </Button>
+              
+              {musicRequest.payment_status !== 'completed' && (
+                <Button
+                  onClick={() => navigate("/pagamento", { state: { musicRequest } })}
+                  className="mt-4 bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-black font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all"
+                >
+                  Realizar Pagamento
+                </Button>
+              )}
+            </div>
           </div>
           
-          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 shadow-xl border border-white/10 mb-8">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <Headphones className="mr-2 h-5 w-5" />
-              Sobre Sua Música
-            </h2>
+          {/* Informações sobre a música */}
+          <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 shadow-xl border border-white/10">
+            <h2 className="text-xl font-semibold mb-4">Sobre Esta Música</h2>
             <div className="space-y-4">
               <p>
                 Esta música foi criada especialmente para <strong>{musicRequest.honoree_name}</strong>.
@@ -139,22 +177,13 @@ const MusicPreview = () => {
                   <p className="italic bg-black/20 p-4 rounded-lg">"{musicRequest.story}"</p>
                 </div>
               )}
-              <p>
-                Você está ouvindo apenas uma prévia da música. Para ter acesso à versão completa, realize o pagamento.
-              </p>
+              
+              {musicRequest.payment_status !== 'completed' && (
+                <p className="mt-4 text-yellow-300">
+                  Para ter acesso à versão completa e baixar a música, realize o pagamento.
+                </p>
+              )}
             </div>
-          </div>
-          
-          <div className="text-center">
-            <Button
-              onClick={() => navigate("/pagamento", { state: { musicRequest } })}
-              className="bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-black font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all"
-            >
-              Realizar Pagamento para Liberar Música Completa
-            </Button>
-            <p className="mt-4 text-indigo-200 text-sm">
-              Após o pagamento, você terá acesso à versão completa da música para download.
-            </p>
           </div>
         </div>
       </main>

@@ -13,6 +13,7 @@ import IncludeNamesFields from "./IncludeNamesFields";
 import SubmitButton from "./SubmitButton";
 import { musicRequestSchema, MusicRequestFormValues } from "./formSchema";
 import { submitMusicRequest } from "./formUtils";
+import { toast } from "@/hooks/use-toast";
 
 interface MusicRequestFormProps {
   userProfile: UserProfile;
@@ -26,6 +27,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [showForm, setShowForm] = useState(!hasExistingRequest);
+  const [submitAttempts, setSubmitAttempts] = useState(0);
 
   const form = useForm<MusicRequestFormValues>({
     resolver: zodResolver(musicRequestSchema),
@@ -45,14 +47,49 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
   };
 
   const onSubmit = async (values: MusicRequestFormValues) => {
+    if (isSubmitting) return; // Prevent multiple submissions
+    
     setIsSubmitting(true);
+    setSubmitAttempts(prev => prev + 1);
     
     try {
+      console.log("Form submission started", { values, userProfile });
+      
+      // Validate that user profile has required fields
+      if (!userProfile?.id) {
+        throw new Error("Perfil de usuário inválido. Tente fazer login novamente.");
+      }
+      
       const data = await submitMusicRequest(values, userProfile, coverImage);
+      console.log("Form submission completed successfully", data);
+      
       onRequestSubmitted(data);
       setShowForm(false); // Hide form after successful submission
+      
+      toast({
+        title: "Sucesso!",
+        description: "Seu pedido foi enviado com sucesso. Aguarde enquanto processamos sua solicitação.",
+      });
     } catch (error) {
-      // Error is already handled in submitMusicRequest
+      console.error("Form submission error:", error);
+      
+      // Special handling for network errors
+      if (error.message?.includes("Failed to fetch")) {
+        toast({
+          title: "Erro de conexão",
+          description: "Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente.",
+          variant: "destructive",
+        });
+      }
+      
+      // If this is the third attempt, give more detailed help
+      if (submitAttempts >= 2) {
+        toast({
+          title: "Persistência de erro",
+          description: "Estamos tendo dificuldades para processar seu pedido. Tente novamente mais tarde ou entre em contato com o suporte.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

@@ -17,3 +17,12 @@ export const isDevelopmentOrPreview = (): boolean => {
 export const isLovableEditor = (): boolean => {
   return window.location.href.includes('lovable.dev/projects/');
 };
+
+/**
+ * Utility function specifically for admin authentication bypass
+ * This is more permissive than the general isDevelopmentOrPreview function
+ */
+export const shouldBypassAdminAuth = (): boolean => {
+  // Always bypass in Lovable editor or any development environment
+  return isLovableEditor() || isDevelopmentOrPreview();
+};

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -7,7 +6,7 @@ import AdminDashboard from "@/components/admin/AdminDashboard";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { toast } from "@/hooks/use-toast";
 import { LogOut } from "lucide-react";
-import { isDevelopmentOrPreview } from "@/lib/environment";
+import { isDevelopmentOrPreview, shouldBypassAdminAuth } from "@/lib/environment";
 
 const AdminPage = () => {
   const navigate = useNavigate();
@@ -16,32 +15,11 @@ const AdminPage = () => {
   useEffect(() => {
     // Verify admin authentication on every page visit
     const checkAdminAuth = () => {
-      // Skip authentication check if in Lovable editor environment
-      if (window.location.href.includes("lovable.dev/projects/")) {
-        console.log("Bypassing auth check - Lovable editor environment detected");
+      // Check if we should bypass authentication
+      if (shouldBypassAdminAuth()) {
+        console.log("Bypassing auth check - Development environment detected");
         
-        // Set admin info for editor environment
-        if (!localStorage.getItem("musicaperfeita_admin")) {
-          localStorage.setItem("musicaperfeita_admin", "true");
-          localStorage.setItem("admin_email", "editor@musicaperfeita.com");
-          localStorage.setItem("admin_id", "editor-session");
-          localStorage.setItem("admin_is_main", "true");
-          
-          toast({
-            title: "Acesso de edição",
-            description: "Modo de edição ativado automaticamente",
-          });
-        }
-        
-        setIsLoading(false);
-        return;
-      }
-      
-      // Check if in development or preview mode
-      if (isDevelopmentOrPreview()) {
-        console.log("Bypassing auth check - Development or preview environment detected");
-        
-        // Set admin info for development
+        // Set admin info for development/editor environment
         if (!localStorage.getItem("musicaperfeita_admin")) {
           localStorage.setItem("musicaperfeita_admin", "true");
           localStorage.setItem("admin_email", "dev@musicaperfeita.com");
@@ -58,7 +36,7 @@ const AdminPage = () => {
         return;
       }
       
-      // Check if admin is logged in
+      // Regular authentication check for production environment
       const isAdmin = localStorage.getItem("musicaperfeita_admin");
       if (!isAdmin) {
         toast({

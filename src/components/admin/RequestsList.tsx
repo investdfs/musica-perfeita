@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { 
   Table, 
   TableBody, 
@@ -17,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MusicRequest } from "@/types/database.types";
-import { Send, Upload, Download } from "lucide-react";
+import { Send, Download, Save } from "lucide-react";
 
 interface RequestsListProps {
   requests: MusicRequest[];
@@ -44,9 +45,18 @@ const RequestsList = ({
   isUploading,
   selectedRequestId
 }: RequestsListProps) => {
+  const [soundcloudIds, setSoundcloudIds] = useState<{[key: string]: string}>({});
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR');
+  };
+
+  const handleSoundCloudIdChange = (requestId: string, value: string) => {
+    setSoundcloudIds(prev => ({
+      ...prev,
+      [requestId]: value
+    }));
   };
 
   return (
@@ -139,29 +149,25 @@ const RequestsList = ({
                         </SelectContent>
                       </Select>
                       
-                      {/* Botão de Upload de Música */}
-                      <div className="relative">
-                        <input
-                          type="file"
-                          id={`upload-music-${request.id}`}
-                          className="sr-only"
-                          accept="audio/mp3,audio/mpeg,audio/wav"
-                          onChange={(e) => onFileUpload(e, request)}
-                          disabled={isUploading}
+                      {/* SoundCloud ID input field replacing the Upload button */}
+                      <div className="flex items-center space-x-1">
+                        <Input
+                          type="text"
+                          className="h-9 w-36"
+                          placeholder="ID SoundCloud"
+                          value={soundcloudIds[request.id] || ''}
+                          onChange={(e) => handleSoundCloudIdChange(request.id, e.target.value)}
                         />
-                        <label
-                          htmlFor={`upload-music-${request.id}`}
-                          className={`inline-flex items-center justify-center gap-2 whitespace-nowrap h-9 rounded-md px-3 text-sm font-medium ${
-                            isUploading && request.id === selectedRequestId
-                              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                              : "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-                          }`}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onViewDetails(request)}
+                          disabled={!soundcloudIds[request.id]?.trim()}
+                          className="h-9"
                         >
-                          <Upload className="w-4 h-4" />
-                          {isUploading && request.id === selectedRequestId
-                            ? "Enviando..."
-                            : "Upload"}
-                        </label>
+                          <Save className="w-4 h-4 mr-1" />
+                          Salvar
+                        </Button>
                       </div>
                       
                       {request.status === 'completed' && (

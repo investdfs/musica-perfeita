@@ -1,239 +1,190 @@
 
 import { useState } from "react";
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardContent,
-  CardFooter
-} from "@/components/ui/card";
-import { 
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { MusicRequest } from "@/types/database.types";
-import { Calendar, FileText, Music, CheckCircle, Clock, AlertCircle, Plus } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { 
+  MusicIcon, 
+  PlusCircleIcon, 
+  Clock, 
+  CheckCircle2, 
+  CircleDollarSign, 
+  Loader2 
+} from "lucide-react";
 
 interface OrderControlPanelProps {
   userRequests: MusicRequest[];
   onCreateNewRequest: () => void;
+  isLoading?: boolean;
 }
 
-const OrderControlPanel = ({ userRequests, onCreateNewRequest }: OrderControlPanelProps) => {
-  const navigate = useNavigate();
-  const [expandedRequest, setExpandedRequest] = useState<string | null>(null);
+const OrderControlPanel = ({ 
+  userRequests, 
+  onCreateNewRequest, 
+  isLoading = false 
+}: OrderControlPanelProps) => {
+  const [loadingRequestId, setLoadingRequestId] = useState<string | null>(null);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR');
+    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
   };
 
-  const getStatusIcon = (status: string, paymentStatus: string | null) => {
-    if (status === 'completed' && paymentStatus === 'completed') {
-      return <CheckCircle className="h-5 w-5 text-green-500" />;
-    } else if (status === 'completed' && paymentStatus !== 'completed') {
-      return <AlertCircle className="h-5 w-5 text-orange-500" />;
-    } else if (status === 'in_production') {
-      return <Clock className="h-5 w-5 text-blue-500" />;
-    } else {
-      return <Clock className="h-5 w-5 text-gray-500" />;
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "Aguardando produção";
+      case "in_production":
+        return "Em produção";
+      case "completed":
+        return "Concluído";
+      default:
+        return "Status desconhecido";
     }
   };
 
-  const getStatusText = (status: string, paymentStatus: string | null) => {
-    if (status === 'completed' && paymentStatus === 'completed') {
-      return "Concluído";
-    } else if (status === 'completed' && paymentStatus !== 'completed') {
-      return "Pronto, pagamento pendente";
-    } else if (status === 'in_production') {
-      return "Em produção";
-    } else {
-      return "Aguardando produção";
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "pending":
+        return <Clock className="h-5 w-5 text-yellow-500" />;
+      case "in_production":
+        return <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />;
+      case "completed":
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      default:
+        return <Clock className="h-5 w-5 text-gray-500" />;
     }
   };
 
-  const getGenreTranslation = (genre: string): string => {
-    const genres: Record<string, string> = {
-      'romantic': 'Romântica',
-      'mpb': 'MPB',
-      'classical': 'Clássica',
-      'jazz': 'Jazz',
-      'hiphop': 'Hip Hop',
-      'rock': 'Rock',
-      'country': 'Country',
-      'reggae': 'Reggae',
-      'electronic': 'Eletrônica',
-      'samba': 'Samba',
-      'folk': 'Folk',
-      'pop': 'Pop'
-    };
-    return genres[genre] || genre;
-  };
-
-  const handleViewDetails = (requestId: string) => {
-    const request = userRequests.find(req => req.id === requestId);
-    if (!request) return;
-
-    if (request.status === 'completed' && request.payment_status !== 'completed') {
-      navigate("/music-preview", { state: { musicRequest: request } });
-    } else if (request.status === 'completed' && request.payment_status === 'completed') {
-      navigate("/confirmacao", { state: { musicRequest: request } });
+  const getPaymentStatusIcon = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "pending":
+        return <CircleDollarSign className="h-5 w-5 text-yellow-500" />;
+      case "processing":
+        return <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />;
+      case "completed":
+        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+      default:
+        return <CircleDollarSign className="h-5 w-5 text-gray-500" />;
     }
   };
 
-  const toggleDetails = (requestId: string) => {
-    if (expandedRequest === requestId) {
-      setExpandedRequest(null);
-    } else {
-      setExpandedRequest(requestId);
+  const getPaymentStatusLabel = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "pending":
+        return "Aguardando pagamento";
+      case "processing":
+        return "Processando pagamento";
+      case "completed":
+        return "Pagamento concluído";
+      default:
+        return "Status de pagamento desconhecido";
     }
   };
+
+  const handleRequestItemClick = (requestId: string) => {
+    setLoadingRequestId(requestId);
+    // Simula um tempo de carregamento para melhorar a experiência do usuário
+    setTimeout(() => {
+      setLoadingRequestId(null);
+      // Implementar navegação para detalhes do pedido quando disponível
+    }, 1000);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100 flex justify-center items-center h-40">
+        <Loader2 className="h-8 w-8 text-blue-500 animate-spin mr-3" />
+        <span className="text-lg font-medium text-gray-700">Carregando seus pedidos...</span>
+      </div>
+    );
+  }
+
+  if (userRequests.length === 0) {
+    return (
+      <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100">
+        <div className="text-center mb-6">
+          <MusicIcon className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Nenhum pedido encontrado</h2>
+          <p className="text-gray-600 mb-6">
+            Você ainda não criou nenhuma música personalizada. Clique no botão abaixo para começar!
+          </p>
+          <Button 
+            onClick={onCreateNewRequest}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
+          >
+            <PlusCircleIcon className="mr-2 h-5 w-5" />
+            Criar nova música
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-blue-100 transition-all mb-8">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-xl font-semibold text-indigo-700">
-          Controle de Pedidos
-        </CardTitle>
+    <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold text-gray-800">Seus pedidos</h2>
         <Button 
           onClick={onCreateNewRequest}
-          className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700"
+          className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg shadow-sm transition-all flex items-center"
         >
-          <Plus className="mr-1 h-4 w-4" />
-          Novo Pedido
+          <PlusCircleIcon className="mr-2 h-4 w-4" />
+          Nova música
         </Button>
-      </CardHeader>
-      <CardContent>
-        {userRequests.length === 0 ? (
-          <div className="text-center py-10">
-            <Music className="mx-auto h-12 w-12 text-indigo-300 mb-3" />
-            <h3 className="text-lg font-medium text-gray-900 mb-1">Nenhum pedido encontrado</h3>
-            <p className="text-gray-500 mb-4">Você ainda não fez nenhum pedido de música.</p>
-            <Button 
-              onClick={onCreateNewRequest}
-              className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700"
-            >
-              <Plus className="mr-1 h-4 w-4" />
-              Fazer Meu Primeiro Pedido
-            </Button>
+      </div>
+
+      <div className="space-y-4">
+        {userRequests.map((request) => (
+          <div 
+            key={request.id} 
+            className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer bg-white"
+            onClick={() => handleRequestItemClick(request.id)}
+          >
+            <div className="flex flex-col sm:flex-row sm:justify-between">
+              <div className="mb-2 sm:mb-0">
+                <p className="font-semibold text-gray-800">
+                  Para: {request.honoree_name}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Criado em: {formatDate(request.created_at)}
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center">
+                  {loadingRequestId === request.id ? (
+                    <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
+                  ) : (
+                    getStatusIcon(request.status)
+                  )}
+                  <span className="ml-1 text-sm">
+                    {getStatusLabel(request.status)}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  {getPaymentStatusIcon(request.payment_status)}
+                  <span className="ml-1 text-sm">
+                    {getPaymentStatusLabel(request.payment_status)}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-2">
+              <p className="text-sm text-gray-700">
+                <span className="font-medium">Gênero:</span> {request.music_genre}
+              </p>
+              <p className="text-sm text-gray-700 line-clamp-1">
+                <span className="font-medium">História:</span> {request.story.substring(0, 100)}
+                {request.story.length > 100 ? "..." : ""}
+              </p>
+            </div>
           </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Data</TableHead>
-                  <TableHead>Para</TableHead>
-                  <TableHead className="hidden md:table-cell">Gênero</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {userRequests.map((request) => (
-                  <>
-                    <TableRow key={request.id} className="hover:bg-gray-50">
-                      <TableCell className="font-medium flex items-center whitespace-nowrap">
-                        <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                        {formatDate(request.created_at)}
-                      </TableCell>
-                      <TableCell className="font-medium">{request.honoree_name}</TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        {getGenreTranslation(request.music_genre)}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          {getStatusIcon(request.status, request.payment_status)}
-                          <span className="ml-2">{getStatusText(request.status, request.payment_status)}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => toggleDetails(request.id)}
-                          >
-                            <FileText className="h-4 w-4" />
-                            <span className="sr-only md:not-sr-only md:ml-2">Detalhes</span>
-                          </Button>
-                          {(request.status === 'completed') && (
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={() => handleViewDetails(request.id)}
-                            >
-                              <Music className="h-4 w-4" />
-                              <span className="sr-only md:not-sr-only md:ml-2">Acessar</span>
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    {expandedRequest === request.id && (
-                      <TableRow>
-                        <TableCell colSpan={5} className="p-4 bg-blue-50">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                              <h4 className="font-semibold text-sm text-gray-600 mb-1">História</h4>
-                              <p className="text-sm text-gray-800 bg-white p-2 rounded border border-gray-200">
-                                {request.story.length > 150 
-                                  ? `${request.story.substring(0, 150)}...` 
-                                  : request.story}
-                              </p>
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-sm text-gray-600 mb-1">Relacionamento</h4>
-                              <p className="text-sm text-gray-800">
-                                {request.relationship_type === 'other' 
-                                  ? request.custom_relationship 
-                                  : request.relationship_type}
-                              </p>
-                              {request.include_names && (
-                                <>
-                                  <h4 className="font-semibold text-sm text-gray-600 mb-1 mt-3">Nomes incluídos</h4>
-                                  <p className="text-sm text-gray-800">{request.names_to_include}</p>
-                                </>
-                              )}
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-sm text-gray-600 mb-1">Status do Pagamento</h4>
-                              <p className="text-sm text-gray-800">
-                                {request.payment_status === 'completed' 
-                                  ? 'Pago' 
-                                  : 'Pendente'}
-                              </p>
-                              {request.status === 'completed' && request.payment_status !== 'completed' && (
-                                <Button
-                                  className="mt-3 w-full bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-black"
-                                  size="sm"
-                                  onClick={() => navigate("/pagamento", { state: { musicRequest: request } })}
-                                >
-                                  Realizar Pagamento
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </CardContent>
-      <CardFooter className="border-t border-gray-100 text-xs text-gray-500 pt-4">
-        Mostrando {userRequests.length} pedido(s). Cada pedido representa uma música personalizada.
-      </CardFooter>
-    </Card>
+        ))}
+      </div>
+    </div>
   );
 };
 

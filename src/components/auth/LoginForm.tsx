@@ -10,7 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import supabase from "@/lib/supabase";
 import { UserProfile } from "@/types/database.types";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
@@ -31,9 +31,13 @@ const LoginForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (isSubmitting) return; // Previne múltiplos cliques
+    
     setIsSubmitting(true);
     
     try {
+      console.log('Login iniciado para:', values.email);
+      
       // Fetch user from Supabase
       const { data, error } = await supabase
         .from('user_profiles')
@@ -45,6 +49,7 @@ const LoginForm = () => {
       if (error) throw error;
       
       if (data) {
+        console.log('Usuário encontrado, salvando no localStorage');
         // Store in localStorage with proper typing
         const userProfile: UserProfile = data;
         localStorage.setItem("musicaperfeita_user", JSON.stringify(userProfile));
@@ -131,8 +136,19 @@ const LoginForm = () => {
             )}
           />
           
-          <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-600" disabled={isSubmitting}>
-            {isSubmitting ? "Entrando..." : "Entrar"}
+          <Button 
+            type="submit" 
+            className="w-full bg-pink-500 hover:bg-pink-600 transition-colors" 
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Entrando...
+              </>
+            ) : (
+              "Entrar"
+            )}
           </Button>
         </form>
       </Form>

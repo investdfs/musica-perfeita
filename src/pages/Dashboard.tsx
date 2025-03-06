@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -13,54 +13,121 @@ import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
 import { Button } from "@/components/ui/button";
 import { Eye, LogOut, Music } from "lucide-react";
+import { v4 as uuidv4 } from 'uuid';
 
 const Dashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userRequests, setUserRequests] = useState<MusicRequest[]>([]);
   const [currentProgress, setCurrentProgress] = useState(0);
   const [showNewRequestForm, setShowNewRequestForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Função otimizada para verificar autenticação
+  const checkUserAuth = useCallback(() => {
+    const storedUser = localStorage.getItem("musicaperfeita_user");
+    
+    if (!storedUser && isDevelopmentOrPreview()) {
+      const testUser = {
+        id: uuidv4(), // Usando UUID válido para modo dev
+        name: 'Usuário de Desenvolvimento',
+        email: 'dev@example.com',
+        created_at: new Date().toISOString(),
+        whatsapp: '+5511999999999'
+      } as UserProfile;
+      
+      localStorage.setItem("musicaperfeita_user", JSON.stringify(testUser));
+      setUserProfile(testUser);
+      
+      toast({
+        title: "Modo de desenvolvimento/preview",
+        description: "Usuário de teste criado automaticamente",
+      });
+      
+      return;
+    }
+    
+    if (!storedUser && !isDevelopmentOrPreview()) {
+      toast({
+        title: "Acesso restrito",
+        description: "Você precisa fazer login para acessar esta página",
+        variant: "destructive",
+      });
+      navigate("/login");
+      return;
+    }
+    
+    const userInfo = storedUser ? JSON.parse(storedUser) : null;
+    setUserProfile(userInfo);
+  }, [navigate]);
+  
+  // Função otimizada para buscar pedidos do usuário
+  const fetchUserRequests = useCallback(async () => {
+    try {
+      if (!userProfile?.id) return;
+      
+      // Evita o UUID inválido no modo de desenvolvimento
+      if (userProfile.id === 'dev-user-id') {
+        setUserRequests([]);
+        setCurrentProgress(10);
+        setShowNewRequestForm(true);
+        setIsLoading(false);
+        return;
+      }
+      
+      const { data, error } = await supabase
+        .from('music_requests')
+        .select('*')
+        .eq('user_id', userProfile.id)
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      
+      if (data) {
+        setUserRequests(data);
+        
+        if (data.length > 0) {
+          const latestRequest = data[0];
+          switch (latestRequest.status) {
+            case 'pending':
+              setCurrentProgress(25);
+              break;
+            case 'in_production':
+              setCurrentProgress(50);
+              break;
+            case 'completed':
+              setCurrentProgress(100);
+              break;
+            default:
+              setCurrentProgress(0);
+          }
+        } else {
+          setCurrentProgress(10);
+          setShowNewRequestForm(true);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching music requests:', error);
+      setCurrentProgress(10);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userProfile]);
+
+  // Carrega dados iniciais
   useEffect(() => {
-    const checkUserAuth = () => {
-      const storedUser = localStorage.getItem("musicaperfeita_user");
-      
-      if (!storedUser && isDevelopmentOrPreview()) {
-        const testUser = {
-          id: 'dev-user-id',
-          name: 'Usuário de Desenvolvimento',
-          email: 'dev@example.com',
-          created_at: new Date().toISOString(),
-          whatsapp: '+5511999999999'
-        } as UserProfile;
-        
-        localStorage.setItem("musicaperfeita_user", JSON.stringify(testUser));
-        setUserProfile(testUser);
-        
-        toast({
-          title: "Modo de desenvolvimento/preview",
-          description: "Usuário de teste criado automaticamente",
-        });
-        
-        return;
-      }
-      
-      if (!storedUser && !isDevelopmentOrPreview()) {
-        toast({
-          title: "Acesso restrito",
-          description: "Você precisa fazer login para acessar esta página",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-      
-      const userInfo = storedUser ? JSON.parse(storedUser) : null;
-      setUserProfile(userInfo);
-    };
-    
     checkUserAuth();
-    
+  }, [checkUserAuth]);
+
+  // Busca pedidos quando o perfil do usuário estiver disponível
+  useEffect(() => {
+    if (userProfile) {
+      fetchUserRequests();
+    }
+  }, [userProfile, fetchUserRequests]);
+
+  // Configura monitoramento de alterações na visibilidade da página
+  useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         checkUserAuth();
@@ -69,79 +136,27 @@ const Dashboard = () => {
     
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
-    const fetchUserRequests = async () => {
-      try {
-        if (!userProfile?.id) return;
-        
-        const { data, error } = await supabase
-          .from('music_requests')
-          .select('*')
-          .eq('user_id', userProfile.id);
-          
-        if (error) throw error;
-        
-        if (data) {
-          setUserRequests(data);
-          
-          if (data.length > 0) {
-            const latestRequest = data[0];
-            switch (latestRequest.status) {
-              case 'pending':
-                setCurrentProgress(25);
-                break;
-              case 'in_production':
-                setCurrentProgress(50);
-                break;
-              case 'completed':
-                setCurrentProgress(100);
-                break;
-              default:
-                setCurrentProgress(0);
-            }
-          } else {
-            setCurrentProgress(10);
-            setShowNewRequestForm(true);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching music requests:', error);
-        setCurrentProgress(10);
-      }
-    };
-    
-    if (userProfile) {
-      fetchUserRequests();
-    }
-    
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [navigate, userProfile]);
+  }, [checkUserAuth]);
 
-  const handleRequestSubmitted = (data: MusicRequest[]) => {
-    setUserRequests([...data, ...userRequests]);
-    setCurrentProgress(25);
-    setShowNewRequestForm(false);
-  };
-
-  const handleCreateNewRequest = () => {
-    setShowNewRequestForm(true);
-  };
-
-  const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';
-  const hasPreviewUrl = userRequests.length > 0 && userRequests[0].preview_url;
-  const hasAnyRequest = userRequests.length > 0;
-  const hasPaidRequest = userRequests.length > 0 && userRequests[0].payment_status === 'completed';
-
+  // Configura verificação periódica de atualizações
   useEffect(() => {
     if (!userProfile?.id) return;
     
     const checkForStatusUpdates = async () => {
       try {
+        // Evita o UUID inválido no modo de desenvolvimento
+        if (userProfile.id === 'dev-user-id') {
+          return;
+        }
+        
         const { data, error } = await supabase
           .from('music_requests')
           .select('*')
-          .eq('user_id', userProfile.id);
+          .eq('user_id', userProfile.id)
+          .order('created_at', { ascending: false });
           
         if (error) throw error;
         
@@ -173,6 +188,16 @@ const Dashboard = () => {
     return () => clearInterval(intervalId);
   }, [userProfile]);
 
+  const handleRequestSubmitted = (data: MusicRequest[]) => {
+    setUserRequests([...data, ...userRequests]);
+    setCurrentProgress(25);
+    setShowNewRequestForm(false);
+  };
+
+  const handleCreateNewRequest = () => {
+    setShowNewRequestForm(true);
+  };
+
   const handleUserLogout = () => {
     localStorage.removeItem("musicaperfeita_user");
     
@@ -183,6 +208,11 @@ const Dashboard = () => {
     
     navigate("/login");
   };
+
+  const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';
+  const hasPreviewUrl = userRequests.length > 0 && userRequests[0].preview_url;
+  const hasAnyRequest = userRequests.length > 0;
+  const hasPaidRequest = userRequests.length > 0 && userRequests[0].payment_status === 'completed';
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
@@ -214,7 +244,8 @@ const Dashboard = () => {
           {!showNewRequestForm && (
             <OrderControlPanel 
               userRequests={userRequests} 
-              onCreateNewRequest={handleCreateNewRequest} 
+              onCreateNewRequest={handleCreateNewRequest}
+              isLoading={isLoading}
             />
           )}
           

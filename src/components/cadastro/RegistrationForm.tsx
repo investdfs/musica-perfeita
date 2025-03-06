@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -10,7 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import supabase from "@/lib/supabase";
 import { UserProfile } from "@/types/database.types";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { sendEmail, emailTemplates } from "@/lib/email";
 
 const formSchema = z.object({
@@ -37,8 +37,11 @@ const RegistrationForm = () => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = useCallback(async (values: z.infer<typeof formSchema>) => {
+    if (isSubmitting) return; // Previne múltiplos cliques
+    
     setIsSubmitting(true);
+    console.log('Iniciando cadastro para:', values.email);
     
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -93,13 +96,19 @@ const RegistrationForm = () => {
       localStorage.setItem("musicaperfeita_user", JSON.stringify(userProfile));
       console.log('Perfil salvo no localStorage');
       
-      const emailTemplate = emailTemplates.welcome(values.name);
-      await sendEmail({
-        to: values.email,
-        subject: emailTemplate.subject,
-        html: emailTemplate.html
-      });
-      console.log('Email de boas-vindas enviado com sucesso');
+      // Tentar enviar email de boas-vindas, mas não bloquear a interface por isso
+      try {
+        const emailTemplate = emailTemplates.welcome(values.name);
+        await sendEmail({
+          to: values.email,
+          subject: emailTemplate.subject,
+          html: emailTemplate.html
+        });
+        console.log('Email de boas-vindas enviado com sucesso');
+      } catch (emailError) {
+        console.error('Erro ao enviar email de boas-vindas:', emailError);
+        // Não mostramos esse erro para o usuário, pois o cadastro já foi concluído
+      }
       
       toast({
         title: "Conta criada com sucesso!",
@@ -126,7 +135,7 @@ const RegistrationForm = () => {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [isSubmitting, navigate]);
 
   const handleWhatsAppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, "");
@@ -226,8 +235,19 @@ const RegistrationForm = () => {
             )}
           />
           
-          <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-600" disabled={isSubmitting}>
-            {isSubmitting ? "Criando conta..." : "Criar Minha Conta"}
+          <Button 
+            type="submit" 
+            className="w-full bg-pink-500 hover:bg-pink-600 transition-colors" 
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Criando conta...
+              </>
+            ) : (
+              "Criar Minha Conta"
+            )}
           </Button>
         </form>
       </Form>

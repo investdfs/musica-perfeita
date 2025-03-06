@@ -38,7 +38,7 @@ export async function submitMusicRequest(
         toast({
           title: "Alerta",
           description: "Não foi possível fazer upload da imagem, mas seu pedido será enviado mesmo assim.",
-          variant: "warning",
+          variant: "destructive", // Changed from "warning" to "destructive" as it's an allowed variant
         });
       }
     }

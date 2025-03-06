@@ -1,12 +1,12 @@
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest } from "@/types/database.types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MusicPreviewPlayer from "@/components/dashboard/MusicPreviewPlayer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Music, Headphones } from "lucide-react";
+import { ArrowLeft, Music, Headphones, Calendar, User, Clock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const MusicPreview = () => {
@@ -67,9 +67,9 @@ const MusicPreview = () => {
           </Button>
           
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4">Sua Música Perfeita</h1>
+            <h1 className="text-4xl font-bold mb-4">Sua Música Personalizada</h1>
             <p className="text-lg text-indigo-200">
-              Ouça um trecho da sua música personalizada para {musicRequest.honoree_name}
+              Ouça a prévia da sua música criada para {musicRequest.honoree_name}
             </p>
           </div>
           
@@ -87,13 +87,26 @@ const MusicPreview = () => {
             </div>
             
             <div className="mb-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-black/20 p-4 rounded-lg">
-                  <p className="text-sm text-indigo-300 mb-1">Data do Pedido</p>
+                  <p className="text-sm text-indigo-300 mb-1 flex items-center">
+                    <Calendar className="h-4 w-4 mr-1" />
+                    Data do Pedido
+                  </p>
                   <p>{formatDate(musicRequest.created_at)}</p>
                 </div>
                 <div className="bg-black/20 p-4 rounded-lg">
-                  <p className="text-sm text-indigo-300 mb-1">Status</p>
+                  <p className="text-sm text-indigo-300 mb-1 flex items-center">
+                    <User className="h-4 w-4 mr-1" />
+                    Para
+                  </p>
+                  <p>{musicRequest.honoree_name}</p>
+                </div>
+                <div className="bg-black/20 p-4 rounded-lg">
+                  <p className="text-sm text-indigo-300 mb-1 flex items-center">
+                    <Clock className="h-4 w-4 mr-1" />
+                    Status
+                  </p>
                   <p className="flex items-center">
                     <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
                       musicRequest.status === 'completed' ? 'bg-green-500' : 'bg-yellow-500'

@@ -26,4 +26,5 @@ export type MusicRequest = {
   full_song_url: string | null;
   payment_status: 'pending' | 'completed' | null;
   cover_image_url?: string | null;
+  soundcloud_id?: string | null;
 };

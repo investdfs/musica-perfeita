@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,80 +12,35 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { MusicRequest } from "@/types/database.types";
-import supabase from "@/lib/supabase";
 
 interface RequestDetailsProps {
   showDetails: boolean;
   setShowDetails: (show: boolean) => void;
   selectedRequest: MusicRequest | null;
-  handleUpload: (uploadedUrl: string) => void;
+  handleSaveSoundCloudId: (soundCloudId: string) => void;
   isUploading: boolean;
-  setAudioFile: (file: File | null) => void;
 }
 
 const RequestDetails = ({ 
   showDetails, 
   setShowDetails, 
   selectedRequest, 
-  handleUpload, 
-  isUploading,
-  setAudioFile 
+  handleSaveSoundCloudId, 
+  isUploading 
 }: RequestDetailsProps) => {
-  const [audioFileLocal, setAudioFileLocal] = useState<File | null>(null);
+  const [soundCloudId, setSoundCloudId] = useState<string>("");
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setAudioFileLocal(file);
-      setAudioFile(file);
-    }
-  };
-
-  const uploadToSupabase = async () => {
-    if (!audioFileLocal || !selectedRequest) {
+  const handleSaveClicked = () => {
+    if (!soundCloudId.trim()) {
       toast({
         title: "Erro",
-        description: "Selecione um arquivo de áudio para enviar.",
+        description: "Digite um ID do SoundCloud válido.",
         variant: "destructive",
       });
       return;
     }
 
-    try {
-      // Create a unique file path
-      const fileName = `music/${selectedRequest.id}/${Date.now()}-${audioFileLocal.name}`;
-      
-      // Upload to Supabase storage
-      const { data, error } = await supabase.storage
-        .from('music-files')
-        .upload(fileName, audioFileLocal, {
-          cacheControl: '3600',
-          upsert: false
-        });
-        
-      if (error) throw error;
-      
-      // Get the public URL for the uploaded file
-      const { data: urlData } = supabase.storage
-        .from('music-files')
-        .getPublicUrl(fileName);
-        
-      // Pass the URL back to the parent component
-      handleUpload(urlData.publicUrl);
-      
-      toast({
-        title: "Sucesso",
-        description: "Arquivo de áudio enviado com sucesso!",
-      });
-      
-    } catch (error: any) {
-      console.error('Error uploading file:', error);
-      toast({
-        title: "Erro no upload",
-        description: error.message || "Não foi possível enviar o arquivo de áudio",
-        variant: "destructive",
-      });
-    }
+    handleSaveSoundCloudId(soundCloudId);
   };
 
   return (
@@ -130,15 +86,31 @@ const RequestDetails = ({
             </div>
             
             <div className="border-t pt-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Enviar Música</h3>
-              <Input 
-                type="file" 
-                accept="audio/mp3,audio/mpeg,audio/wav" 
-                onChange={handleFileChange}
-              />
+              <h3 className="text-sm font-medium text-gray-500 mb-2">ID do SoundCloud</h3>
+              <div className="flex gap-2">
+                <Input 
+                  type="text" 
+                  placeholder="Digite o ID do SoundCloud"
+                  value={soundCloudId}
+                  onChange={(e) => setSoundCloudId(e.target.value)}
+                />
+                <Button 
+                  onClick={handleSaveClicked}
+                  disabled={isUploading || !soundCloudId.trim()}
+                >
+                  {isUploading ? "Salvando..." : "Salvar"}
+                </Button>
+              </div>
               <p className="text-xs text-gray-500 mt-1">
-                Envie o arquivo da música em formato MP3 ou WAV (máximo 15MB).
+                Digite o ID da faixa do SoundCloud para disponibilizar a música para o cliente.
               </p>
+              {selectedRequest.soundcloud_id && (
+                <div className="mt-3 p-3 bg-green-50 rounded">
+                  <p className="text-sm text-green-700">
+                    ID do SoundCloud atual: <span className="font-medium">{selectedRequest.soundcloud_id}</span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -148,13 +120,7 @@ const RequestDetails = ({
             variant="outline" 
             onClick={() => setShowDetails(false)}
           >
-            Cancelar
-          </Button>
-          <Button 
-            onClick={uploadToSupabase}
-            disabled={isUploading || !audioFileLocal}
-          >
-            {isUploading ? "Enviando..." : "Enviar Música"}
+            Fechar
           </Button>
         </DialogFooter>
       </DialogContent>

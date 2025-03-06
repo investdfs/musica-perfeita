@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/Header";
@@ -10,7 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import supabase from "@/lib/supabase";
 import { isDevelopmentOrPreview } from "@/lib/environment";
-import { Download, Share2, Play, User, ShieldAlert } from "lucide-react";
+import { Download, Share2, Play, User, ShieldAlert, ExternalLink } from "lucide-react";
 
 const Confirmacao = () => {
   const [showTerms, setShowTerms] = useState(true);
@@ -23,12 +22,10 @@ const Confirmacao = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get user profile and music request data
   useEffect(() => {
     const checkUserAuth = async () => {
       setIsLoading(true);
       
-      // Check local storage for user info (this is how auth works in this app)
       const storedUser = localStorage.getItem("musicaperfeita_user");
       
       if (!storedUser && !isDevelopmentOrPreview()) {
@@ -44,7 +41,6 @@ const Confirmacao = () => {
       const userInfo = storedUser ? JSON.parse(storedUser) : null;
       setUserProfile(userInfo);
       
-      // Try to get music request from location state first
       const stateRequest = location.state?.musicRequest as MusicRequest | undefined;
       
       if (stateRequest) {
@@ -53,7 +49,6 @@ const Confirmacao = () => {
         return;
       }
       
-      // If no state request, fetch from database
       if (userInfo?.id) {
         try {
           const { data, error } = await supabase
@@ -71,7 +66,6 @@ const Confirmacao = () => {
           if (data && data.length > 0) {
             setMusicRequest(data[0] as MusicRequest);
           } else {
-            // No paid music requests found
             toast({
               title: "Nenhuma música encontrada",
               description: "Você ainda não possui músicas com pagamento confirmado",
@@ -123,18 +117,26 @@ const Confirmacao = () => {
       return;
     }
     
-    // Create a temporary anchor element to trigger download
-    const link = document.createElement('a');
-    link.href = musicRequest.full_song_url;
-    link.download = `Musica_para_${musicRequest.honoree_name}.mp3`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toast({
-      title: "Download iniciado",
-      description: "Sua música está sendo baixada...",
-    });
+    if (musicRequest.full_song_url.includes('soundcloud.com')) {
+      window.open(musicRequest.full_song_url, '_blank');
+      
+      toast({
+        title: "Redirecionando para o SoundCloud",
+        description: "Abrindo sua música no SoundCloud...",
+      });
+    } else {
+      const link = document.createElement('a');
+      link.href = musicRequest.full_song_url;
+      link.download = `Musica_para_${musicRequest.honoree_name}.mp3`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast({
+        title: "Download iniciado",
+        description: "Sua música está sendo baixada...",
+      });
+    }
   };
 
   const handleShare = () => {
@@ -159,7 +161,6 @@ const Confirmacao = () => {
         });
       });
     } else {
-      // Fallback for browsers that don't support navigator.share
       navigator.clipboard.writeText(window.location.href);
       toast({
         title: "Link copiado",
@@ -201,6 +202,9 @@ const Confirmacao = () => {
     );
   }
 
+  const isSoundCloudEmbed = musicRequest?.preview_url?.includes('soundcloud.com') || 
+                            musicRequest?.preview_url?.includes('w.soundcloud.com');
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white">
       <Header />
@@ -228,39 +232,66 @@ const Confirmacao = () => {
             </h2>
             
             <div className="mb-8">
-              <audio 
-                controls 
-                className="w-full mb-4"
-                src={musicRequest.full_song_url || musicRequest.preview_url || '#'} 
-              >
-                Seu navegador não suporta áudio HTML5.
-              </audio>
+              {isSoundCloudEmbed ? (
+                <div className="aspect-video w-full mb-4">
+                  <iframe 
+                    width="100%" 
+                    height="166"
+                    scrolling="no" 
+                    frameBorder="no" 
+                    src={musicRequest.preview_url || ''}
+                    allow="autoplay"
+                    className="rounded-lg"
+                  ></iframe>
+                </div>
+              ) : (
+                <audio 
+                  controls 
+                  className="w-full mb-4"
+                  src={musicRequest.full_song_url || musicRequest.preview_url || '#'} 
+                >
+                  Seu navegador não suporta áudio HTML5.
+                </audio>
+              )}
               <p className="text-sm text-gray-500">
                 Música no estilo {musicRequest.music_genre}, criada especialmente para {musicRequest.honoree_name}
               </p>
             </div>
             
             <div className="flex justify-center gap-4 mb-10">
-              <Button 
-                className="flex items-center bg-purple-600 hover:bg-purple-700"
-                onClick={() => {
-                  const audioElement = document.querySelector('audio');
-                  if (audioElement) {
-                    audioElement.play();
-                  }
-                }}
-              >
-                <Play className="mr-2 h-4 w-4" />
-                Ouvir
-              </Button>
+              {!isSoundCloudEmbed && (
+                <Button 
+                  className="flex items-center bg-purple-600 hover:bg-purple-700"
+                  onClick={() => {
+                    const audioElement = document.querySelector('audio');
+                    if (audioElement) {
+                      audioElement.play();
+                    }
+                  }}
+                >
+                  <Play className="mr-2 h-4 w-4" />
+                  Ouvir
+                </Button>
+              )}
+              
               <Button 
                 onClick={handleDownload} 
                 disabled={!agreed}
-                className={`flex items-center bg-green-600 hover:bg-green-700 ${!agreed ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`flex items-center ${isSoundCloudEmbed ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'} ${!agreed ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                <Download className="mr-2 h-4 w-4" />
-                Download
+                {isSoundCloudEmbed ? (
+                  <>
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Abrir no SoundCloud
+                  </>
+                ) : (
+                  <>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </>
+                )}
               </Button>
+              
               <Button 
                 onClick={handleShare}
                 disabled={!agreed}

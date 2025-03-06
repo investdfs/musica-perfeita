@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MusicRequest } from "@/types/database.types";
 import { isDevelopmentOrPreview } from "@/lib/environment";
@@ -24,16 +25,26 @@ export const useRequestManagement = (
     setShowDeliveryForm(true);
   };
 
-  const handleUpload = async (uploadedUrl: string) => {
+  const handleSaveSoundCloudId = async (soundCloudId: string) => {
     if (!selectedRequest) return;
     
     setIsUploading(true);
     
     try {
+      // Create public URLs for SoundCloud track
+      const previewUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${soundCloudId}`;
+      const fullSongUrl = `https://soundcloud.com/tracks/${soundCloudId}`;
+      
       if (isDevelopmentOrPreview()) {
         const updatedRequests = requests.map(req => 
           req.id === selectedRequest.id 
-            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: uploadedUrl, preview_url: uploadedUrl } 
+            ? { 
+                ...req, 
+                status: 'completed' as MusicRequest['status'], 
+                soundcloud_id: soundCloudId,
+                full_song_url: fullSongUrl, 
+                preview_url: previewUrl 
+              } 
             : req
         );
         
@@ -43,8 +54,9 @@ export const useRequestManagement = (
           .from('music_requests')
           .update({ 
             status: 'completed' as MusicRequest['status'], 
-            full_song_url: uploadedUrl,
-            preview_url: uploadedUrl
+            soundcloud_id: soundCloudId,
+            full_song_url: fullSongUrl,
+            preview_url: previewUrl
           })
           .eq('id', selectedRequest.id);
           
@@ -52,7 +64,13 @@ export const useRequestManagement = (
         
         const updatedRequests = requests.map(req => 
           req.id === selectedRequest.id 
-            ? { ...req, status: 'completed' as MusicRequest['status'], full_song_url: uploadedUrl, preview_url: uploadedUrl } 
+            ? { 
+                ...req, 
+                status: 'completed' as MusicRequest['status'], 
+                soundcloud_id: soundCloudId,
+                full_song_url: fullSongUrl, 
+                preview_url: previewUrl 
+              } 
             : req
         );
         
@@ -62,8 +80,8 @@ export const useRequestManagement = (
       setShowDetails(false);
       
       toast({
-        title: "Música Enviada",
-        description: "A música foi enviada e o status do pedido foi atualizado para Concluído.",
+        title: "Música Disponibilizada",
+        description: "O ID do SoundCloud foi salvo e o status do pedido foi atualizado para Concluído.",
       });
     } catch (error: any) {
       console.error('Error updating request:', error);
@@ -294,7 +312,7 @@ export const useRequestManagement = (
     setShowDeliveryForm,
     handleViewDetails,
     handleDeliverMusic,
-    handleUpload,
+    handleSaveSoundCloudId,
     handleSendEmail,
     handleFileUpload,
     handleUpdateStatus,

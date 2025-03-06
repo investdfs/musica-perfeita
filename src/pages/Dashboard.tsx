@@ -10,7 +10,7 @@ import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
 import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
 import { Button } from "@/components/ui/button";
-import { Eye, LogOut } from "lucide-react";
+import { Eye, LogOut, Music } from "lucide-react";
 
 const Dashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -56,10 +56,8 @@ const Dashboard = () => {
       setUserProfile(userInfo);
     };
     
-    // Check auth immediately
     checkUserAuth();
     
-    // Add event listener for when the page becomes visible again (user returns to tab)
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         checkUserAuth();
@@ -68,7 +66,6 @@ const Dashboard = () => {
     
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
-    // Regular user data fetching code
     const fetchUserRequests = async () => {
       try {
         if (!userProfile?.id) return;
@@ -99,13 +96,11 @@ const Dashboard = () => {
                 setCurrentProgress(0);
             }
           } else {
-            // Usuário cadastrado mas sem pedidos ainda
             setCurrentProgress(10);
           }
         }
       } catch (error) {
         console.error('Error fetching music requests:', error);
-        // Mesmo com erro, mostrar que o cadastro foi realizado
         setCurrentProgress(10);
       }
     };
@@ -114,7 +109,6 @@ const Dashboard = () => {
       fetchUserRequests();
     }
     
-    // Cleanup
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
@@ -128,8 +122,8 @@ const Dashboard = () => {
   const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';
   const hasPreviewUrl = userRequests.length > 0 && userRequests[0].preview_url;
   const hasAnyRequest = userRequests.length > 0;
+  const hasPaidRequest = userRequests.length > 0 && userRequests[0].payment_status === 'completed';
 
-  // Polling for updates
   useEffect(() => {
     if (!userProfile?.id) return;
     
@@ -165,10 +159,8 @@ const Dashboard = () => {
       }
     };
     
-    // Verificar atualizações imediatamente e depois a cada 30 segundos
     const intervalId = setInterval(checkForStatusUpdates, 30000);
     
-    // Limpar o intervalo quando o componente for desmontado
     return () => clearInterval(intervalId);
   }, [userProfile]);
 
@@ -205,7 +197,21 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={userRequests.length > 0} />
           
-          {hasCompletedRequest && (
+          {hasCompletedRequest && hasPaidRequest && (
+            <div className="text-center mb-8">
+              <Button 
+                onClick={() => navigate("/confirmacao", { 
+                  state: { musicRequest: userRequests[0] } 
+                })}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
+              >
+                <Music className="mr-2 h-5 w-5" />
+                ACESSAR MINHA MÚSICA
+              </Button>
+            </div>
+          )}
+          
+          {hasCompletedRequest && !hasPaidRequest && (
             <div className="text-center mb-8">
               <Button 
                 onClick={() => navigate("/music-preview", { 

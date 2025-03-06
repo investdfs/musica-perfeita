@@ -245,7 +245,8 @@ const Dashboard = () => {
           {userProfile && (
             <MusicRequestForm 
               userProfile={userProfile} 
-              onRequestSubmitted={handleRequestSubmitted} 
+              onRequestSubmitted={handleRequestSubmitted}
+              hasExistingRequest={userRequests.length > 0}
             />
           )}
         </div>

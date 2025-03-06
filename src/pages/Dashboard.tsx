@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -217,7 +216,7 @@ const Dashboard = () => {
             <p className="mt-3 text-gray-500 text-sm">
               {hasCompletedRequest && hasPaidRequest 
                 ? "Sua música está pronta para acesso." 
-                : "Este botão será liberado quando sua música estiver pronta e o pagamento confirmado."}
+                : "Este botão será liberado quando sua música estiver pronta."}
             </p>
           </div>
           

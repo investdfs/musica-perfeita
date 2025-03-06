@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -176,9 +177,14 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-purple-50 via-pink-50 to-white">
+    <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
+      <div className="animated-shapes">
+        <div className="shape shape-1"></div>
+        <div className="shape shape-2"></div>
+        <div className="shape shape-3"></div>
+      </div>
       <Header />
-      <main className="py-12 px-6">
+      <main className="py-12 px-6 relative z-10">
         <div className="max-w-4xl mx-auto">
           {userProfile && (
             <div className="flex items-center justify-between mb-8">
@@ -197,7 +203,7 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={userRequests.length > 0} />
           
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8 mt-4 text-center">
+          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 mt-4 text-center border border-blue-100 transition-all hover:shadow-xl">
             <h2 className="text-xl font-semibold mb-4 text-purple-700">Acesso à sua música</h2>
             
             <Button 
@@ -205,7 +211,7 @@ const Dashboard = () => {
               onClick={() => navigate("/confirmacao", { state: { musicRequest: userRequests[0] } })}
               className={`px-6 py-3 rounded-lg shadow-md transition-all text-lg w-full max-w-md ${
                 hasCompletedRequest && hasPaidRequest 
-                  ? "bg-purple-600 hover:bg-purple-700 text-white" 
+                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white" 
                   : "bg-gray-300 text-gray-600 cursor-not-allowed"
               }`}
             >
@@ -226,7 +232,7 @@ const Dashboard = () => {
                 onClick={() => navigate("/music-preview", { 
                   state: { musicRequest: userRequests[0] } 
                 })}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
+                className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
               >
                 <Eye className="mr-2 h-5 w-5" />
                 Ver meu Pedido

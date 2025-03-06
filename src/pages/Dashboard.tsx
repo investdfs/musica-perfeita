@@ -197,19 +197,16 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={userRequests.length > 0} />
           
-          {hasCompletedRequest && hasPaidRequest && (
-            <div className="text-center mb-8">
-              <Button 
-                onClick={() => navigate("/confirmacao", { 
-                  state: { musicRequest: userRequests[0] } 
-                })}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
-              >
-                <Music className="mr-2 h-5 w-5" />
-                ACESSAR MINHA MÚSICA
-              </Button>
-            </div>
-          )}
+          <div className="flex justify-center mb-8 mt-4">
+            <Button 
+              disabled={!(hasCompletedRequest && hasPaidRequest)}
+              onClick={() => navigate("/confirmacao", { state: { musicRequest: userRequests[0] } })}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg shadow-md transition-all text-lg"
+            >
+              <Music className="mr-2 h-5 w-5" />
+              ACESSAR MINHA MÚSICA PERSONALIZADA
+            </Button>
+          </div>
           
           {hasCompletedRequest && !hasPaidRequest && (
             <div className="text-center mb-8">

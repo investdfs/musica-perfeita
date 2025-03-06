@@ -8,6 +8,7 @@ import { MusicRequest, UserProfile } from "@/types/database.types";
 import ProgressIndicator from "@/components/dashboard/ProgressIndicator";
 import MusicPreviewPlayer from "@/components/dashboard/MusicPreviewPlayer";
 import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
+import OrderControlPanel from "@/components/dashboard/OrderControlPanel";
 import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ const Dashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userRequests, setUserRequests] = useState<MusicRequest[]>([]);
   const [currentProgress, setCurrentProgress] = useState(0);
+  const [showNewRequestForm, setShowNewRequestForm] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -98,6 +100,7 @@ const Dashboard = () => {
             }
           } else {
             setCurrentProgress(10);
+            setShowNewRequestForm(true);
           }
         }
       } catch (error) {
@@ -118,6 +121,11 @@ const Dashboard = () => {
   const handleRequestSubmitted = (data: MusicRequest[]) => {
     setUserRequests([...data, ...userRequests]);
     setCurrentProgress(25);
+    setShowNewRequestForm(false);
+  };
+
+  const handleCreateNewRequest = () => {
+    setShowNewRequestForm(true);
   };
 
   const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';
@@ -203,6 +211,13 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={userRequests.length > 0} />
           
+          {!showNewRequestForm && (
+            <OrderControlPanel 
+              userRequests={userRequests} 
+              onCreateNewRequest={handleCreateNewRequest} 
+            />
+          )}
+          
           <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 mt-4 text-center border border-blue-100 transition-all hover:shadow-xl">
             <h2 className="text-xl font-semibold mb-4 text-purple-700">Acesso à sua música</h2>
             
@@ -226,7 +241,7 @@ const Dashboard = () => {
             </p>
           </div>
           
-          {hasCompletedRequest && !hasPaidRequest && (
+          {hasCompletedRequest && !hasPaidRequest && !showNewRequestForm && (
             <div className="text-center mb-8">
               <Button 
                 onClick={() => navigate("/music-preview", { 
@@ -240,7 +255,7 @@ const Dashboard = () => {
             </div>
           )}
           
-          {hasPreviewUrl && (
+          {hasPreviewUrl && !showNewRequestForm && (
             <MusicPreviewPlayer 
               previewUrl={userRequests[0].preview_url || ''} 
               fullSongUrl={userRequests[0].full_song_url}
@@ -248,11 +263,11 @@ const Dashboard = () => {
             />
           )}
           
-          {userProfile && (
+          {userProfile && showNewRequestForm && (
             <MusicRequestForm 
               userProfile={userProfile} 
               onRequestSubmitted={handleRequestSubmitted}
-              hasExistingRequest={userRequests.length > 0}
+              hasExistingRequest={false}
             />
           )}
         </div>

@@ -1,16 +1,17 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest } from "@/types/database.types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Music } from "lucide-react";
+import { ArrowLeft, Download, Music, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const MusicPreview = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
   const musicRequest = location.state?.musicRequest as MusicRequest | undefined;
   
   useEffect(() => {
@@ -21,9 +22,22 @@ const MusicPreview = () => {
         description: "Não foi possível carregar os detalhes da música",
         variant: "destructive",
       });
+    } else {
+      setIsLoading(false);
     }
   }, [musicRequest, navigate]);
   
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-indigo-900 via-purple-800 to-pink-700 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-white">
+          <Loader2 className="h-12 w-12 animate-spin" />
+          <p className="text-lg">Carregando detalhes da música...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!musicRequest) {
     return null;
   }
@@ -53,7 +67,23 @@ const MusicPreview = () => {
 
   const handleDownload = () => {
     if (musicRequest.full_song_url) {
-      window.open(musicRequest.full_song_url, '_blank');
+      // Usar um try-catch para lidar com possíveis bloqueios de popup
+      try {
+        const newWindow = window.open(musicRequest.full_song_url, '_blank');
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+          toast({
+            title: "Bloqueador de popup detectado",
+            description: "Por favor, permita popups para este site para fazer o download",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Erro ao abrir download",
+          description: "Ocorreu um erro ao tentar abrir o link de download",
+          variant: "destructive",
+        });
+      }
     } else {
       toast({
         title: "Arquivo não disponível",
@@ -61,6 +91,22 @@ const MusicPreview = () => {
         variant: "destructive",
       });
     }
+  };
+
+  // Função para formatar URL do SoundCloud para incorporação
+  const formatSoundCloudUrl = (url: string) => {
+    // Verifica se já é um URL de incorporação (contém /widget/)
+    if (url.includes('/widget/')) {
+      return url;
+    }
+    
+    // Verificar se é uma URL válida do SoundCloud
+    if (url.includes('soundcloud.com')) {
+      // Converte URL regular para URL de incorporação
+      return `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`;
+    }
+    
+    return url;
   };
 
   return (
@@ -100,7 +146,7 @@ const MusicPreview = () => {
               </div>
             </div>
             
-            {/* Player de vídeo */}
+            {/* Player de áudio/vídeo */}
             <div className="mb-6 bg-black rounded-lg overflow-hidden">
               {musicRequest.preview_url ? (
                 <div className="aspect-video w-full">
@@ -111,9 +157,10 @@ const MusicPreview = () => {
                       height="100%" 
                       scrolling="no" 
                       frameBorder="no" 
-                      src={musicRequest.preview_url}
+                      src={formatSoundCloudUrl(musicRequest.preview_url)}
                       className="w-full h-full"
                       allow="autoplay"
+                      title={`Música para ${musicRequest.honoree_name}`}
                     ></iframe>
                   ) : (
                     // Player de Vídeo padrão
@@ -121,9 +168,17 @@ const MusicPreview = () => {
                       controls 
                       className="w-full h-full"
                       poster={musicRequest.cover_image_url || undefined}
+                      onError={() => {
+                        toast({
+                          title: "Erro ao carregar mídia",
+                          description: "Não foi possível reproduzir o arquivo de mídia",
+                          variant: "destructive",
+                        });
+                      }}
                     >
                       <source src={musicRequest.preview_url} type="video/mp4" />
-                      Seu navegador não suporta a reprodução de vídeos.
+                      <source src={musicRequest.preview_url} type="audio/mpeg" />
+                      Seu navegador não suporta a reprodução deste conteúdo.
                     </video>
                   )}
                 </div>

@@ -19,6 +19,15 @@ import {
 } from "@/components/ui/select";
 import { MusicRequest } from "@/types/database.types";
 import { Send, Download, Save } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
 interface RequestsListProps {
   requests: MusicRequest[];
@@ -69,24 +78,24 @@ const RequestsList = ({
         <p className="text-center py-8">Nenhum pedido encontrado.</p>
       ) : (
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Pessoa Homenageada</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Pagamento</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Ações</TableHead>
+                <TableHead className="w-[80px]">ID</TableHead>
+                <TableHead className="w-[120px]">Cliente</TableHead>
+                <TableHead className="w-[120px]">Homenageado</TableHead>
+                <TableHead className="w-[100px]">Status</TableHead>
+                <TableHead className="w-[100px]">Pagamento</TableHead>
+                <TableHead className="w-[100px]">Data</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {requests.map((request) => (
                 <TableRow key={request.id}>
-                  <TableCell className="font-mono">{request.id.substring(0, 8)}...</TableCell>
-                  <TableCell>{getUserName(request.user_id)}</TableCell>
-                  <TableCell>{request.honoree_name}</TableCell>
+                  <TableCell className="font-mono text-xs">{request.id.substring(0, 6)}...</TableCell>
+                  <TableCell className="truncate max-w-[120px]">{getUserName(request.user_id)}</TableCell>
+                  <TableCell className="truncate max-w-[120px]">{request.honoree_name}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       request.status === 'pending' 
@@ -112,87 +121,85 @@ const RequestsList = ({
                     </span>
                   </TableCell>
                   <TableCell>{formatDate(request.created_at)}</TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => onViewDetails(request)}
-                      >
-                        Ver Detalhes
-                      </Button>
-                      
-                      <Select 
-                        onValueChange={(value) => onUpdateStatus(request.id, value as MusicRequest['status'])}
-                        defaultValue={request.status}
-                      >
-                        <SelectTrigger className="w-[130px] h-9">
-                          <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pendente</SelectItem>
-                          <SelectItem value="in_production">Em Produção</SelectItem>
-                          <SelectItem value="completed">Concluído</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      
-                      <Select
-                        onValueChange={(value) => onUpdateStatus(request.id, undefined, value as MusicRequest['payment_status'])}
-                        defaultValue={request.payment_status || 'pending'}
-                      >
-                        <SelectTrigger className="w-[130px] h-9">
-                          <SelectValue placeholder="Pagamento" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Não Pago</SelectItem>
-                          <SelectItem value="completed">Pago</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      
-                      {/* SoundCloud ID input field replacing the Upload button */}
-                      <div className="flex items-center space-x-1">
-                        <Input
-                          type="text"
-                          className="h-9 w-36"
-                          placeholder="ID SoundCloud"
-                          value={soundcloudIds[request.id] || ''}
-                          onChange={(e) => handleSoundCloudIdChange(request.id, e.target.value)}
-                        />
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onViewDetails(request)}
-                          disabled={!soundcloudIds[request.id]?.trim()}
-                          className="h-9"
-                        >
-                          <Save className="w-4 h-4 mr-1" />
-                          Salvar
-                        </Button>
-                      </div>
-                      
-                      {request.status === 'completed' && (
-                        <>
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => onDeliverMusic(request)}
-                          >
-                            <Send className="w-4 h-4 mr-1" />
-                            Entregar
+                  <TableCell className="text-right">
+                    <div className="flex justify-end">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Abrir menu</span>
+                            <MoreHorizontal className="h-4 w-4" />
                           </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                          <DropdownMenuLabel>Opções do Pedido</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
                           
-                          {onDownloadFile && request.full_song_url && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => onDownloadFile(request)}
-                            >
-                              <Download className="w-4 h-4 mr-1" />
-                              Download
-                            </Button>
+                          <DropdownMenuItem onClick={() => onViewDetails(request)}>
+                            Ver Detalhes
+                          </DropdownMenuItem>
+                          
+                          <DropdownMenuSeparator />
+                          <DropdownMenuLabel>Alterar Status</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => onUpdateStatus(request.id, 'pending')}>
+                            Status: Pendente
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onUpdateStatus(request.id, 'in_production')}>
+                            Status: Em Produção
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onUpdateStatus(request.id, 'completed')}>
+                            Status: Concluído
+                          </DropdownMenuItem>
+                          
+                          <DropdownMenuSeparator />
+                          <DropdownMenuLabel>Alterar Pagamento</DropdownMenuLabel>
+                          <DropdownMenuItem onClick={() => onUpdateStatus(request.id, undefined, 'pending')}>
+                            Pagamento: Não Pago
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onUpdateStatus(request.id, undefined, 'completed')}>
+                            Pagamento: Pago
+                          </DropdownMenuItem>
+                          
+                          {request.status === 'completed' && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuLabel>Ações de Entrega</DropdownMenuLabel>
+                              <DropdownMenuItem onClick={() => onDeliverMusic(request)}>
+                                <Send className="w-4 h-4 mr-2" />
+                                Entregar Música
+                              </DropdownMenuItem>
+                              
+                              {onDownloadFile && request.full_song_url && (
+                                <DropdownMenuItem onClick={() => onDownloadFile(request)}>
+                                  <Download className="w-4 h-4 mr-2" />
+                                  Download
+                                </DropdownMenuItem>
+                              )}
+                            </>
                           )}
-                        </>
-                      )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      
+                      {/* SoundCloud ID input in a more compact form */}
+                      <div className="flex items-center mr-2 ml-2">
+                        <div className="relative flex items-center max-w-[180px]">
+                          <Input
+                            type="text"
+                            className="h-8 w-32 text-xs pr-8"
+                            placeholder="ID SoundCloud"
+                            value={soundcloudIds[request.id] || ''}
+                            onChange={(e) => handleSoundCloudIdChange(request.id, e.target.value)}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onViewDetails(request)}
+                            disabled={!soundcloudIds[request.id]?.trim()}
+                            className="h-6 w-6 absolute right-1"
+                          >
+                            <Save className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>

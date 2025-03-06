@@ -57,7 +57,7 @@ const AdminDashboard = () => {
         <AnalyticsDashboard requests={requests} users={regularUsers} />
       </Card>
       
-      <Card className="bg-white rounded-lg shadow-md p-6">
+      <Card className="bg-white rounded-lg shadow-md p-6 overflow-hidden">
         <h2 className="text-xl font-semibold mb-4">Pedidos de Música</h2>
         <RequestsFilters 
           onSearch={handleSearch} 

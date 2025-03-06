@@ -12,9 +12,9 @@ const ProgressIndicator = ({ currentProgress, hasAnyRequest }: ProgressIndicator
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
       <h2 className="text-xl font-semibold mb-4 text-purple-700">Status do seu pedido</h2>
       
-      <Progress value={currentProgress} className="h-3 mb-6 bg-gray-100" 
+      <Progress value={currentProgress} className="h-3 mb-6 bg-gray-100 progress-bar-animated" 
         style={{
-          backgroundImage: 'linear-gradient(to right, #ec4899, #8b5cf6)',
+          backgroundImage: 'linear-gradient(to right, #0EA5E9, #33C3F0)',
           backgroundSize: `${currentProgress}% 100%`,
           backgroundRepeat: 'no-repeat'
         }}

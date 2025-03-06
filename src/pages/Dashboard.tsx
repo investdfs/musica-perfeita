@@ -8,15 +8,17 @@ import { MusicRequest, UserProfile } from "@/types/database.types";
 import ProgressIndicator from "@/components/dashboard/ProgressIndicator";
 import MusicPreviewPlayer from "@/components/dashboard/MusicPreviewPlayer";
 import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
+import OrderControlPanel from "@/components/dashboard/OrderControlPanel";
 import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
 import { Button } from "@/components/ui/button";
-import { Eye, LogOut, Music } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 const Dashboard = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userRequests, setUserRequests] = useState<MusicRequest[]>([]);
   const [currentProgress, setCurrentProgress] = useState(0);
+  const [showNewRequestForm, setShowNewRequestForm] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -67,63 +69,56 @@ const Dashboard = () => {
     
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
-    const fetchUserRequests = async () => {
-      try {
-        if (!userProfile?.id) return;
-        
-        const { data, error } = await supabase
-          .from('music_requests')
-          .select('*')
-          .eq('user_id', userProfile.id);
-          
-        if (error) throw error;
-        
-        if (data) {
-          setUserRequests(data);
-          
-          if (data.length > 0) {
-            const latestRequest = data[0];
-            switch (latestRequest.status) {
-              case 'pending':
-                setCurrentProgress(25);
-                break;
-              case 'in_production':
-                setCurrentProgress(50);
-                break;
-              case 'completed':
-                setCurrentProgress(100);
-                break;
-              default:
-                setCurrentProgress(0);
-            }
-          } else {
-            setCurrentProgress(10);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching music requests:', error);
-        setCurrentProgress(10);
-      }
-    };
-    
-    if (userProfile) {
-      fetchUserRequests();
-    }
-    
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [navigate, userProfile]);
+  }, [navigate]);
 
-  const handleRequestSubmitted = (data: MusicRequest[]) => {
-    setUserRequests([...data, ...userRequests]);
-    setCurrentProgress(25);
+  const fetchUserRequests = async () => {
+    try {
+      if (!userProfile?.id) return;
+      
+      const { data, error } = await supabase
+        .from('music_requests')
+        .select('*')
+        .eq('user_id', userProfile.id)
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      
+      if (data) {
+        setUserRequests(data);
+        
+        if (data.length > 0) {
+          const latestRequest = data[0];
+          switch (latestRequest.status) {
+            case 'pending':
+              setCurrentProgress(25);
+              break;
+            case 'in_production':
+              setCurrentProgress(50);
+              break;
+            case 'completed':
+              setCurrentProgress(100);
+              break;
+            default:
+              setCurrentProgress(0);
+          }
+        } else {
+          setCurrentProgress(10);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching music requests:', error);
+      setCurrentProgress(10);
+    }
   };
 
-  const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';
-  const hasPreviewUrl = userRequests.length > 0 && userRequests[0].preview_url;
-  const hasAnyRequest = userRequests.length > 0;
-  const hasPaidRequest = userRequests.length > 0 && userRequests[0].payment_status === 'completed';
+  useEffect(() => {
+    if (userProfile) {
+      fetchUserRequests();
+    }
+  }, [userProfile]);
 
   useEffect(() => {
     if (!userProfile?.id) return;
@@ -133,7 +128,8 @@ const Dashboard = () => {
         const { data, error } = await supabase
           .from('music_requests')
           .select('*')
-          .eq('user_id', userProfile.id);
+          .eq('user_id', userProfile.id)
+          .order('created_at', { ascending: false });
           
         if (error) throw error;
         
@@ -165,6 +161,16 @@ const Dashboard = () => {
     return () => clearInterval(intervalId);
   }, [userProfile]);
 
+  const handleRequestSubmitted = (data: MusicRequest[]) => {
+    fetchUserRequests();
+    setShowNewRequestForm(false);
+    
+    toast({
+      title: "Pedido enviado com sucesso!",
+      description: "Seu pedido foi recebido. Acompanhe o status aqui no painel.",
+    });
+  };
+
   const handleUserLogout = () => {
     localStorage.removeItem("musicaperfeita_user");
     
@@ -175,6 +181,9 @@ const Dashboard = () => {
     
     navigate("/login");
   };
+
+  const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';
+  const hasPreviewUrl = userRequests.length > 0 && userRequests[0].preview_url;
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
@@ -191,56 +200,30 @@ const Dashboard = () => {
               <h1 className="text-3xl font-bold">
                 Olá, <span className="text-pink-500">{userProfile.name}</span>! Crie sua música perfeita!
               </h1>
-              <button
+              <Button
                 onClick={handleUserLogout}
-                className="flex items-center gap-1 px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                variant="destructive"
+                size="sm"
+                className="flex items-center gap-1"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Sair</span>
-              </button>
+              </Button>
             </div>
           )}
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={userRequests.length > 0} />
           
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 mt-4 text-center border border-blue-100 transition-all hover:shadow-xl">
-            <h2 className="text-xl font-semibold mb-4 text-purple-700">Acesso à sua música</h2>
-            
-            <Button 
-              disabled={!(hasCompletedRequest && hasPaidRequest)}
-              onClick={() => navigate("/confirmacao", { state: { musicRequest: userRequests[0] } })}
-              className={`px-6 py-3 rounded-lg shadow-md transition-all text-lg w-full max-w-md ${
-                hasCompletedRequest && hasPaidRequest 
-                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white" 
-                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
-              }`}
-            >
-              <Music className="mr-2 h-5 w-5" />
-              ACESSAR MINHA MÚSICA PERSONALIZADA
-            </Button>
-            
-            <p className="mt-3 text-gray-500 text-sm">
-              {hasCompletedRequest && hasPaidRequest 
-                ? "Sua música está pronta para acesso." 
-                : "Este botão será liberado quando sua música estiver pronta."}
-            </p>
-          </div>
-          
-          {hasCompletedRequest && !hasPaidRequest && (
-            <div className="text-center mb-8">
-              <Button 
-                onClick={() => navigate("/music-preview", { 
-                  state: { musicRequest: userRequests[0] } 
-                })}
-                className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
-              >
-                <Eye className="mr-2 h-5 w-5" />
-                Ver meu Pedido
-              </Button>
-            </div>
+          {!showNewRequestForm && (
+            <OrderControlPanel 
+              userProfile={userProfile}
+              userRequests={userRequests}
+              onNewRequestClick={() => setShowNewRequestForm(true)}
+              onRefreshRequests={fetchUserRequests}
+            />
           )}
           
-          {hasPreviewUrl && (
+          {hasPreviewUrl && !showNewRequestForm && (
             <MusicPreviewPlayer 
               previewUrl={userRequests[0].preview_url || ''} 
               fullSongUrl={userRequests[0].full_song_url}
@@ -248,12 +231,24 @@ const Dashboard = () => {
             />
           )}
           
-          {userProfile && (
-            <MusicRequestForm 
-              userProfile={userProfile} 
-              onRequestSubmitted={handleRequestSubmitted}
-              hasExistingRequest={userRequests.length > 0}
-            />
+          {showNewRequestForm && userProfile && (
+            <>
+              <div className="mb-6 flex justify-between items-center">
+                <h2 className="text-xl font-semibold text-purple-700">Novo Pedido de Música</h2>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowNewRequestForm(false)}
+                  className="text-sm"
+                >
+                  Voltar para meus pedidos
+                </Button>
+              </div>
+              <MusicRequestForm 
+                userProfile={userProfile} 
+                onRequestSubmitted={handleRequestSubmitted}
+                hasExistingRequest={false}
+              />
+            </>
           )}
         </div>
       </main>

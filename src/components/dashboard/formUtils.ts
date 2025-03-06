@@ -3,6 +3,7 @@ import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
 import { MusicRequestFormValues } from "./formSchema";
 import { UserProfile } from "@/types/database.types";
+import { v4 as uuidv4 } from "uuid";
 
 export async function submitMusicRequest(
   values: MusicRequestFormValues, 
@@ -15,12 +16,16 @@ export async function submitMusicRequest(
     console.log("User profile:", userProfile);
     console.log("Form values:", values);
     
+    // Handle dev-user-id format for development mode
+    const userId = userProfile.id === 'dev-user-id' ? uuidv4() : userProfile.id;
+    console.log("Using user ID:", userId);
+    
     let coverUrl = null;
     
     if (coverImage) {
       console.log("Uploading cover image");
       try {
-        const fileName = `covers/${userProfile.id}/${Date.now()}-${coverImage.name}`;
+        const fileName = `covers/${userId}/${Date.now()}-${coverImage.name}`;
         const { data: imageData, error: imageError } = await supabase.storage
           .from('music-covers')
           .upload(fileName, coverImage);
@@ -45,7 +50,7 @@ export async function submitMusicRequest(
     
     console.log("Preparing request data");
     const newRequest = {
-      user_id: userProfile.id,
+      user_id: userId,
       honoree_name: values.honoree_name,
       relationship_type: values.relationship_type,
       custom_relationship: values.relationship_type === 'other' ? values.custom_relationship : null,

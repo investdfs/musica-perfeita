@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -197,15 +198,27 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={userRequests.length > 0} />
           
-          <div className="flex justify-center mb-8 mt-4">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-8 mt-4 text-center">
+            <h2 className="text-xl font-semibold mb-4 text-purple-700">Acesso à sua música</h2>
+            
             <Button 
               disabled={!(hasCompletedRequest && hasPaidRequest)}
               onClick={() => navigate("/confirmacao", { state: { musicRequest: userRequests[0] } })}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg shadow-md transition-all text-lg"
+              className={`px-6 py-3 rounded-lg shadow-md transition-all text-lg w-full max-w-md ${
+                hasCompletedRequest && hasPaidRequest 
+                  ? "bg-purple-600 hover:bg-purple-700 text-white" 
+                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
+              }`}
             >
               <Music className="mr-2 h-5 w-5" />
               ACESSAR MINHA MÚSICA PERSONALIZADA
             </Button>
+            
+            <p className="mt-3 text-gray-500 text-sm">
+              {hasCompletedRequest && hasPaidRequest 
+                ? "Sua música está pronta para acesso." 
+                : "Este botão será liberado quando sua música estiver pronta e o pagamento confirmado."}
+            </p>
           </div>
           
           {hasCompletedRequest && !hasPaidRequest && (

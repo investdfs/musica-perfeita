@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
-import { shouldBypassAdminAuth } from "@/lib/environment";
+import { isDevelopmentOrPreview } from "@/lib/environment";
 import supabase from "@/lib/supabase";
 
 const adminLoginSchema = z.object({
@@ -31,24 +32,41 @@ const AdminLogin = () => {
       return;
     }
     
-    // Auto-login in development environment
-    if (shouldBypassAdminAuth()) {
-      console.log("Auto-login - Development environment detected");
+    // Auto-login in Lovable editor environment
+    if (window.location.href.includes("lovable.dev/projects/")) {
+      console.log("Auto-login - Lovable editor environment detected");
       
       localStorage.setItem("musicaperfeita_admin", "true");
-      localStorage.setItem("admin_email", "dev@musicaperfeita.com");
-      localStorage.setItem("admin_id", "dev-session");
+      localStorage.setItem("admin_email", "editor@musicaperfeita.com");
+      localStorage.setItem("admin_id", "editor-session");
       localStorage.setItem("admin_is_main", "true");
       
       toast({
-        title: "Acesso de desenvolvimento",
-        description: "Autenticação automática como administrador em modo de desenvolvimento",
+        title: "Acesso de edição",
+        description: "Autenticação automática como administrador em modo de edição",
       });
       
       setTimeout(() => {
         navigate("/admin");
       }, 1000);
       return;
+    }
+    
+    // Auto-login in development mode
+    if (isDevelopmentOrPreview()) {
+      localStorage.setItem("musicaperfeita_admin", "true");
+      localStorage.setItem("admin_email", "contato@musicaperfeita.com");
+      localStorage.setItem("admin_id", "dev-session");
+      localStorage.setItem("admin_is_main", "true");
+      
+      toast({
+        title: "Acesso de desenvolvimento/preview",
+        description: "Autenticação automática como administrador em modo de desenvolvimento ou preview",
+      });
+      
+      setTimeout(() => {
+        navigate("/admin");
+      }, 1000);
     }
   }, [navigate]);
 

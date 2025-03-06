@@ -10,7 +10,6 @@ import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import RequestsFilters from "@/components/admin/RequestsFilters";
 import { useAdminFilters } from "@/contexts/AdminContext";
 import AdminManagement from "@/components/admin/AdminManagement";
-import { shouldBypassAdminAuth } from "@/lib/environment";
 
 const AdminDashboard = () => {
   const { 
@@ -38,11 +37,6 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
-      // Skip auth check in development environment
-      if (shouldBypassAdminAuth()) {
-        return;
-      }
-      
       const isAdmin = localStorage.getItem("musicaperfeita_admin");
       if (!isAdmin) {
         navigate("/admin-login");

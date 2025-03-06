@@ -32,10 +32,32 @@ const AdminLogin = () => {
       return;
     }
     
+    // Auto-login in Lovable editor environment
+    if (window.location.href.includes("lovable.dev/projects/")) {
+      console.log("Auto-login - Lovable editor environment detected");
+      
+      localStorage.setItem("musicaperfeita_admin", "true");
+      localStorage.setItem("admin_email", "editor@musicaperfeita.com");
+      localStorage.setItem("admin_id", "editor-session");
+      localStorage.setItem("admin_is_main", "true");
+      
+      toast({
+        title: "Acesso de edição",
+        description: "Autenticação automática como administrador em modo de edição",
+      });
+      
+      setTimeout(() => {
+        navigate("/admin");
+      }, 1000);
+      return;
+    }
+    
     // Auto-login in development mode
     if (isDevelopmentOrPreview()) {
       localStorage.setItem("musicaperfeita_admin", "true");
       localStorage.setItem("admin_email", "contato@musicaperfeita.com");
+      localStorage.setItem("admin_id", "dev-session");
+      localStorage.setItem("admin_is_main", "true");
       
       toast({
         title: "Acesso de desenvolvimento/preview",

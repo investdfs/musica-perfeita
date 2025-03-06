@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import NotificationsPanel from "@/components/admin/NotificationsPanel";
@@ -6,13 +7,57 @@ import AdminDashboard from "@/components/admin/AdminDashboard";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { toast } from "@/hooks/use-toast";
 import { LogOut } from "lucide-react";
+import { isDevelopmentOrPreview } from "@/lib/environment";
 
 const AdminPage = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     // Verify admin authentication on every page visit
     const checkAdminAuth = () => {
+      // Skip authentication check if in Lovable editor environment
+      if (window.location.href.includes("lovable.dev/projects/")) {
+        console.log("Bypassing auth check - Lovable editor environment detected");
+        
+        // Set admin info for editor environment
+        if (!localStorage.getItem("musicaperfeita_admin")) {
+          localStorage.setItem("musicaperfeita_admin", "true");
+          localStorage.setItem("admin_email", "editor@musicaperfeita.com");
+          localStorage.setItem("admin_id", "editor-session");
+          localStorage.setItem("admin_is_main", "true");
+          
+          toast({
+            title: "Acesso de edição",
+            description: "Modo de edição ativado automaticamente",
+          });
+        }
+        
+        setIsLoading(false);
+        return;
+      }
+      
+      // Check if in development or preview mode
+      if (isDevelopmentOrPreview()) {
+        console.log("Bypassing auth check - Development or preview environment detected");
+        
+        // Set admin info for development
+        if (!localStorage.getItem("musicaperfeita_admin")) {
+          localStorage.setItem("musicaperfeita_admin", "true");
+          localStorage.setItem("admin_email", "dev@musicaperfeita.com");
+          localStorage.setItem("admin_id", "dev-session");
+          localStorage.setItem("admin_is_main", "true");
+          
+          toast({
+            title: "Acesso de desenvolvimento",
+            description: "Modo de desenvolvimento ativado automaticamente",
+          });
+        }
+        
+        setIsLoading(false);
+        return;
+      }
+      
       // Check if admin is logged in
       const isAdmin = localStorage.getItem("musicaperfeita_admin");
       if (!isAdmin) {
@@ -35,7 +80,10 @@ const AdminPage = () => {
         });
         localStorage.removeItem("musicaperfeita_admin");
         navigate("/admin-login");
+        return;
       }
+      
+      setIsLoading(false);
     };
 
     // Check auth immediately
@@ -70,6 +118,14 @@ const AdminPage = () => {
     
     navigate("/admin-login");
   };
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
   
   return (
     <AdminProvider>

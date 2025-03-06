@@ -13,8 +13,6 @@ import IncludeNamesFields from "./IncludeNamesFields";
 import SubmitButton from "./SubmitButton";
 import { musicRequestSchema, MusicRequestFormValues } from "./formSchema";
 import { submitMusicRequest } from "./formUtils";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface MusicRequestFormProps {
   userProfile: UserProfile;
@@ -27,7 +25,7 @@ const audioExplanationUrl = "https://wp.novaenergiamg.com.br/wp-content/uploads/
 const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest = false }: MusicRequestFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [isFormExpanded, setIsFormExpanded] = useState(!hasExistingRequest);
+  const [showForm, setShowForm] = useState(!hasExistingRequest);
 
   const form = useForm<MusicRequestFormValues>({
     resolver: zodResolver(musicRequestSchema),
@@ -52,7 +50,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     try {
       const data = await submitMusicRequest(values, userProfile, coverImage);
       onRequestSubmitted(data);
-      setIsFormExpanded(false); // Collapse form after submission
+      setShowForm(false); // Hide form after successful submission
     } catch (error) {
       // Error is already handled in submitMusicRequest
     } finally {
@@ -60,35 +58,16 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     }
   };
 
-  const toggleForm = () => {
-    if (!hasExistingRequest) {
-      setIsFormExpanded(!isFormExpanded);
-    }
-  };
+  // Don't show the form at all if there's an existing request
+  if (hasExistingRequest) {
+    return null;
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-md p-8">
-      <div 
-        className="flex justify-between items-center cursor-pointer" 
-        onClick={toggleForm}
-      >
-        <FormIntroduction />
-        {!hasExistingRequest && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-purple-600"
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleForm();
-            }}
-          >
-            {isFormExpanded ? <ChevronUp /> : <ChevronDown />}
-          </Button>
-        )}
-      </div>
+      <FormIntroduction />
       
-      {isFormExpanded && (
+      {showForm && (
         <>
           <ImageUpload onImageSelected={handleImageSelected} />
           

@@ -15,13 +15,25 @@ const Navigation = ({ className }: { className?: string }) => {
 
   // Check if user is logged in
   useEffect(() => {
-    const storedUser = localStorage.getItem("musicaperfeita_user");
-    setIsLoggedIn(!!storedUser);
+    const checkLoginStatus = () => {
+      const storedUser = localStorage.getItem("musicaperfeita_user");
+      setIsLoggedIn(!!storedUser);
+    };
+    
+    checkLoginStatus();
+    
+    // Adiciona um evento de storage para detectar mudanças no localStorage
+    window.addEventListener('storage', checkLoginStatus);
+    
+    return () => {
+      window.removeEventListener('storage', checkLoginStatus);
+    };
   }, [location.pathname]); // Re-check when route changes
 
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("musicaperfeita_user");
+    setIsLoggedIn(false); // Atualiza o estado imediatamente
     toast({
       title: "Logout realizado",
       description: "Você saiu da sua conta com sucesso."

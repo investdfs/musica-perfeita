@@ -93,7 +93,58 @@ const MinhaMusica = () => {
     }
   };
 
-  // Função para formatar URL do SoundCloud para incorporação
+  // Verifica se o preview_url é um código de iframe completo
+  const renderSoundCloudPlayer = () => {
+    if (!musicRequest.preview_url) return null;
+    
+    // Se o preview_url contém tags <iframe>, consideramos que é um código iframe completo
+    if (musicRequest.preview_url.includes('<iframe')) {
+      // Criamos um elemento div para renderizar o HTML do iframe
+      return (
+        <div 
+          className="w-full h-full" 
+          dangerouslySetInnerHTML={{ __html: musicRequest.preview_url }}
+        />
+      );
+    }
+    
+    // Caso contrário, tratamos como URL normal
+    return (
+      musicRequest.preview_url.includes('soundcloud.com') ? (
+        // Player SoundCloud com URL normal
+        <iframe 
+          width="100%" 
+          height="100%" 
+          scrolling="no" 
+          frameBorder="no" 
+          src={formatSoundCloudUrl(musicRequest.preview_url)}
+          className="w-full h-full"
+          allow="autoplay"
+          title={`Música para ${musicRequest.honoree_name}`}
+        ></iframe>
+      ) : (
+        // Player de Vídeo padrão para outros tipos de URL
+        <video 
+          controls 
+          className="w-full h-full"
+          poster={musicRequest.cover_image_url || undefined}
+          onError={() => {
+            toast({
+              title: "Erro ao carregar mídia",
+              description: "Não foi possível reproduzir o arquivo de mídia",
+              variant: "destructive",
+            });
+          }}
+        >
+          <source src={musicRequest.preview_url} type="video/mp4" />
+          <source src={musicRequest.preview_url} type="audio/mpeg" />
+          Seu navegador não suporta a reprodução deste conteúdo.
+        </video>
+      )
+    );
+  };
+
+  // Função para formatar URL do SoundCloud para incorporação (mantida para retrocompatibilidade)
   const formatSoundCloudUrl = (url: string) => {
     // Verifica se já é um URL de incorporação (contém /widget/)
     if (url.includes('/widget/')) {
@@ -150,37 +201,7 @@ const MinhaMusica = () => {
             <div className="mb-6 bg-black rounded-lg overflow-hidden">
               {musicRequest.preview_url ? (
                 <div className="aspect-video w-full">
-                  {musicRequest.preview_url.includes('soundcloud.com') ? (
-                    // Player SoundCloud
-                    <iframe 
-                      width="100%" 
-                      height="100%" 
-                      scrolling="no" 
-                      frameBorder="no" 
-                      src={formatSoundCloudUrl(musicRequest.preview_url)}
-                      className="w-full h-full"
-                      allow="autoplay"
-                      title={`Música para ${musicRequest.honoree_name}`}
-                    ></iframe>
-                  ) : (
-                    // Player de Vídeo padrão
-                    <video 
-                      controls 
-                      className="w-full h-full"
-                      poster={musicRequest.cover_image_url || undefined}
-                      onError={() => {
-                        toast({
-                          title: "Erro ao carregar mídia",
-                          description: "Não foi possível reproduzir o arquivo de mídia",
-                          variant: "destructive",
-                        });
-                      }}
-                    >
-                      <source src={musicRequest.preview_url} type="video/mp4" />
-                      <source src={musicRequest.preview_url} type="audio/mpeg" />
-                      Seu navegador não suporta a reprodução deste conteúdo.
-                    </video>
-                  )}
+                  {renderSoundCloudPlayer()}
                 </div>
               ) : (
                 <div className="aspect-video w-full flex items-center justify-center bg-gray-900">

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MusicRequest } from "@/types/database.types";
 import { isDevelopmentOrPreview } from "@/lib/environment";
@@ -31,9 +30,28 @@ export const useRequestManagement = (
     setIsUploading(true);
     
     try {
-      // Create public URLs for SoundCloud track
-      const previewUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${soundCloudId}`;
-      const fullSongUrl = `https://soundcloud.com/tracks/${soundCloudId}`;
+      let previewUrl: string;
+      let fullSongUrl: string;
+      
+      if (soundCloudId.includes('<iframe')) {
+        previewUrl = soundCloudId;
+        
+        const urlMatch = soundCloudId.match(/src="([^"]+)"/);
+        if (urlMatch && urlMatch[1]) {
+          const src = urlMatch[1];
+          const trackIdMatch = src.match(/tracks\/(\d+)/);
+          if (trackIdMatch && trackIdMatch[1]) {
+            fullSongUrl = `https://soundcloud.com/tracks/${trackIdMatch[1]}`;
+          } else {
+            fullSongUrl = src;
+          }
+        } else {
+          fullSongUrl = "https://soundcloud.com";
+        }
+      } else {
+        previewUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${soundCloudId}`;
+        fullSongUrl = `https://soundcloud.com/tracks/${soundCloudId}`;
+      }
       
       if (isDevelopmentOrPreview()) {
         const updatedRequests = requests.map(req => 
@@ -81,7 +99,7 @@ export const useRequestManagement = (
       
       toast({
         title: "Música Disponibilizada",
-        description: "O ID do SoundCloud foi salvo e o status do pedido foi atualizado para Concluído.",
+        description: "O iframe do SoundCloud foi salvo e o status do pedido foi atualizado para Concluído.",
       });
     } catch (error: any) {
       console.error('Error updating request:', error);

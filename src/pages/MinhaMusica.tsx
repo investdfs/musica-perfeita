@@ -1,17 +1,18 @@
-
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest } from "@/types/database.types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Music, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, Music, Loader2, QrCode, Share2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const MinhaMusica = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const musicRequest = location.state?.musicRequest as MusicRequest | undefined;
   
   useEffect(() => {
@@ -24,9 +25,50 @@ const MinhaMusica = () => {
       });
     } else {
       setIsLoading(false);
+      if (musicRequest.payment_status === 'completed' && musicRequest.full_song_url) {
+        generateQRCode(musicRequest.full_song_url);
+      }
     }
   }, [musicRequest, navigate]);
   
+  const generateQRCode = (url: string) => {
+    const size = 200;
+    const qrCodeApiUrl = `https://chart.googleapis.com/chart?cht=qr&chs=${size}x${size}&chl=${encodeURIComponent(url)}&choe=UTF-8`;
+    setQrCodeUrl(qrCodeApiUrl);
+  };
+
+  const handleShareQrCode = () => {
+    if (qrCodeUrl) {
+      if (navigator.share) {
+        navigator.share({
+          title: `Música para ${musicRequest?.honoree_name}`,
+          text: 'Escaneie este QR Code para ouvir uma música personalizada!',
+          url: musicRequest?.full_song_url || window.location.href,
+        })
+        .then(() => {
+          toast({
+            title: "Compartilhado!",
+            description: "QR Code compartilhado com sucesso",
+          });
+        })
+        .catch((error) => {
+          console.error('Erro ao compartilhar:', error);
+          toast({
+            title: "Erro ao compartilhar",
+            description: "Não foi possível compartilhar o QR Code",
+            variant: "destructive",
+          });
+        });
+      } else {
+        navigator.clipboard.writeText(musicRequest?.full_song_url || window.location.href);
+        toast({
+          title: "Link copiado!",
+          description: "Link da música copiado para a área de transferência",
+        });
+      }
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-indigo-900 via-purple-800 to-pink-700 flex items-center justify-center">
@@ -67,7 +109,6 @@ const MinhaMusica = () => {
 
   const handleDownload = () => {
     if (musicRequest.full_song_url) {
-      // Usar um try-catch para lidar com possíveis bloqueios de popup
       try {
         const newWindow = window.open(musicRequest.full_song_url, '_blank');
         if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
@@ -93,13 +134,10 @@ const MinhaMusica = () => {
     }
   };
 
-  // Verifica se o preview_url é um código de iframe completo
   const renderSoundCloudPlayer = () => {
     if (!musicRequest.preview_url) return null;
     
-    // Se o preview_url contém tags <iframe>, consideramos que é um código iframe completo
     if (musicRequest.preview_url.includes('<iframe')) {
-      // Criamos um elemento div para renderizar o HTML do iframe
       return (
         <div 
           className="w-full h-full" 
@@ -108,10 +146,8 @@ const MinhaMusica = () => {
       );
     }
     
-    // Caso contrário, tratamos como URL normal
     return (
       musicRequest.preview_url.includes('soundcloud.com') ? (
-        // Player SoundCloud com URL normal
         <iframe 
           width="100%" 
           height="100%" 
@@ -123,7 +159,6 @@ const MinhaMusica = () => {
           title={`Música para ${musicRequest.honoree_name}`}
         ></iframe>
       ) : (
-        // Player de Vídeo padrão para outros tipos de URL
         <video 
           controls 
           className="w-full h-full"
@@ -144,16 +179,12 @@ const MinhaMusica = () => {
     );
   };
 
-  // Função para formatar URL do SoundCloud para incorporação (mantida para retrocompatibilidade)
   const formatSoundCloudUrl = (url: string) => {
-    // Verifica se já é um URL de incorporação (contém /widget/)
     if (url.includes('/widget/')) {
       return url;
     }
     
-    // Verificar se é uma URL válida do SoundCloud
     if (url.includes('soundcloud.com')) {
-      // Converte URL regular para URL de incorporação
       return `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true`;
     }
     
@@ -197,7 +228,6 @@ const MinhaMusica = () => {
               </div>
             </div>
             
-            {/* Player de áudio/vídeo */}
             <div className="mb-6 bg-black rounded-lg overflow-hidden">
               {musicRequest.preview_url ? (
                 <div className="aspect-video w-full">
@@ -212,7 +242,37 @@ const MinhaMusica = () => {
               )}
             </div>
             
-            {/* Botão de download */}
+            {musicRequest.payment_status === 'completed' && qrCodeUrl && (
+              <Card className="mb-6 bg-black/50 border-white/10 text-white">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <QrCode className="h-5 w-5" />
+                    QR Code da Sua Música
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col items-center pb-4">
+                  <div className="bg-white p-3 rounded-lg mb-3">
+                    <img 
+                      src={qrCodeUrl} 
+                      alt={`QR Code para música de ${musicRequest.honoree_name}`} 
+                      className="w-40 h-40 md:w-48 md:h-48"
+                    />
+                  </div>
+                  <p className="text-sm text-center mb-4 text-indigo-200">
+                    Escaneie o QR Code acima para acessar sua música personalizada para {musicRequest.honoree_name}
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    className="bg-transparent border-white/20 hover:bg-white/10 text-white"
+                    onClick={handleShareQrCode}
+                  >
+                    <Share2 className="mr-2 h-4 w-4" />
+                    Compartilhar QR Code
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+            
             <div className="text-center mt-8">
               <Button
                 onClick={handleDownload}
@@ -240,7 +300,6 @@ const MinhaMusica = () => {
             </div>
           </div>
           
-          {/* Informações sobre a música */}
           <div className="bg-black/30 backdrop-blur-sm rounded-xl p-8 shadow-xl border border-white/10">
             <h2 className="text-xl font-semibold mb-4">Sobre Esta Música</h2>
             <div className="space-y-4">

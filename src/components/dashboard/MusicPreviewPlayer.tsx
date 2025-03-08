@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Music, PlayCircle, PauseCircle } from "lucide-react";
+import { Download, Music, PlayCircle, PauseCircle, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface MusicPreviewPlayerProps {
   previewUrl: string;
@@ -14,6 +15,7 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [isSoundCloud, setIsSoundCloud] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if it's a SoundCloud URL
@@ -40,9 +42,8 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
     if (!audioElement && !isSoundCloud) return;
     
     if (isSoundCloud) {
-      // For SoundCloud we can't control play/pause directly
-      // This is just toggling the visual state
-      setIsPlaying(!isPlaying);
+      // Se for SoundCloud, abrir no player dedicado
+      navigate("/music-player", { state: { musicUrl: previewUrl } });
     } else if (audioElement) {
       if (isPlaying) {
         audioElement.pause();
@@ -60,9 +61,13 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
     }
   };
 
-  const handleDownloadClick = () => {
+  const handleAccessFullSong = () => {
     if (fullSongUrl) {
-      window.open(fullSongUrl, '_blank');
+      if (isSoundCloud) {
+        navigate("/music-player-full", { state: { musicUrl: fullSongUrl, downloadUrl: fullSongUrl } });
+      } else {
+        window.open(fullSongUrl, '_blank');
+      }
     } else {
       toast({
         title: "Link não disponível",
@@ -86,19 +91,43 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       {isSoundCloud ? (
-        // SoundCloud embed player
-        <div className="aspect-video w-full">
-          <iframe 
-            width="100%" 
-            height="100%" 
-            scrolling="no" 
-            frameBorder="no" 
-            src={previewUrl}
-            allow="autoplay"
-          ></iframe>
+        // Para URLs do SoundCloud, oferecemos botões de ação em vez de embutir o player aqui
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Music className="h-8 w-8 text-indigo-600 mr-3" />
+              <div>
+                <p className="font-medium">Música no SoundCloud</p>
+                <p className="text-sm text-gray-500">
+                  {isCompleted ? 'Música completa disponível' : 'Prévia de 30 segundos disponível'}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-1"
+                onClick={togglePlay}
+              >
+                <PlayCircle className="h-4 w-4" />
+                Ouvir Prévia
+              </Button>
+              
+              {isCompleted && (
+                <Button 
+                  className="flex items-center gap-1 bg-pink-500 hover:bg-pink-600"
+                  onClick={handleAccessFullSong}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Ouvir Completa
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
       ) : (
-        // Custom audio player for regular audio files
+        // Player customizado para arquivos de áudio regulares
         <div className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -123,7 +152,7 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
               <Button 
                 variant="outline" 
                 className="flex items-center gap-1"
-                onClick={handleDownloadClick}
+                onClick={handleAccessFullSong}
               >
                 <Download className="h-4 w-4" />
                 Acessar

@@ -16,6 +16,8 @@ import AdminLogin from "./pages/AdminLogin";
 import MusicPreview from "./pages/MusicPreview";
 import MinhaMusica from "./pages/MinhaMusica";
 import NotFound from "./pages/NotFound";
+import MusicPlayer from "./pages/MusicPlayer";
+import MusicPlayerFull from "./pages/MusicPlayerFull";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +39,8 @@ const App = () => (
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/music-preview" element={<MusicPreview />} />
           <Route path="/minha-musica" element={<MinhaMusica />} />
+          <Route path="/music-player" element={<MusicPlayer />} />
+          <Route path="/music-player-full" element={<MusicPlayerFull />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

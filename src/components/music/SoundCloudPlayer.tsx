@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from "lucide-react";
@@ -334,10 +335,12 @@ const SoundCloudPlayer = ({
             {downloadUrl && (
               <Button 
                 onClick={() => handleDownload(downloadUrl)}
-                className="bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white flex items-center gap-2 px-4 py-2 rounded-lg shadow-md"
+                className="bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white flex items-center gap-2 px-4 py-2 rounded-lg shadow-md relative overflow-hidden group"
               >
-                <Download className="h-4 w-4" />
-                <span className="text-sm">Baixar</span>
+                <span className="absolute inset-0 bg-white/20 transform translate-x-full group-hover:translate-x-[-100%] transition-transform duration-1000 ease-in-out"></span>
+                <span className="absolute inset-0 bg-white/10 transform translate-x-full group-hover:translate-x-[-100%] transition-transform duration-1500 delay-100 ease-in-out"></span>
+                <Download className="h-4 w-4 relative z-10 animate-bounce" />
+                <span className="text-sm relative z-10">Baixar</span>
               </Button>
             )}
           </div>
@@ -377,10 +380,12 @@ const SoundCloudPlayer = ({
         {downloadUrl && (
           <Button 
             onClick={() => handleDownload(downloadUrl)}
-            className="bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white flex items-center gap-2 px-6 py-3 rounded-lg shadow-lg"
+            className="bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white flex items-center gap-2 px-6 py-3 rounded-lg shadow-lg relative overflow-hidden group"
           >
-            <Download className="h-5 w-5" />
-            Baixar Música Completa
+            <span className="absolute inset-0 bg-white/20 transform translate-x-full group-hover:translate-x-[-100%] transition-transform duration-1000 ease-in-out"></span>
+            <span className="absolute inset-0 bg-white/10 transform translate-x-full group-hover:translate-x-[-100%] transition-transform duration-1500 delay-100 ease-in-out"></span>
+            <Download className="h-5 w-5 relative z-10 animate-bounce" />
+            <span className="relative z-10">Baixar Música Completa</span>
           </Button>
         )}
       </div>

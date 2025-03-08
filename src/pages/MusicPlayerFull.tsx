@@ -4,13 +4,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SoundCloudPlayer from "@/components/music/SoundCloudPlayer";
-import { CheckCircle, Clock, Music, Heart } from "lucide-react";
+import { CheckCircle, Clock, Music, Heart, Calendar, ExternalLink, Share2 } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const MusicPlayerFull = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [musicUrl, setMusicUrl] = useState<string>("");
   const [downloadUrl, setDownloadUrl] = useState<string>("");
+  const [isShareMenuOpen, setIsShareMenuOpen] = useState(false);
   
   useEffect(() => {
     // Obter as URLs da música e do download dos parâmetros da URL ou do estado da rota
@@ -36,6 +39,18 @@ const MusicPlayerFull = () => {
       setDownloadUrl("https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Rivers-End-1.wav");
     }
   }, [location]);
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: "Música Perfeita - Minha música personalizada",
+        text: "Ouça a música personalizada que foi criada para mim!",
+        url: window.location.href,
+      }).catch((error) => console.log('Erro ao compartilhar:', error));
+    } else {
+      setIsShareMenuOpen(!isShareMenuOpen);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -112,6 +127,67 @@ const MusicPlayerFull = () => {
               </ul>
             </div>
           </div>
+          
+          <Card className="bg-gray-800 shadow-lg rounded-xl p-6 mb-8 border border-gray-700">
+            <CardHeader className="pb-3">
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 text-indigo-400 mr-2" />
+                <CardTitle className="text-xl font-semibold text-gray-200">Compartilhe sua Música</CardTitle>
+              </div>
+              <CardDescription className="text-gray-300">
+                Aproveite para compartilhar esta experiência com seus amigos e familiares
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Share2 className="h-4 w-4 text-indigo-400 mr-2" />
+                      <p className="text-gray-200 font-medium">Compartilhar Link</p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="bg-indigo-900 hover:bg-indigo-800 border-indigo-700 text-gray-200"
+                      onClick={handleShare}
+                    >
+                      Compartilhar
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <ExternalLink className="h-4 w-4 text-indigo-400 mr-2" />
+                      <p className="text-gray-200 font-medium">Download e Compartilhe</p>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="bg-green-700 hover:bg-green-800 border-green-600 text-white"
+                      onClick={() => {
+                        if (downloadUrl) {
+                          window.open(downloadUrl, '_blank');
+                        }
+                      }}
+                    >
+                      Baixar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
+                <p className="text-sm text-gray-400 mb-2">Dica Rápida:</p>
+                <p className="text-gray-300">
+                  Compartilhe esta música em suas redes sociais ou envie diretamente para a pessoa 
+                  homenageada. Você também pode baixar o arquivo para reproduzir offline ou criar um momento especial.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
       <Footer />

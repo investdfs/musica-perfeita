@@ -30,7 +30,7 @@ const MusicPlayer = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <main className="flex-grow py-12 px-6 bg-gradient-to-b from-gray-900 to-indigo-950">
+      <main className="flex-grow py-12 px-6 bg-gradient-to-b from-white to-indigo-50">
         <div className="max-w-4xl mx-auto">
           <div className="mb-12">
             <div className="flex items-center justify-center mb-4">
@@ -39,15 +39,15 @@ const MusicPlayer = () => {
               </div>
             </div>
             
-            <h1 className="text-4xl font-bold text-center text-gray-100 mb-4 tracking-tight">
+            <h1 className="text-4xl font-bold text-center text-indigo-900 mb-4 tracking-tight">
               Prévia da Sua Música
             </h1>
             
-            <p className="text-center text-gray-300 max-w-xl mx-auto mb-2">
+            <p className="text-center text-indigo-700 max-w-xl mx-auto mb-2">
               Ouça uma prévia de 60 segundos da sua música personalizada criada com base nas suas preferências.
             </p>
             
-            <p className="text-center text-indigo-400 text-sm max-w-xl mx-auto">
+            <p className="text-center text-indigo-500 text-sm max-w-xl mx-auto">
               Para acessar a versão completa, faça o pagamento e desbloqueie todos os recursos.
             </p>
           </div>

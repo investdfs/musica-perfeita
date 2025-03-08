@@ -13,6 +13,9 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Resetar o scroll para o topo quando a rota muda
+    window.scrollTo(0, 0);
+    
     const checkAuth = () => {
       // Verificar se o usuário está logado
       const storedUser = localStorage.getItem("musicaperfeita_user");

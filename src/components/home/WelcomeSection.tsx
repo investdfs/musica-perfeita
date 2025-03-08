@@ -2,14 +2,54 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
 
 const WelcomeSection = () => {
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const intervalRef = useRef<number | null>(null);
+  
+  const highlightedWords = [
+    "Perfeita",
+    "Especial",
+    "Única",
+    "Incrível",
+    "Emocionante",
+    "Personalizada"
+  ];
+
+  useEffect(() => {
+    // Iniciar a troca de palavras após 2 segundos da primeira renderização
+    const timeout = setTimeout(() => {
+      intervalRef.current = window.setInterval(() => {
+        setIsAnimating(true);
+        setTimeout(() => {
+          setCurrentWordIndex((prevIndex) => (prevIndex + 1) % highlightedWords.length);
+          setIsAnimating(false);
+        }, 500); // Tempo para a animação de fade-out completar
+      }, 3000); // Troca a cada 3 segundos
+    }, 2000);
+
+    return () => {
+      clearTimeout(timeout);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
   return (
     <section className="py-10 sm:py-16 px-4 sm:px-6 bg-gradient-to-br from-yellow-50 via-pink-50 to-green-50">
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 md:gap-10 items-center">
         <div className="space-y-4 sm:space-y-6 text-center md:text-left">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent leading-tight">
-            Transforme seu Amor em Música Perfeita!
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
+            Transforme seu Amor em Música{" "}
+            <span 
+              className={`bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent transition-opacity duration-500 ${
+                isAnimating ? "opacity-0" : "opacity-100"
+              }`}
+            >
+              {highlightedWords[currentWordIndex]}
+            </span>
+            !
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-700">
             Crie uma música personalizada para a pessoa amada, com emoção e carinho, gastando pouco e recebendo rapidinho!

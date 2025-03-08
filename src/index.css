@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -170,6 +171,18 @@
 .animate-gradient-background {
   background-size: 200% 200%;
   animation: gradient-animation 15s ease infinite;
+}
+
+/* Word cycling animation */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(10px); }
+  20% { opacity: 1; transform: translateY(0); }
+  80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+.animate-word-cycle {
+  animation: fadeInOut 3s ease-in-out infinite;
 }
 
 /* Floating shapes animations */

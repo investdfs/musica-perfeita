@@ -10,24 +10,28 @@ interface SoundCloudPlayerProps {
   playTimeLimit?: number;
 }
 
+// Tipagem correta para o widget do SoundCloud
 declare global {
   interface Window {
     SC: {
-      Widget: (iframe: HTMLIFrameElement) => {
-        bind: (event: string, callback: () => void) => void;
-        pause: () => void;
-        play: () => void;
-      };
-      Widget: {
-        Events: {
-          PLAY: string;
-          PAUSE: string;
-          FINISH: string;
-        };
-      };
+      Widget: (iframe: HTMLIFrameElement) => SCWidget;
     };
   }
 }
+
+// Interface para o widget do SoundCloud
+interface SCWidget {
+  bind: (event: string, callback: () => void) => void;
+  pause: () => void;
+  play: () => void;
+}
+
+// Constantes para os eventos do SoundCloud
+const SC_EVENTS = {
+  PLAY: "play",
+  PAUSE: "pause",
+  FINISH: "finish"
+};
 
 const SoundCloudPlayer = ({
   musicUrl,
@@ -65,7 +69,7 @@ const SoundCloudPlayer = ({
 
     const widget = window.SC.Widget(iframeRef.current);
 
-    widget.bind(window.SC.Widget.Events.PLAY, () => {
+    widget.bind(SC_EVENTS.PLAY, () => {
       console.log("Música começou a tocar");
       setIsPlaying(true);
       
@@ -82,7 +86,7 @@ const SoundCloudPlayer = ({
       }
     });
 
-    widget.bind(window.SC.Widget.Events.PAUSE, () => {
+    widget.bind(SC_EVENTS.PAUSE, () => {
       console.log("Música pausada");
       setIsPlaying(false);
       
@@ -93,7 +97,7 @@ const SoundCloudPlayer = ({
       }
     });
 
-    widget.bind(window.SC.Widget.Events.FINISH, () => {
+    widget.bind(SC_EVENTS.FINISH, () => {
       console.log("Música finalizada");
       setIsPlaying(false);
       

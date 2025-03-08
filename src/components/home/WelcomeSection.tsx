@@ -43,9 +43,10 @@ const WelcomeSection = () => {
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">
             Transforme seu Amor em Música{" "}
             <span 
-              className={`transition-opacity duration-500 ${
-                isAnimating ? "opacity-0" : "opacity-100"
-              }`}
+              className="inline-block min-w-28 sm:min-w-32 md:min-w-40 transition-opacity duration-500"
+              style={{ 
+                opacity: isAnimating ? 0 : 1 
+              }}
             >
               {highlightedWords[currentWordIndex]}
             </span>

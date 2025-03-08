@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -60,7 +61,7 @@ const WelcomeSection = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-yellow-100 via-pink-100 to-green-100 opacity-60"></div>
           <div className="absolute inset-0 flex items-center justify-center">
             <img 
-              src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/UniversalUpscaler_96cb2fe5-2944-44b2-b0ae-198f3f8f8237-1.jpg"
+              src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/UniversalUpscaler_96cb2fe5-2944-44b2-b0ae-198f3f8f8237-1-scaled.webp"
               alt="Casal romântico"
               className="w-full h-full object-cover"
             />

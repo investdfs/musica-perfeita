@@ -1,5 +1,5 @@
 
-import { Home, UserPlus, Info, LogIn, LogOut } from "lucide-react";
+import { Home, UserPlus, Info, LogIn, LogOut, User } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -33,6 +33,7 @@ const Navigation = ({ className }: { className?: string }) => {
   // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("musicaperfeita_user");
+    localStorage.removeItem("redirect_after_login");
     setIsLoggedIn(false); // Atualiza o estado imediatamente
     toast({
       title: "Logout realizado",
@@ -55,27 +56,45 @@ const Navigation = ({ className }: { className?: string }) => {
         <Home className="h-4 w-4" />
         <span>Home</span>
       </Link>
-      <Link 
-        to="/cadastro" 
-        className={cn(
-          "flex items-center gap-1 transition-colors",
-          isActive("/cadastro") 
-            ? "text-primary font-medium" 
-            : "hover:text-primary/80"
-        )}
-      >
-        <UserPlus className="h-4 w-4" />
-        <span>Cadastro</span>
-      </Link>
+      
+      {!isLoggedIn && (
+        <Link 
+          to="/cadastro" 
+          className={cn(
+            "flex items-center gap-1 transition-colors",
+            isActive("/cadastro") 
+              ? "text-primary font-medium" 
+              : "hover:text-primary/80"
+          )}
+        >
+          <UserPlus className="h-4 w-4" />
+          <span>Cadastro</span>
+        </Link>
+      )}
       
       {isLoggedIn ? (
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-1 transition-colors text-red-600 hover:text-red-800"
-        >
-          <LogOut className="h-4 w-4" />
-          <span>Sair</span>
-        </button>
+        <>
+          <Link
+            to="/dashboard"
+            className={cn(
+              "flex items-center gap-1 transition-colors",
+              isActive("/dashboard") 
+                ? "text-primary font-medium" 
+                : "hover:text-primary/80"
+            )}
+          >
+            <User className="h-4 w-4" />
+            <span>Minha Conta</span>
+          </Link>
+          
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-1 transition-colors text-red-600 hover:text-red-800"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Sair</span>
+          </button>
+        </>
       ) : (
         <Link 
           to="/login" 

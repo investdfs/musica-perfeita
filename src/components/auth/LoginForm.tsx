@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -59,7 +59,14 @@ const LoginForm = () => {
           description: "Bem-vindo de volta ao Musicaperfeita!",
         });
         
-        navigate("/dashboard");
+        // Verificar se há uma página para redirecionar após o login
+        const redirectPath = localStorage.getItem("redirect_after_login");
+        if (redirectPath) {
+          localStorage.removeItem("redirect_after_login");
+          navigate(redirectPath);
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         toast({
           title: "Credenciais inválidas",

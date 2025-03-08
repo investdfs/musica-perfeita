@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from "lucide-react";
@@ -220,9 +221,9 @@ const SoundCloudPlayer = ({
   if (isDirectFile) {
     return (
       <div className="flex flex-col items-center space-y-6 max-w-2xl mx-auto">
-        <div className="w-full bg-white rounded-xl p-6 shadow-lg border border-indigo-100">
+        <div className="w-full bg-gray-800 rounded-xl p-6 shadow-lg border border-indigo-900/50">
           {/* Visualizador de Ondas (estilizado) */}
-          <div className="relative h-24 mb-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg overflow-hidden">
+          <div className="relative h-24 mb-6 bg-gradient-to-r from-indigo-900/50 to-purple-900/50 rounded-lg overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="flex space-x-1 h-full items-center">
                 {Array.from({ length: 30 }).map((_, i) => (
@@ -240,10 +241,10 @@ const SoundCloudPlayer = ({
             </div>
             
             {/* Título flutuante sobre a visualização */}
-            <div className="absolute top-0 left-0 right-0 p-2 bg-gradient-to-r from-indigo-100/80 to-transparent">
-              <h3 className="text-gray-700 text-sm font-medium">Música Personalizada</h3>
+            <div className="absolute top-0 left-0 right-0 p-2 bg-gradient-to-r from-indigo-900/80 to-transparent">
+              <h3 className="text-gray-300 text-sm font-medium">Música Personalizada</h3>
               {limitPlayTime && (
-                <p className="text-xs text-indigo-500">Prévia limitada a 60 segundos</p>
+                <p className="text-xs text-indigo-400">Prévia limitada a 60 segundos</p>
               )}
             </div>
           </div>
@@ -259,7 +260,7 @@ const SoundCloudPlayer = ({
 
           {/* Mensagem de erro */}
           {error && (
-            <div className="bg-red-100 border border-red-200 text-red-700 p-3 mb-4 rounded-lg text-sm">
+            <div className="bg-red-900/50 border border-red-800 text-red-200 p-3 mb-4 rounded-lg text-sm">
               {error}
             </div>
           )}
@@ -267,7 +268,7 @@ const SoundCloudPlayer = ({
           {/* Barra de Progresso */}
           <div 
             ref={progressRef}
-            className="w-full h-2 bg-gray-200 rounded-full cursor-pointer overflow-hidden mb-2"
+            className="w-full h-2 bg-gray-700 rounded-full cursor-pointer overflow-hidden mb-2"
             onClick={handleProgressClick}
           >
             <div 
@@ -277,7 +278,7 @@ const SoundCloudPlayer = ({
           </div>
 
           {/* Tempo */}
-          <div className="flex justify-between text-xs text-gray-500 mb-4">
+          <div className="flex justify-between text-xs text-gray-400 mb-4">
             <div>{formatTime(currentTime)}</div>
             <div>{limitPlayTime ? "01:00" : formatTime(duration)}</div>
           </div>
@@ -286,7 +287,7 @@ const SoundCloudPlayer = ({
           <div className="flex items-center justify-center space-x-4 mb-6">
             <button 
               onClick={restart}
-              className="text-gray-600 hover:text-indigo-700 transition-colors p-2"
+              className="text-gray-400 hover:text-indigo-400 transition-colors p-2"
             >
               <SkipBack className="h-5 w-5" />
             </button>
@@ -304,7 +305,7 @@ const SoundCloudPlayer = ({
             
             <button 
               onClick={forward}
-              className="text-gray-600 hover:text-indigo-700 transition-colors p-2"
+              className="text-gray-400 hover:text-indigo-400 transition-colors p-2"
             >
               <SkipForward className="h-5 w-5" />
             </button>
@@ -315,7 +316,7 @@ const SoundCloudPlayer = ({
             <div className="flex items-center space-x-2">
               <button
                 onClick={toggleMute}
-                className="text-gray-600 hover:text-indigo-700 transition-colors"
+                className="text-gray-400 hover:text-indigo-400 transition-colors"
               >
                 {isMuted ? 
                   <VolumeX className="h-5 w-5" /> : 
@@ -337,7 +338,7 @@ const SoundCloudPlayer = ({
             </div>
             
             {limitPlayTime && (
-              <div className="text-xs text-indigo-500 animate-pulse">
+              <div className="text-xs text-indigo-400 animate-pulse">
                 Prévia de 60 segundos
               </div>
             )}
@@ -345,7 +346,7 @@ const SoundCloudPlayer = ({
         </div>
         
         {limitPlayTime && (
-          <div className="text-center text-sm bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-gray-700 w-full max-w-md">
+          <div className="text-center text-sm bg-indigo-900/30 p-3 rounded-lg border border-indigo-800/30 text-gray-300 w-full max-w-md">
             <p>Esta é uma prévia limitada a 60 segundos. Adquira a versão completa para ouvir a música inteira.</p>
           </div>
         )}

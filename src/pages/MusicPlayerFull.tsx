@@ -41,24 +41,24 @@ const MusicPlayerFull = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <main className="flex-grow py-12 px-6 bg-gradient-to-b from-white to-indigo-50">
+      <main className="flex-grow py-12 px-6 bg-gradient-to-b from-gray-900 to-indigo-950">
         <div className="max-w-4xl mx-auto">
           <div className="mb-12">
             <div className="flex items-center justify-center mb-4">
-              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center shadow-lg">
+              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center shadow-lg">
                 <CheckCircle className="h-6 w-6 text-white" />
               </div>
             </div>
             
-            <h1 className="text-4xl font-bold text-center text-gray-800 mb-4 tracking-tight">
+            <h1 className="text-4xl font-bold text-center text-gray-100 mb-4 tracking-tight">
               Sua Música Completa
             </h1>
             
-            <p className="text-center text-gray-600 max-w-xl mx-auto mb-2">
+            <p className="text-center text-gray-300 max-w-xl mx-auto mb-2">
               Parabéns! Você agora tem acesso à versão completa da sua música personalizada.
             </p>
             
-            <p className="text-center text-green-600 text-sm max-w-xl mx-auto">
+            <p className="text-center text-green-400 text-sm max-w-xl mx-auto">
               Ouça quantas vezes quiser e faça o download para guardar com você.
             </p>
           </div>
@@ -71,41 +71,41 @@ const MusicPlayerFull = () => {
             />
           </div>
           
-          <div className="bg-white shadow-lg rounded-xl p-6 mb-8 border border-gray-100">
+          <div className="bg-gray-800 shadow-lg rounded-xl p-6 mb-8 border border-gray-700">
             <div className="flex items-center mb-4">
-              <Music className="h-5 w-5 text-indigo-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-800">Detalhes da Música</h2>
+              <Music className="h-5 w-5 text-indigo-400 mr-2" />
+              <h2 className="text-xl font-semibold text-gray-200">Detalhes da Música</h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+              <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
                 <div className="flex items-center mb-2">
-                  <Clock className="h-4 w-4 text-indigo-600 mr-2" />
-                  <p className="text-sm text-gray-600">Duração</p>
+                  <Clock className="h-4 w-4 text-indigo-400 mr-2" />
+                  <p className="text-sm text-gray-400">Duração</p>
                 </div>
-                <p className="text-gray-800 font-medium">Versão Completa</p>
+                <p className="text-gray-200 font-medium">Versão Completa</p>
               </div>
               
-              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+              <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
                 <div className="flex items-center mb-2">
-                  <Download className="h-4 w-4 text-indigo-600 mr-2" />
-                  <p className="text-sm text-gray-600">Download</p>
+                  <Download className="h-4 w-4 text-indigo-400 mr-2" />
+                  <p className="text-sm text-gray-400">Download</p>
                 </div>
-                <p className="text-gray-800 font-medium">Disponível</p>
+                <p className="text-gray-200 font-medium">Disponível</p>
               </div>
               
-              <div className="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+              <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
                 <div className="flex items-center mb-2">
-                  <Heart className="h-4 w-4 text-indigo-600 mr-2" />
-                  <p className="text-sm text-gray-600">Criada para</p>
+                  <Heart className="h-4 w-4 text-indigo-400 mr-2" />
+                  <p className="text-sm text-gray-400">Criada para</p>
                 </div>
-                <p className="text-gray-800 font-medium">Você</p>
+                <p className="text-gray-200 font-medium">Você</p>
               </div>
             </div>
             
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-              <h3 className="text-lg font-medium text-gray-800 mb-2">Instruções</h3>
-              <ul className="list-disc pl-5 space-y-2 text-gray-700">
+            <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
+              <h3 className="text-lg font-medium text-gray-200 mb-2">Instruções</h3>
+              <ul className="list-disc pl-5 space-y-2 text-gray-300">
                 <li>Você pode ouvir esta música quantas vezes quiser.</li>
                 <li>Clique no botão "Baixar Música Completa" para salvar em seu dispositivo.</li>
                 <li>A música foi criada exclusivamente para você, com base nas informações que você forneceu.</li>
@@ -117,13 +117,13 @@ const MusicPlayerFull = () => {
           <div className="flex justify-center">
             <Button 
               onClick={() => window.open(downloadUrl, '_blank')}
-              className="group relative bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg overflow-hidden"
+              className="group relative bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg overflow-hidden"
             >
               <span className="flex items-center relative z-10">
                 <Download className="mr-2 h-5 w-5" />
                 Baixar Música Completa
               </span>
-              <span className="absolute inset-0 bg-gradient-to-r from-green-400 to-teal-500 transform scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
+              <span className="absolute inset-0 bg-gradient-to-r from-green-500 to-teal-600 transform scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
             </Button>
           </div>
         </div>

@@ -1,7 +1,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { Download, Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 
@@ -199,107 +199,159 @@ const SoundCloudPlayer = ({
     setIsMuted(newVolume === 0);
   };
 
+  // Reiniciar música
+  const restart = () => {
+    if (!audioRef.current) return;
+    audioRef.current.currentTime = 0;
+    setProgress(0);
+    setCurrentTime(0);
+  };
+
+  // Avançar 10 segundos
+  const forward = () => {
+    if (!audioRef.current) return;
+    const newTime = Math.min(audioRef.current.currentTime + 10, audioRef.current.duration);
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+ 
   // Se for um arquivo direto
   if (isDirectFile) {
     return (
-      <div className="flex flex-col items-center space-y-4 max-w-2xl mx-auto">
-        <div className="w-full bg-gradient-to-r from-indigo-900 to-purple-900 rounded-lg p-5 shadow-2xl">
-          <div className="flex flex-col space-y-4">
-            {/* Título e Artwork */}
-            <div className="flex items-center justify-between">
-              <div className="text-white">
-                <h3 className="font-bold">Música Personalizada</h3>
-                {limitPlayTime && (
-                  <p className="text-xs text-indigo-200">Prévia limitada a 30 segundos</p>
-                )}
-              </div>
-              <div className="h-12 w-12 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center">
-                <Play className="h-6 w-6 text-white" />
+      <div className="flex flex-col items-center space-y-6 max-w-2xl mx-auto">
+        <div className="w-full bg-gradient-to-r from-indigo-950 to-purple-950 rounded-xl p-6 shadow-2xl border border-indigo-800/30">
+          {/* Visualizador de Ondas (estilizado) */}
+          <div className="relative h-24 mb-6 bg-black/30 rounded-lg overflow-hidden">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="flex space-x-1 h-full items-center">
+                {Array.from({ length: 30 }).map((_, i) => (
+                  <div 
+                    key={i} 
+                    className={`h-${Math.floor(Math.random() * 16) + 2} w-1 bg-gradient-to-t from-purple-500 to-pink-500 rounded-full opacity-${isPlaying ? '100' : '40'}`}
+                    style={{
+                      height: `${isPlaying ? (Math.sin(i / 2) * 40 + 40) : (Math.random() * 60 + 10)}%`,
+                      opacity: isPlaying ? 0.8 : 0.3
+                    }}
+                  />
+                ))}
               </div>
             </div>
+            
+            {/* Título flutuante sobre a visualização */}
+            <div className="absolute top-0 left-0 right-0 p-2 bg-gradient-to-r from-indigo-900/80 to-transparent">
+              <h3 className="text-white text-sm font-medium">Música Personalizada</h3>
+              {limitPlayTime && (
+                <p className="text-xs text-indigo-300">Prévia limitada a 30 segundos</p>
+              )}
+            </div>
+          </div>
 
-            {/* Player de Áudio */}
-            <audio 
-              ref={audioRef} 
-              preload="metadata"
-              onPlay={() => setIsPlaying(true)}
-              onPause={() => setIsPlaying(false)}
-              className="hidden"
+          {/* Player de Áudio */}
+          <audio 
+            ref={audioRef} 
+            preload="metadata"
+            onPlay={() => setIsPlaying(true)}
+            onPause={() => setIsPlaying(false)}
+            className="hidden"
+          />
+
+          {/* Mensagem de erro */}
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/30 text-red-200 p-3 mb-4 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          {/* Barra de Progresso */}
+          <div 
+            ref={progressRef}
+            className="w-full h-2 bg-indigo-900/50 rounded-full cursor-pointer overflow-hidden mb-2"
+            onClick={handleProgressClick}
+          >
+            <div 
+              className="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"
+              style={{ width: `${progress}%` }}
             />
+          </div>
 
-            {/* Mensagem de erro */}
-            {error && (
-              <div className="bg-red-500 bg-opacity-20 text-red-100 p-2 rounded text-sm">
-                {error}
+          {/* Tempo */}
+          <div className="flex justify-between text-xs text-indigo-300 mb-4">
+            <div>{formatTime(currentTime)}</div>
+            <div>{limitPlayTime ? "00:30" : formatTime(duration)}</div>
+          </div>
+
+          {/* Controles principais */}
+          <div className="flex items-center justify-center space-x-4 mb-6">
+            <button 
+              onClick={restart}
+              className="text-indigo-300 hover:text-white transition-colors p-2"
+            >
+              <SkipBack className="h-5 w-5" />
+            </button>
+            
+            <button 
+              onClick={togglePlay}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-full p-4 hover:from-purple-500 hover:to-pink-500 transition-all transform hover:scale-105 shadow-lg"
+              disabled={!audioLoaded && !error}
+            >
+              {isPlaying ? 
+                <Pause className="h-6 w-6 text-white" /> : 
+                <Play className="h-6 w-6 text-white ml-0.5" />
+              }
+            </button>
+            
+            <button 
+              onClick={forward}
+              className="text-indigo-300 hover:text-white transition-colors p-2"
+            >
+              <SkipForward className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Controles secundários - Volume */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={toggleMute}
+                className="text-indigo-300 hover:text-white transition-colors"
+              >
+                {isMuted ? 
+                  <VolumeX className="h-5 w-5" /> : 
+                  <Volume2 className="h-5 w-5" />
+                }
+              </button>
+
+              <div className="w-24">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={isMuted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  className="w-full accent-purple-500"
+                />
+              </div>
+            </div>
+            
+            {limitPlayTime && (
+              <div className="text-xs text-indigo-300 animate-pulse">
+                Prévia de 30 segundos
               </div>
             )}
-
-            {/* Barra de Progresso */}
-            <div 
-              ref={progressRef}
-              className="w-full h-2 bg-gray-700 rounded-full cursor-pointer overflow-hidden"
-              onClick={handleProgressClick}
-            >
-              <div 
-                className="h-full bg-gradient-to-r from-pink-500 to-purple-500 rounded-full"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-
-            {/* Controles + Tempo */}
-            <div className="flex items-center justify-between">
-              <div className="text-xs text-white">
-                {formatTime(currentTime)} / {limitPlayTime ? "00:30" : formatTime(duration)}
-              </div>
-
-              <div className="flex items-center space-x-4">
-                <button 
-                  onClick={togglePlay}
-                  className="bg-white rounded-full p-3 hover:bg-gray-200 transition-colors"
-                  disabled={!audioLoaded && !error}
-                >
-                  {isPlaying ? 
-                    <Pause className="h-5 w-5 text-purple-900" /> : 
-                    <Play className="h-5 w-5 text-purple-900" />
-                  }
-                </button>
-
-                <button
-                  onClick={toggleMute}
-                  className="text-white hover:text-pink-300 transition-colors"
-                >
-                  {isMuted ? 
-                    <VolumeX className="h-5 w-5" /> : 
-                    <Volume2 className="h-5 w-5" />
-                  }
-                </button>
-
-                <div className="w-24">
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={isMuted ? 0 : volume}
-                    onChange={handleVolumeChange}
-                    className="w-full accent-pink-500"
-                  />
-                </div>
-              </div>
-            </div>
           </div>
         </div>
         
         {limitPlayTime && (
-          <div className="text-center text-indigo-600 bg-indigo-100 p-2 rounded-md w-full">
-            <p>Esta é uma prévia limitada a 30 segundos.</p>
+          <div className="text-center text-sm bg-gradient-to-r from-purple-900/30 to-indigo-900/30 p-3 rounded-lg backdrop-blur-sm border border-purple-800/30 text-indigo-200 w-full max-w-md">
+            <p>Esta é uma prévia limitada a 30 segundos. Adquira a versão completa para ouvir a música inteira.</p>
           </div>
         )}
         
         {downloadUrl && (
           <Button 
             onClick={() => window.open(downloadUrl, '_blank')}
-            className="bg-pink-500 hover:bg-pink-600 flex items-center gap-2 px-6 py-2.5"
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 flex items-center gap-2 px-6 py-3 rounded-lg shadow-lg"
           >
             <Download className="h-5 w-5" />
             Baixar Música Completa
@@ -313,7 +365,7 @@ const SoundCloudPlayer = ({
     
     return (
       <div className="flex flex-col items-center space-y-4 max-w-2xl mx-auto">
-        <div className="w-full border-4 border-pink-500 rounded-lg overflow-hidden shadow-lg">
+        <div className="w-full border-4 border-purple-600 rounded-lg overflow-hidden shadow-lg">
           <iframe
             title="SoundCloud Player"
             width="100%"
@@ -327,15 +379,15 @@ const SoundCloudPlayer = ({
         </div>
         
         {limitPlayTime && (
-          <div className="text-center text-indigo-600 bg-indigo-100 p-2 rounded-md w-full">
-            <p>Esta é uma prévia limitada a 30 segundos.</p>
+          <div className="text-center text-sm bg-gradient-to-r from-purple-900/30 to-indigo-900/30 p-3 rounded-lg backdrop-blur-sm border border-purple-800/30 text-indigo-200 w-full max-w-md">
+            <p>Esta é uma prévia limitada a 30 segundos. Adquira a versão completa para ouvir a música inteira.</p>
           </div>
         )}
         
         {downloadUrl && (
           <Button 
             onClick={() => window.open(downloadUrl, '_blank')}
-            className="bg-pink-500 hover:bg-pink-600 flex items-center gap-2 px-6 py-2.5"
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 flex items-center gap-2 px-6 py-3 rounded-lg shadow-lg"
           >
             <Download className="h-5 w-5" />
             Baixar Música Completa

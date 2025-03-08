@@ -40,16 +40,16 @@ const WelcomeSection = () => {
     <section className="py-10 sm:py-16 px-4 sm:px-6 bg-gradient-to-br from-yellow-50 via-pink-50 to-green-50">
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 md:gap-10 items-center">
         <div className="space-y-4 sm:space-y-6 text-center md:text-left">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-            <span className="bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-transparent bg-clip-text">Música </span>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">
+            Transforme seu Amor em Música{" "}
             <span 
-              className={`inline-block transition-opacity duration-500 bg-gradient-to-r from-pink-400 via-purple-500 to-pink-600 text-transparent bg-clip-text`}
-              style={{ 
-                opacity: isAnimating ? 0 : 1 
-              }}
+              className={`transition-opacity duration-500 ${
+                isAnimating ? "opacity-0" : "opacity-100"
+              }`}
             >
               {highlightedWords[currentWordIndex]}
             </span>
+            !
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-700">
             Crie uma música personalizada para a pessoa amada, com emoção e carinho, gastando pouco e recebendo rapidinho!
@@ -64,9 +64,9 @@ const WelcomeSection = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-yellow-100 via-pink-100 to-green-100 opacity-60"></div>
           <div className="absolute inset-0 flex items-center justify-center">
             <img 
-              src="/lovable-uploads/b4f634ae-bbd2-47fa-bb8e-59636e8792dd.png"
-              alt="Música Perfeita - Logo colorido"
-              className="w-auto h-full object-contain p-4"
+              src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/UniversalUpscaler_96cb2fe5-2944-44b2-b0ae-198f3f8f8237-1.jpg"
+              alt="Casal romântico"
+              className="w-full h-full object-cover"
             />
           </div>
         </div>

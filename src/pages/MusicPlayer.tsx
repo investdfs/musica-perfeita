@@ -23,7 +23,7 @@ const MusicPlayer = () => {
       setMusicUrl(location.state.musicUrl);
     } else {
       // URL padrão para demonstração se nenhuma for fornecida
-      setMusicUrl("https://soundcloud.com/musicaperfeita/raploversp");
+      setMusicUrl("https://drive.google.com/uc?export=download&id=1tKaYochecXytFWcrsbixKsFdHJ8C7dp4");
     }
   }, [location]);
 

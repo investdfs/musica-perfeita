@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -13,9 +12,7 @@ const WelcomeSection = () => {
     "Perfeita",
     "Especial",
     "Única",
-    "Incrível",
-    "Emocionante",
-    "Personalizada"
+    "Incrível"
   ];
 
   useEffect(() => {
@@ -49,7 +46,6 @@ const WelcomeSection = () => {
             >
               {highlightedWords[currentWordIndex]}
             </span>
-            !
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-700">
             Crie uma música personalizada para a pessoa amada, com emoção e carinho, gastando pouco e recebendo rapidinho!

@@ -22,8 +22,8 @@ const MusicPlayer = () => {
     } else if (location.state?.musicUrl) {
       setMusicUrl(location.state.musicUrl);
     } else {
-      // URL padrão para demonstração se nenhuma for fornecida
-      setMusicUrl("https://drive.google.com/uc?export=download&id=1tKaYochecXytFWcrsbixKsFdHJ8C7dp4");
+      // URL padrão atualizada para o arquivo .wav fornecido
+      setMusicUrl("https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Rivers-End-1.wav");
     }
   }, [location]);
 

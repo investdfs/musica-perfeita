@@ -28,11 +28,13 @@ const SoundCloudPlayer = ({
   const [isMuted, setIsMuted] = useState(false);
   const timeoutRef = useRef<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [audioLoaded, setAudioLoaded] = useState(false);
 
   // Determinar se estamos usando SoundCloud ou arquivo direto
   const isDirectFile = musicUrl.includes('drive.google.com') || 
                        musicUrl.includes('.mp3') || 
-                       musicUrl.includes('.wav');
+                       musicUrl.includes('.wav') ||
+                       musicUrl.includes('wp.novaenergiamg.com.br');
 
   // Função para formatar o tempo (segundos para mm:ss)
   const formatTime = (time: number) => {
@@ -51,7 +53,8 @@ const SoundCloudPlayer = ({
     audio.muted = isMuted;
 
     // Garantir que a URL seja atribuída corretamente
-    if (audio.src !== musicUrl) {
+    if (audio.src !== musicUrl && musicUrl) {
+      console.log("Carregando URL de áudio:", musicUrl);
       audio.src = musicUrl;
       audio.load();
     }
@@ -65,6 +68,7 @@ const SoundCloudPlayer = ({
 
     const handleLoadedMetadata = () => {
       setDuration(audio.duration);
+      setAudioLoaded(true);
       console.log(`Duração total: ${audio.duration} segundos`);
     };
 
@@ -81,14 +85,17 @@ const SoundCloudPlayer = ({
       console.error("Erro ao carregar o áudio:", e);
       setError("Não foi possível carregar o áudio. Verifique a URL ou o formato.");
       setIsPlaying(false);
+      setAudioLoaded(false);
     };
 
+    // Adicionar eventos
     audio.addEventListener('timeupdate', updateProgress);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
     return () => {
+      // Remover eventos
       audio.removeEventListener('timeupdate', updateProgress);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
@@ -138,6 +145,12 @@ const SoundCloudPlayer = ({
       setIsPlaying(false);
     } else {
       setError(null); // Limpar erros anteriores
+      
+      // Garantir que a URL esteja definida
+      if (!audio.src || audio.src !== musicUrl) {
+        audio.src = musicUrl;
+        audio.load();
+      }
       
       audio.play()
         .then(() => {
@@ -243,6 +256,7 @@ const SoundCloudPlayer = ({
                 <button 
                   onClick={togglePlay}
                   className="bg-white rounded-full p-3 hover:bg-gray-200 transition-colors"
+                  disabled={!audioLoaded && !error}
                 >
                   {isPlaying ? 
                     <Pause className="h-5 w-5 text-purple-900" /> : 

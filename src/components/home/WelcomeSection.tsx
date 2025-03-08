@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
-import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogClose, DialogTitle } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 
 const WelcomeSection = () => {
@@ -117,6 +117,7 @@ const WelcomeSection = () => {
 
       <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
         <DialogContent className="sm:max-w-[800px] p-0 bg-transparent border-none">
+          <DialogTitle className="sr-only">Vídeo da Homenagem</DialogTitle>
           <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
             <video
               ref={videoRef}
@@ -124,6 +125,7 @@ const WelcomeSection = () => {
               controls
               autoPlay
               className="w-full h-full object-contain"
+              onEnded={() => setIsVideoOpen(false)}
             />
             <DialogClose className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70">
               <X className="h-4 w-4" />

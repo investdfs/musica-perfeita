@@ -28,13 +28,11 @@ const SoundCloudPlayer = ({
   const [error, setError] = useState<string | null>(null);
   const [audioLoaded, setAudioLoaded] = useState(false);
 
-  // Determinar se estamos usando SoundCloud ou arquivo direto
   const isDirectFile = musicUrl.includes('drive.google.com') || 
                        musicUrl.includes('.mp3') || 
                        musicUrl.includes('.wav') ||
                        musicUrl.includes('wp.novaenergiamg.com.br');
 
-  // Função para formatar o tempo (segundos para mm:ss)
   const formatTime = (time: number) => {
     if (isNaN(time)) return "00:00";
     const minutes = Math.floor(time / 60);
@@ -46,11 +44,9 @@ const SoundCloudPlayer = ({
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Configuração inicial
     audio.volume = volume;
     audio.muted = isMuted;
 
-    // Garantir que a URL seja atribuída corretamente
     if (audio.src !== musicUrl && musicUrl) {
       console.log("Carregando URL de áudio:", musicUrl);
       audio.src = musicUrl;
@@ -86,14 +82,12 @@ const SoundCloudPlayer = ({
       setAudioLoaded(false);
     };
 
-    // Adicionar eventos
     audio.addEventListener('timeupdate', updateProgress);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
     return () => {
-      // Remover eventos
       audio.removeEventListener('timeupdate', updateProgress);
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
@@ -104,18 +98,15 @@ const SoundCloudPlayer = ({
     };
   }, [musicUrl, volume, isMuted]);
 
-  // Efeito para limitar o tempo de reprodução
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Limpar timeout existente quando o estado de reprodução mudar
     if (timeoutRef.current) {
       window.clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
 
-    // Configurar um novo timeout apenas se estiver tocando e limitPlayTime estiver ativado
     if (limitPlayTime && isPlaying) {
       console.log(`Configurando limite de tempo: ${playTimeLimit/1000} segundos`);
       
@@ -128,7 +119,6 @@ const SoundCloudPlayer = ({
       }, playTimeLimit);
     }
 
-    // Limpar o timeout ao desmontar
     return () => {
       if (timeoutRef.current) {
         window.clearTimeout(timeoutRef.current);
@@ -148,9 +138,8 @@ const SoundCloudPlayer = ({
       }
       setIsPlaying(false);
     } else {
-      setError(null); // Limpar erros anteriores
-      
-      // Garantir que a URL esteja definida
+      setError(null);
+
       if (!audio.src || audio.src !== musicUrl) {
         audio.src = musicUrl;
         audio.load();
@@ -159,7 +148,6 @@ const SoundCloudPlayer = ({
       audio.play()
         .then(() => {
           setIsPlaying(true);
-          // O timer para limitPlayTime é configurado no useEffect
         })
         .catch(error => {
           console.error('Erro ao reproduzir áudio:', error);
@@ -217,11 +205,19 @@ const SoundCloudPlayer = ({
     setCurrentTime(newTime);
   };
 
+  const handleDownload = (downloadUrl: string) => {
+    const link = document.createElement('a');
+    link.href = downloadUrl;
+    link.download = 'musica-personalizada.wav';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (isDirectFile) {
     return (
       <div className="flex flex-col items-center space-y-6 max-w-2xl mx-auto">
         <div className="w-full bg-white rounded-xl p-6 shadow-lg border border-indigo-100">
-          {/* Visualizador de Ondas (estilizado) */}
           <div className="relative h-24 mb-6 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="flex space-x-1 h-full items-center">
@@ -239,7 +235,6 @@ const SoundCloudPlayer = ({
               </div>
             </div>
             
-            {/* Título flutuante sobre a visualização */}
             <div className="absolute top-0 left-0 right-0 p-2 bg-gradient-to-r from-indigo-100/80 to-transparent">
               <h3 className="text-gray-700 text-sm font-medium">Música Personalizada</h3>
               {limitPlayTime && (
@@ -248,7 +243,6 @@ const SoundCloudPlayer = ({
             </div>
           </div>
 
-          {/* Player de Áudio */}
           <audio 
             ref={audioRef} 
             preload="metadata"
@@ -257,14 +251,12 @@ const SoundCloudPlayer = ({
             className="hidden"
           />
 
-          {/* Mensagem de erro */}
           {error && (
             <div className="bg-red-100 border border-red-200 text-red-700 p-3 mb-4 rounded-lg text-sm">
               {error}
             </div>
           )}
 
-          {/* Barra de Progresso */}
           <div 
             ref={progressRef}
             className="w-full h-2 bg-gray-200 rounded-full cursor-pointer overflow-hidden mb-2"
@@ -276,13 +268,11 @@ const SoundCloudPlayer = ({
             />
           </div>
 
-          {/* Tempo */}
           <div className="flex justify-between text-xs text-gray-500 mb-4">
             <div>{formatTime(currentTime)}</div>
             <div>{limitPlayTime ? "01:00" : formatTime(duration)}</div>
           </div>
 
-          {/* Controles principais */}
           <div className="flex items-center justify-center space-x-4 mb-6">
             <button 
               onClick={restart}
@@ -310,7 +300,6 @@ const SoundCloudPlayer = ({
             </button>
           </div>
 
-          {/* Controles secundários - Volume */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <button
@@ -341,6 +330,16 @@ const SoundCloudPlayer = ({
                 Prévia de 60 segundos
               </div>
             )}
+            
+            {downloadUrl && (
+              <Button 
+                onClick={() => handleDownload(downloadUrl)}
+                className="bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white flex items-center gap-2 px-4 py-2 rounded-lg shadow-md"
+              >
+                <Download className="h-4 w-4" />
+                <span className="text-sm">Baixar</span>
+              </Button>
+            )}
           </div>
         </div>
         
@@ -348,16 +347,6 @@ const SoundCloudPlayer = ({
           <div className="text-center text-sm bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-gray-700 w-full max-w-md">
             <p>Esta é uma prévia limitada a 60 segundos. Adquira a versão completa para ouvir a música inteira.</p>
           </div>
-        )}
-        
-        {downloadUrl && (
-          <Button 
-            onClick={() => window.open(downloadUrl, '_blank')}
-            className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 flex items-center gap-2 px-6 py-3 rounded-lg shadow-lg text-white"
-          >
-            <Download className="h-5 w-5" />
-            Baixar Música Completa
-          </Button>
         )}
       </div>
     );
@@ -387,8 +376,8 @@ const SoundCloudPlayer = ({
         
         {downloadUrl && (
           <Button 
-            onClick={() => window.open(downloadUrl, '_blank')}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 flex items-center gap-2 px-6 py-3 rounded-lg shadow-lg"
+            onClick={() => handleDownload(downloadUrl)}
+            className="bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white flex items-center gap-2 px-6 py-3 rounded-lg shadow-lg"
           >
             <Download className="h-5 w-5" />
             Baixar Música Completa

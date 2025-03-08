@@ -4,8 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SoundCloudPlayer from "@/components/music/SoundCloudPlayer";
-import { CheckCircle, Download, Clock, Music, Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle, Clock, Music, Heart } from "lucide-react";
 
 const MusicPlayerFull = () => {
   const location = useLocation();
@@ -88,18 +87,18 @@ const MusicPlayerFull = () => {
               
               <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
                 <div className="flex items-center mb-2">
-                  <Download className="h-4 w-4 text-indigo-400 mr-2" />
-                  <p className="text-sm text-gray-400">Download</p>
-                </div>
-                <p className="text-gray-200 font-medium">Disponível</p>
-              </div>
-              
-              <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
-                <div className="flex items-center mb-2">
                   <Heart className="h-4 w-4 text-indigo-400 mr-2" />
                   <p className="text-sm text-gray-400">Criada para</p>
                 </div>
                 <p className="text-gray-200 font-medium">Você</p>
+              </div>
+              
+              <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
+                <div className="flex items-center mb-2">
+                  <Music className="h-4 w-4 text-indigo-400 mr-2" />
+                  <p className="text-sm text-gray-400">Formato</p>
+                </div>
+                <p className="text-gray-200 font-medium">Alta Qualidade</p>
               </div>
             </div>
             
@@ -107,24 +106,11 @@ const MusicPlayerFull = () => {
               <h3 className="text-lg font-medium text-gray-200 mb-2">Instruções</h3>
               <ul className="list-disc pl-5 space-y-2 text-gray-300">
                 <li>Você pode ouvir esta música quantas vezes quiser.</li>
-                <li>Clique no botão "Baixar Música Completa" para salvar em seu dispositivo.</li>
+                <li>Clique no botão "Baixar" verde para salvar a música em seu dispositivo.</li>
                 <li>A música foi criada exclusivamente para você, com base nas informações que você forneceu.</li>
                 <li>Se precisar de ajuda ou tiver dúvidas, entre em contato conosco.</li>
               </ul>
             </div>
-          </div>
-          
-          <div className="flex justify-center">
-            <Button 
-              onClick={() => window.open(downloadUrl, '_blank')}
-              className="group relative bg-gradient-to-r from-green-600 to-teal-700 hover:from-green-700 hover:to-teal-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg overflow-hidden"
-            >
-              <span className="flex items-center relative z-10">
-                <Download className="mr-2 h-5 w-5" />
-                Baixar Música Completa
-              </span>
-              <span className="absolute inset-0 bg-gradient-to-r from-green-500 to-teal-600 transform scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-            </Button>
           </div>
         </div>
       </main>

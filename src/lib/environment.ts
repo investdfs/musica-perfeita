@@ -7,7 +7,9 @@ export const isDevelopmentOrPreview = (): boolean => {
   return (
     process.env.NODE_ENV === 'development' || 
     window.location.hostname === 'localhost' ||
-    window.location.href.includes('lovable.dev/projects/')
+    window.location.href.includes('lovable.dev/projects/') ||
+    window.location.hostname === 'musica-perfeita.lovable.app' ||
+    window.location.hostname === 'musicaperfeita.com.br'
   );
 };
 

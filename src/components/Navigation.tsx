@@ -31,7 +31,8 @@ const Navigation = ({ className }: { className?: string }) => {
   }, [location.pathname]); // Re-check when route changes
 
   // Handle logout
-  const handleLogout = () => {
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
     localStorage.removeItem("musicaperfeita_user");
     localStorage.removeItem("redirect_after_login");
     setIsLoggedIn(false); // Atualiza o estado imediatamente
@@ -87,13 +88,14 @@ const Navigation = ({ className }: { className?: string }) => {
             <span>Minha Conta</span>
           </Link>
           
-          <button
+          <a
+            href="/"
             onClick={handleLogout}
             className="flex items-center gap-1 transition-colors text-red-600 hover:text-red-800"
           >
             <LogOut className="h-4 w-4" />
             <span>Sair</span>
-          </button>
+          </a>
         </>
       ) : (
         <Link 

@@ -3,10 +3,14 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState, useRef } from "react";
+import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 
 const WelcomeSection = () => {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const intervalRef = useRef<number | null>(null);
   
   const highlightedWords = [
@@ -34,6 +38,40 @@ const WelcomeSection = () => {
     };
   }, []);
 
+  // Fechar o vídeo automaticamente quando terminar
+  useEffect(() => {
+    const videoElement = videoRef.current;
+    
+    const handleVideoEnd = () => {
+      setIsVideoOpen(false);
+    };
+    
+    if (videoElement && isVideoOpen) {
+      videoElement.addEventListener("ended", handleVideoEnd);
+      
+      // Garantir que o vídeo seja reproduzido na horizontal em dispositivos móveis
+      if (window.innerWidth <= 768) {
+        try {
+          if (videoElement.requestFullscreen) {
+            videoElement.requestFullscreen();
+          } else if ((videoElement as any).webkitRequestFullscreen) {
+            (videoElement as any).webkitRequestFullscreen();
+          } else if ((videoElement as any).msRequestFullscreen) {
+            (videoElement as any).msRequestFullscreen();
+          }
+        } catch (error) {
+          console.error("Erro ao tentar abrir vídeo em tela cheia:", error);
+        }
+      }
+    }
+    
+    return () => {
+      if (videoElement) {
+        videoElement.removeEventListener("ended", handleVideoEnd);
+      }
+    };
+  }, [isVideoOpen]);
+
   return (
     <section className="py-10 sm:py-16 px-4 sm:px-6 bg-gradient-to-br from-yellow-50 via-pink-50 to-green-50">
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 md:gap-10 items-center">
@@ -57,17 +95,43 @@ const WelcomeSection = () => {
             </Button>
           </Link>
         </div>
-        <div className="relative h-64 sm:h-72 md:h-80 bg-white rounded-lg shadow-lg overflow-hidden mt-4 md:mt-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-yellow-100 via-pink-100 to-green-100 opacity-60"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <img 
-              src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/UniversalUpscaler_96cb2fe5-2944-44b2-b0ae-198f3f8f8237-1-scaled.webp"
-              alt="Casal romântico"
-              className="w-full h-full object-cover"
-            />
+        <div className="flex flex-col">
+          <div className="relative h-64 sm:h-72 md:h-80 bg-white rounded-lg shadow-lg overflow-hidden mt-4 md:mt-0 cursor-pointer" onClick={() => setIsVideoOpen(true)}>
+            <div className="absolute inset-0 bg-gradient-to-r from-yellow-100 via-pink-100 to-green-100 opacity-60"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <img 
+                src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Captura-de-tela-2025-03-08-145931.png"
+                alt="Momento da homenagem"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-white bg-opacity-75 flex items-center justify-center">
+                <div className="w-0 h-0 border-y-8 border-y-transparent border-l-12 border-l-pink-500 ml-1"></div>
+              </div>
+            </div>
           </div>
+          <p className="text-center text-sm text-gray-500 mt-2">Vídeo: Momento da homenagem.</p>
         </div>
       </div>
+
+      <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
+        <DialogContent className="sm:max-w-[800px] p-0 bg-transparent border-none">
+          <div className="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
+            <video
+              ref={videoRef}
+              src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/React-VD-1-sem-marca-dagua.mp4"
+              controls
+              autoPlay
+              className="w-full h-full object-contain"
+            />
+            <DialogClose className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Fechar</span>
+            </DialogClose>
+          </div>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

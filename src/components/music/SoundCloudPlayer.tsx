@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
 interface SoundCloudPlayerProps {
   musicUrl: string;
@@ -26,6 +27,7 @@ const SoundCloudPlayer = ({
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const timeoutRef = useRef<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Determinar se estamos usando SoundCloud ou arquivo direto
   const isDirectFile = musicUrl.includes('drive.google.com') || 
@@ -43,6 +45,16 @@ const SoundCloudPlayer = ({
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
+
+    // Configuração inicial
+    audio.volume = volume;
+    audio.muted = isMuted;
+
+    // Garantir que a URL seja atribuída corretamente
+    if (audio.src !== musicUrl) {
+      audio.src = musicUrl;
+      audio.load();
+    }
 
     const updateProgress = () => {
       if (!audio || audio.duration === 0) return;
@@ -65,11 +77,33 @@ const SoundCloudPlayer = ({
       }
     };
 
+    const handleError = (e: Event) => {
+      console.error("Erro ao carregar o áudio:", e);
+      setError("Não foi possível carregar o áudio. Verifique a URL ou o formato.");
+      setIsPlaying(false);
+    };
+
     audio.addEventListener('timeupdate', updateProgress);
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('error', handleError);
 
-    // Se limitPlayTime for true, configure para pausar após o tempo definido
+    return () => {
+      audio.removeEventListener('timeupdate', updateProgress);
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('error', handleError);
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [musicUrl, volume, isMuted]);
+
+  // Efeito para limitar o tempo de reprodução
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
     if (limitPlayTime && isPlaying) {
       if (timeoutRef.current) {
         window.clearTimeout(timeoutRef.current);
@@ -85,9 +119,6 @@ const SoundCloudPlayer = ({
     }
 
     return () => {
-      audio.removeEventListener('timeupdate', updateProgress);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('ended', handleEnded);
       if (timeoutRef.current) {
         window.clearTimeout(timeoutRef.current);
       }
@@ -104,28 +135,21 @@ const SoundCloudPlayer = ({
         window.clearTimeout(timeoutRef.current);
         timeoutRef.current = null;
       }
+      setIsPlaying(false);
     } else {
+      setError(null); // Limpar erros anteriores
+      
       audio.play()
         .then(() => {
-          // Se limitPlayTime for true, configurar para pausar após o tempo definido
-          if (limitPlayTime) {
-            if (timeoutRef.current) {
-              window.clearTimeout(timeoutRef.current);
-            }
-            
-            timeoutRef.current = window.setTimeout(() => {
-              audio.pause();
-              setIsPlaying(false);
-              console.log(`Música pausada após ${playTimeLimit/1000} segundos`);
-            }, playTimeLimit);
-          }
+          setIsPlaying(true);
+          // O timer para limitPlayTime é configurado no useEffect
         })
         .catch(error => {
           console.error('Erro ao reproduzir áudio:', error);
+          setError("Não foi possível reproduzir o áudio. Verifique a URL ou o formato.");
+          setIsPlaying(false);
         });
     }
-    
-    setIsPlaying(!isPlaying);
   };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -147,19 +171,16 @@ const SoundCloudPlayer = ({
   const toggleMute = () => {
     if (!audioRef.current) return;
 
-    if (isMuted) {
-      audioRef.current.volume = volume;
-    } else {
-      audioRef.current.volume = 0;
-    }
-    
-    setIsMuted(!isMuted);
+    const newMutedState = !isMuted;
+    audioRef.current.muted = newMutedState;
+    setIsMuted(newMutedState);
   };
 
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
+      audioRef.current.muted = newVolume === 0;
     }
     setVolume(newVolume);
     setIsMuted(newVolume === 0);
@@ -187,12 +208,18 @@ const SoundCloudPlayer = ({
             {/* Player de Áudio */}
             <audio 
               ref={audioRef} 
-              src={musicUrl} 
               preload="metadata"
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
               className="hidden"
             />
+
+            {/* Mensagem de erro */}
+            {error && (
+              <div className="bg-red-500 bg-opacity-20 text-red-100 p-2 rounded text-sm">
+                {error}
+              </div>
+            )}
 
             {/* Barra de Progresso */}
             <div 

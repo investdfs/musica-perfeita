@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -7,17 +6,14 @@ import SoundCloudPlayer from "@/components/music/SoundCloudPlayer";
 import { Music, ChevronRight, Clock, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-
 const MusicPlayer = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [musicUrl, setMusicUrl] = useState<string>("");
-  
   useEffect(() => {
     // Obter a URL da música dos parâmetros da URL ou do estado da rota
     const params = new URLSearchParams(location.search);
     const urlFromParams = params.get("url");
-    
     if (urlFromParams) {
       setMusicUrl(urlFromParams);
     } else if (location.state?.musicUrl) {
@@ -27,9 +23,7 @@ const MusicPlayer = () => {
       setMusicUrl("https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Rivers-End-1.wav");
     }
   }, [location]);
-
-  return (
-    <div className="min-h-screen bg-background flex flex-col">
+  return <div className="min-h-screen bg-background flex flex-col">
       <Header />
       <main className="flex-grow py-12 px-6 bg-gradient-to-b from-gray-900 to-indigo-950">
         <div className="max-w-4xl mx-auto">
@@ -54,11 +48,7 @@ const MusicPlayer = () => {
           </div>
           
           <div className="mb-8">
-            <SoundCloudPlayer 
-              musicUrl={musicUrl} 
-              limitPlayTime={true} 
-              playTimeLimit={60000} 
-            />
+            <SoundCloudPlayer musicUrl={musicUrl} limitPlayTime={true} playTimeLimit={60000} />
           </div>
           
           {/* Novo Card de Detalhes da Música */}
@@ -71,7 +61,7 @@ const MusicPlayer = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
+                <div className="p-4 rounded-lg border border-gray-700 bg-red-800">
                   <div className="flex items-center mb-2">
                     <Clock className="h-4 w-4 text-indigo-400 mr-2" />
                     <p className="text-sm text-gray-400">Duração</p>
@@ -109,10 +99,7 @@ const MusicPlayer = () => {
           </Card>
           
           <div className="flex justify-center">
-            <Button 
-              onClick={() => navigate("/pagamento")}
-              className="group relative bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg overflow-hidden animate-pulse"
-            >
+            <Button onClick={() => navigate("/pagamento")} className="group relative bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg overflow-hidden animate-pulse">
               <span className="flex items-center relative z-10">
                 Liberar Música Completa
                 <ChevronRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform animate-bounce" />
@@ -123,8 +110,6 @@ const MusicPlayer = () => {
         </div>
       </main>
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default MusicPlayer;

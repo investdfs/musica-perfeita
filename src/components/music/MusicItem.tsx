@@ -3,8 +3,7 @@ import { useState } from "react";
 import { Music } from "@/types/music";
 import { formatTime } from "@/lib/formatTime";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Share2, Clock, BarChart2 } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { Play, Pause, Clock, BarChart2 } from "lucide-react";
 
 interface MusicItemProps {
   music: Music;
@@ -20,26 +19,6 @@ const MusicItem = ({
   viewMode
 }: MusicItemProps) => {
   const [isHovered, setIsHovered] = useState(false);
-  
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: `${music.title} - ${music.artist}`,
-        text: `Escute "${music.title}" por ${music.artist} na Música Perfeita!`,
-        url: window.location.href,
-      }).catch((error) => {
-        console.error('Erro ao compartilhar:', error);
-      });
-    } else {
-      // Fallback para navegadores que não suportam a API Web Share
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        toast({ 
-          title: "Link copiado", 
-          description: "URL copiada para a área de transferência" 
-        });
-      });
-    }
-  };
 
   return (
     <li 
@@ -126,15 +105,6 @@ const MusicItem = ({
               {formatTime(music.duration)}
             </span>
           )}
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-green-500 hover:text-green-600"
-            onClick={handleShare}
-          >
-            <Share2 className="h-4 w-4" />
-          </Button>
         </div>
       </div>
     </li>

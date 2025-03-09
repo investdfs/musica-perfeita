@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { 
   Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share, 
@@ -18,7 +17,6 @@ interface NativePlaylistProps {
   className?: string;
 }
 
-// Lista de músicas com URLs corretas
 const songs: Song[] = [
   {
     id: "1",
@@ -52,7 +50,6 @@ const songs: Song[] = [
   }
 ];
 
-// Definição de eventos para comunicação entre componentes
 export const audioPlayerEvents = {
   PLAY_SONG: "play-song",
   TOGGLE_PLAY: "toggle-play",
@@ -61,14 +58,11 @@ export const audioPlayerEvents = {
   SONG_ENDED: "song-ended"
 };
 
-// Variáveis globais para compartilhar estado entre componentes
 let globalAudioRef: HTMLAudioElement | null = null;
 let globalCurrentSong: Song | null = null;
 let globalIsPlaying: boolean = false;
-// Variável global para controlar o estado do footer player
 let globalShowFooterPlayer: boolean = false;
 
-// Função auxiliar para disparar eventos
 export const dispatchAudioEvent = (eventName: string, detail: any) => {
   const event = new CustomEvent(eventName, { detail });
   window.dispatchEvent(event);
@@ -80,10 +74,8 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  // Adicionando o estado do footer player no componente NativePlaylist
   const [showFooterPlayer, setShowFooterPlayer] = useState(false);
 
-  // Efeito para ouvir atualizações de estado dos eventos
   useEffect(() => {
     const handleUpdateCurrentSong = (e: CustomEvent) => {
       setCurrentSong(e.detail);
@@ -98,14 +90,8 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
       globalIsPlaying = false;
       dispatchAudioEvent(audioPlayerEvents.SONG_ENDED, null);
       
-      // Fechar o player quando a música terminar
       setShowFooterPlayer(false);
       globalShowFooterPlayer = false;
-      
-      // Também poderia automaticamente ir para a próxima música
-      // Descomentar a linha abaixo se quiser este comportamento
-      // const nextSong = getNextSong(currentSong?.id);
-      // playSong(nextSong);
     };
 
     window.addEventListener(
@@ -123,7 +109,6 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
       handleSongEnded as EventListener
     );
 
-    // Verificar estado global inicial
     if (globalCurrentSong) {
       setCurrentSong(globalCurrentSong);
       setIsPlaying(globalIsPlaying);
@@ -148,39 +133,32 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
     };
   }, []);
 
-  // Função para alternar reprodução
   const togglePlay = (song?: Song, event?: React.MouseEvent) => {
     if (event) {
-      // Previnir propagação se for um clique no botão de play
       event.stopPropagation();
     }
     
     if (song) {
-      // Se não há música atual ou a música clicada é diferente da atual
       if (!currentSong || song.id !== currentSong.id) {
         setCurrentSong(song);
         globalCurrentSong = song;
         dispatchAudioEvent(audioPlayerEvents.PLAY_SONG, song);
         setIsPlaying(true);
         globalIsPlaying = true;
-        // Mostrar o footer player quando uma música é selecionada
         setShowFooterPlayer(true);
         globalShowFooterPlayer = true;
       } else {
-        // Alternar entre play/pause para a música atual
         setIsPlaying(!isPlaying);
         globalIsPlaying = !isPlaying;
         dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, !isPlaying);
       }
     } else if (currentSong) {
-      // Alternar play/pause na música atual (sem passar uma nova música)
       setIsPlaying(!isPlaying);
       globalIsPlaying = !isPlaying;
       dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, !isPlaying);
     }
   };
 
-  // Funções para interagir com a lista de músicas
   const toggleFavorite = (songId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     setFavorites(prev => 
@@ -351,9 +329,7 @@ export const AudioFooterPlayer = () => {
   const audioElement = useRef<HTMLAudioElement | null>(null); 
   const progressInterval = useRef<number | null>(null);
 
-  // Efeito para configuração inicial e limpeza do player
   useEffect(() => {
-    // Criar elemento de áudio diretamente
     if (!audioElement.current) {
       audioElement.current = new Audio();
       audioElement.current.volume = volume;
@@ -362,7 +338,6 @@ export const AudioFooterPlayer = () => {
     audioRef.current = audioElement.current;
     globalAudioRef = audioElement.current;
 
-    // Carregar estado global se existir
     if (globalCurrentSong) {
       setCurrentSong(globalCurrentSong);
       setIsPlaying(globalIsPlaying);
@@ -379,27 +354,19 @@ export const AudioFooterPlayer = () => {
       }
     }
 
-    // Configurar manipuladores de eventos
     const handleEnded = () => {
       setIsPlaying(false);
       globalIsPlaying = false;
       dispatchAudioEvent(audioPlayerEvents.SONG_ENDED, null);
       
-      // Fechar o player quando a música terminar
       setShowFooterPlayer(false);
       globalShowFooterPlayer = false;
-      
-      // Também poderia automaticamente ir para a próxima música
-      // Descomentar a linha abaixo se quiser este comportamento
-      // const nextSong = getNextSong(currentSong?.id);
-      // playSong(nextSong);
     };
 
     if (audioElement.current) {
       audioElement.current.addEventListener('ended', handleEnded);
     }
 
-    // Configurar ouvintes de eventos para comunicação entre componentes
     const handlePlaySong = (e: CustomEvent) => {
       const song = e.detail as Song;
       playSong(song);
@@ -420,7 +387,6 @@ export const AudioFooterPlayer = () => {
       handleTogglePlay as EventListener
     );
 
-    // Função de limpeza
     return () => {
       window.removeEventListener(
         audioPlayerEvents.PLAY_SONG, 
@@ -443,7 +409,6 @@ export const AudioFooterPlayer = () => {
     };
   }, []);
 
-  // Efeito adicional para atualizar o estado do player quando a música muda
   useEffect(() => {
     if (currentSong) {
       setShowFooterPlayer(true);
@@ -451,18 +416,15 @@ export const AudioFooterPlayer = () => {
     }
   }, [currentSong]);
 
-  // Função unificada para reproduzir uma música
   const playSong = (song: Song) => {
     if (!audioElement.current) return;
     
     setCurrentSong(song);
     globalCurrentSong = song;
     
-    // Definir URL e carregar
     audioElement.current.src = song.url;
     audioElement.current.load();
     
-    // Reproduzir e atualizar estado
     audioElement.current.play()
       .then(() => {
         setIsPlaying(true);
@@ -470,7 +432,6 @@ export const AudioFooterPlayer = () => {
         dispatchAudioEvent(audioPlayerEvents.UPDATE_CURRENT_SONG, song);
         dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, true);
         
-        // Iniciar atualização de progresso
         if (progressInterval.current) {
           clearInterval(progressInterval.current);
         }
@@ -483,7 +444,6 @@ export const AudioFooterPlayer = () => {
       });
   };
 
-  // Função para alternar entre play/pause
   const togglePlayback = (shouldPlay?: boolean) => {
     if (!audioElement.current || !currentSong) return;
     
@@ -495,7 +455,6 @@ export const AudioFooterPlayer = () => {
           setIsPlaying(true);
           globalIsPlaying = true;
           
-          // Iniciar atualização de progresso
           if (progressInterval.current) {
             clearInterval(progressInterval.current);
           }
@@ -511,28 +470,24 @@ export const AudioFooterPlayer = () => {
       setIsPlaying(false);
       globalIsPlaying = false;
       
-      // Parar atualização de progresso
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
       }
     }
   };
 
-  // Função para atualizar o progresso
   const updateProgress = () => {
     if (!audioElement.current) return;
     
     setProgress(audioElement.current.currentTime);
     setDuration(audioElement.current.duration || 0);
     
-    // Disparar evento de atualização de progresso
     dispatchAudioEvent(audioPlayerEvents.UPDATE_PROGRESS, {
       currentTime: audioElement.current.currentTime,
       duration: audioElement.current.duration || 0
     });
   };
 
-  // Navegação entre músicas
   const getNextSong = (currentId?: string): Song => {
     if (!currentId) return songs[0];
     const currentIndex = songs.findIndex(song => song.id === currentId);
@@ -646,11 +601,10 @@ export const AudioFooterPlayer = () => {
   if (!currentSong || !showFooterPlayer) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg transition-transform duration-300 z-50 animate-fade-in">
+    <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white border-t border-gray-800 shadow-lg transition-transform duration-300 z-50 animate-fade-in">
       <div className="container mx-auto px-3 py-2 sm:px-4 sm:py-3">
         <div className="grid grid-cols-12 gap-2 sm:gap-4 items-center">
-          {/* Informações da música - reduzido em mobile */}
-          <div className="col-span-8 sm:col-span-6 md:col-span-4 flex items-center">
+          <div className="col-span-10 sm:col-span-6 md:col-span-4 flex items-center">
             <div className={cn(
               "w-10 h-10 sm:w-12 sm:h-12 rounded-lg mr-2 sm:mr-3 flex-shrink-0 bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center shadow-md",
               "animate-pulse-slow"
@@ -658,52 +612,32 @@ export const AudioFooterPlayer = () => {
               <Music className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
             <div className="min-w-0">
-              <h4 className="font-medium text-sm sm:text-base text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 truncate">
+              <h4 className="font-medium text-sm sm:text-base text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-300 truncate">
                 {currentSong?.title || "Selecione uma música"}
               </h4>
-              <p className="text-xs text-gray-500 truncate flex items-center">
+              <p className="text-xs text-gray-300 truncate flex items-center">
                 {currentSong?.artist || "Artista"}
                 <AudioVisualizer />
               </p>
             </div>
           </div>
           
-          {/* Controles principais - em cima no mobile, ao centro em desktop */}
-          <div className="col-span-4 sm:col-span-6 md:col-span-4 order-none sm:order-none flex items-end sm:items-center justify-end sm:justify-center">
-            <div className="flex items-center gap-2 sm:gap-3 mb-0 sm:mb-2">
-              <button 
-                onClick={skipToPrevious}
-                className="p-1 sm:p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"
-                aria-label="Música anterior"
-              >
-                <SkipBack className="h-4 w-4 sm:h-5 sm:w-5" />
-              </button>
-              
-              <button 
-                onClick={togglePlay}
-                className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 sm:p-3 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
-                aria-label={isPlaying ? "Pausar" : "Reproduzir"}
-              >
-                {isPlaying ? 
-                  <Pause className="h-5 w-5 sm:h-6 sm:w-6" /> : 
-                  <Play className="h-5 w-5 sm:h-6 sm:w-6" />
-                }
-              </button>
-              
-              <button 
-                onClick={skipToNext}
-                className="p-1 sm:p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"
-                aria-label="Próxima música"
-              >
-                <SkipForward className="h-4 w-4 sm:h-5 sm:w-5" />
-              </button>
-            </div>
+          <div className="col-span-2 md:col-span-4 order-none flex items-center justify-end md:justify-center">
+            <button 
+              onClick={togglePlay}
+              className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 sm:p-3 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
+              aria-label={isPlaying ? "Pausar" : "Reproduzir"}
+            >
+              {isPlaying ? 
+                <Pause className="h-5 w-5 sm:h-6 sm:w-6" /> : 
+                <Play className="h-5 w-5 sm:h-6 sm:w-6" />
+              }
+            </button>
           </div>
           
-          {/* Barra de progresso - abaixo em todas as resoluções */}
           <div className="col-span-12 order-last">
             <div className="flex items-center gap-1 sm:gap-2 px-1">
-              <span className="text-xs text-gray-500 font-mono">{formatTime(progress)}</span>
+              <span className="text-xs text-gray-400 font-mono">{formatTime(progress)}</span>
               <div className="relative flex-1 h-1.5 rounded-full overflow-hidden">
                 <input
                   type="range"
@@ -713,23 +647,22 @@ export const AudioFooterPlayer = () => {
                   onChange={handleProgressChange}
                   className="absolute w-full h-full opacity-0 cursor-pointer z-10"
                 />
-                <Progress value={(progress / (duration || 1)) * 100} className="h-1.5" />
+                <Progress value={(progress / (duration || 1)) * 100} className="h-1.5 bg-gray-700" />
               </div>
-              <span className="text-xs text-gray-500 font-mono">{formatTime(duration)}</span>
+              <span className="text-xs text-gray-400 font-mono">{formatTime(duration)}</span>
             </div>
           </div>
           
-          {/* Controles secundários - escondidos em mobile, visíveis em desktop */}
           <div className="col-span-12 sm:col-span-12 md:col-span-4 hidden md:flex items-center justify-end">
             <div className="flex items-center gap-3">
               <button 
                 onClick={toggleMute} 
-                className="text-gray-500 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                className="text-gray-300 hover:text-white p-1.5 rounded-full hover:bg-gray-800 transition-colors"
                 aria-label={isMuted ? "Ativar som" : "Silenciar"}
               >
                 {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
               </button>
-              <div className="relative w-20 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+              <div className="relative w-20 h-1.5 bg-gray-700 rounded-full overflow-hidden">
                 <input
                   type="range"
                   min="0"
@@ -750,8 +683,8 @@ export const AudioFooterPlayer = () => {
                 className={cn(
                   "p-1.5 rounded-full transition-colors",
                   currentSong && favorites.includes(currentSong.id) 
-                    ? "text-pink-500 hover:text-pink-600" 
-                    : "text-gray-400 hover:text-gray-600"
+                    ? "text-pink-500 hover:text-pink-400" 
+                    : "text-gray-400 hover:text-gray-200"
                 )}
                 aria-label={currentSong && favorites.includes(currentSong.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                 disabled={!currentSong}
@@ -764,7 +697,7 @@ export const AudioFooterPlayer = () => {
               
               <button 
                 onClick={(e) => currentSong && shareTrack(currentSong, e)}
-                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
+                className="p-1.5 text-gray-400 hover:text-gray-200 rounded-full transition-colors"
                 aria-label="Compartilhar"
                 disabled={!currentSong}
               >
@@ -773,13 +706,12 @@ export const AudioFooterPlayer = () => {
             </div>
           </div>
           
-          {/* Botão de fechar - visível em todas as resoluções */}
           <button 
             onClick={() => {
               setShowFooterPlayer(false);
               globalShowFooterPlayer = false;
             }}
-            className="absolute top-1 right-2 sm:top-3 sm:right-4 p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
+            className="absolute top-1 right-1 md:top-3 md:right-4 p-1.5 text-gray-400 hover:text-white rounded-full hover:bg-gray-800 transition-colors"
             aria-label="Fechar player"
           >
             <X className="h-4 w-4" />
@@ -796,6 +728,7 @@ export const AudioFooterPlayer = () => {
           
           .audio-bar {
             width: 2px;
+            background-color: #d1d5db;
             animation: equalizer 0.8s ease-in-out infinite alternate;
           }
           

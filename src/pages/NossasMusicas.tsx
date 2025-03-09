@@ -27,7 +27,7 @@ const NossasMusicas = () => {
         </section>
       </main>
       
-      {/* Player global de áudio no rodapé da página */}
+      {/* Player global de áudio no rodapé da página com tema escuro */}
       <AudioFooterPlayer />
       
       <Footer />

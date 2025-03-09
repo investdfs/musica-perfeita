@@ -66,6 +66,12 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				player: {
+					dark: '#1A1F2C',
+					'dark-hover': '#2A2F3C',
+					text: '#E1E1E6',
+					'text-secondary': '#A0A0B2'
 				}
 			},
 			borderRadius: {

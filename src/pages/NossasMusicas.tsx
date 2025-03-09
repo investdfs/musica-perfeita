@@ -118,23 +118,17 @@ const NossasMusicas = () => {
       
       <main className="flex-grow container mx-auto px-4 py-8">
         <section className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 text-center sm:text-left">
+          <h1 className="text-3xl font-bold mb-2 text-center">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">
               Nossas Músicas
             </span>
           </h1>
-          <div className="text-center sm:text-left text-gray-600 mb-8 max-w-3xl">
-            <p className="text-lg mb-3">
+          <div className="text-center mb-8 max-w-3xl mx-auto">
+            <p className="text-lg mb-6 px-4">
               Aqui você encontra alguns exemplos das composições exclusivas criadas pela 
-              equipe do Música Perfeita.
-            </p>
-            <p className="mb-3">
-              Cada música foi cuidadosamente composta para atender a uma ocasião especial específica. 
+              equipe do Música Perfeita. Cada música foi cuidadosamente composta para atender a uma ocasião especial específica. 
               Estas são apenas algumas amostras do nosso trabalho - uma pequena demonstração 
-              da nossa capacidade de criar músicas personalizadas.
-            </p>
-            <p className="font-medium text-purple-600">
-              Para uma música personalizada para sua ocasião, 
+              da nossa capacidade de criar músicas personalizadas. Para uma música personalizada para sua ocasião, 
               não hesite em solicitar sua própria composição!
             </p>
           </div>

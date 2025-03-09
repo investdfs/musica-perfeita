@@ -50,7 +50,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className={cn(
           "flex items-center gap-1 transition-colors",
           isActive("/") 
-            ? "text-primary font-medium" 
+            ? "text-primary font-semibold border-b-2 border-primary py-1" 
             : "hover:text-primary/80"
         )}
       >
@@ -63,7 +63,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className={cn(
           "flex items-center gap-1 transition-colors",
           isActive("/nossas-musicas") 
-            ? "text-primary font-medium" 
+            ? "text-primary font-semibold border-b-2 border-primary py-1" 
             : "hover:text-primary/80"
         )}
       >
@@ -77,7 +77,7 @@ const Navigation = ({ className }: { className?: string }) => {
           className={cn(
             "flex items-center gap-1 transition-colors",
             isActive("/cadastro") 
-              ? "text-primary font-medium" 
+              ? "text-primary font-semibold border-b-2 border-primary py-1" 
               : "hover:text-primary/80"
           )}
         >
@@ -93,7 +93,7 @@ const Navigation = ({ className }: { className?: string }) => {
             className={cn(
               "flex items-center gap-1 transition-colors",
               isActive("/dashboard") 
-                ? "text-primary font-medium" 
+                ? "text-primary font-semibold border-b-2 border-primary py-1" 
                 : "hover:text-primary/80"
             )}
           >
@@ -116,7 +116,7 @@ const Navigation = ({ className }: { className?: string }) => {
           className={cn(
             "flex items-center gap-1 transition-colors",
             isActive("/login") 
-              ? "text-primary font-medium" 
+              ? "text-primary font-semibold border-b-2 border-primary py-1" 
               : "hover:text-primary/80"
           )}
         >
@@ -130,7 +130,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className={cn(
           "flex items-center gap-1 transition-colors",
           isActive("/sobre") 
-            ? "text-primary font-medium" 
+            ? "text-primary font-semibold border-b-2 border-primary py-1" 
             : "hover:text-primary/80"
         )}
       >

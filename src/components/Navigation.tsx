@@ -48,7 +48,7 @@ const Navigation = ({ className }: { className?: string }) => {
       <Link 
         to="/" 
         className={cn(
-          "flex items-center gap-1 transition-colors",
+          "flex items-center gap-1 transition-colors text-gray-800",
           isActive("/") 
             ? "text-primary font-semibold border-b-2 border-primary py-1" 
             : "hover:text-primary/80"
@@ -61,7 +61,7 @@ const Navigation = ({ className }: { className?: string }) => {
       <Link 
         to="/nossas-musicas" 
         className={cn(
-          "flex items-center gap-1 transition-colors",
+          "flex items-center gap-1 transition-colors text-gray-800",
           isActive("/nossas-musicas") 
             ? "text-primary font-semibold border-b-2 border-primary py-1" 
             : "hover:text-primary/80"
@@ -75,7 +75,7 @@ const Navigation = ({ className }: { className?: string }) => {
         <Link 
           to="/cadastro" 
           className={cn(
-            "flex items-center gap-1 transition-colors",
+            "flex items-center gap-1 transition-colors text-gray-800",
             isActive("/cadastro") 
               ? "text-primary font-semibold border-b-2 border-primary py-1" 
               : "hover:text-primary/80"
@@ -91,7 +91,7 @@ const Navigation = ({ className }: { className?: string }) => {
           <Link
             to="/dashboard"
             className={cn(
-              "flex items-center gap-1 transition-colors",
+              "flex items-center gap-1 transition-colors text-gray-800",
               isActive("/dashboard") 
                 ? "text-primary font-semibold border-b-2 border-primary py-1" 
                 : "hover:text-primary/80"
@@ -114,7 +114,7 @@ const Navigation = ({ className }: { className?: string }) => {
         <Link 
           to="/login" 
           className={cn(
-            "flex items-center gap-1 transition-colors",
+            "flex items-center gap-1 transition-colors text-gray-800",
             isActive("/login") 
               ? "text-primary font-semibold border-b-2 border-primary py-1" 
               : "hover:text-primary/80"
@@ -128,7 +128,7 @@ const Navigation = ({ className }: { className?: string }) => {
       <Link 
         to="/sobre" 
         className={cn(
-          "flex items-center gap-1 transition-colors",
+          "flex items-center gap-1 transition-colors text-gray-800",
           isActive("/sobre") 
             ? "text-primary font-semibold border-b-2 border-primary py-1" 
             : "hover:text-primary/80"

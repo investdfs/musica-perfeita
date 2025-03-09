@@ -64,6 +64,8 @@ export const audioPlayerEvents = {
 let globalAudioRef: HTMLAudioElement | null = null;
 let globalCurrentSong: Song | null = null;
 let globalIsPlaying: boolean = false;
+// Variável global para controlar o estado do footer player
+let globalShowFooterPlayer: boolean = false;
 
 // Função auxiliar para disparar eventos
 export const dispatchAudioEvent = (eventName: string, detail: any) => {
@@ -77,6 +79,8 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  // Adicionando o estado do footer player no componente NativePlaylist
+  const [showFooterPlayer, setShowFooterPlayer] = useState(false);
 
   // Efeito para ouvir atualizações de estado dos eventos
   useEffect(() => {
@@ -95,6 +99,7 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
       
       // Fechar o player quando a música terminar
       setShowFooterPlayer(false);
+      globalShowFooterPlayer = false;
       
       // Também poderia automaticamente ir para a próxima música
       // Descomentar a linha abaixo se quiser este comportamento
@@ -121,6 +126,7 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
     if (globalCurrentSong) {
       setCurrentSong(globalCurrentSong);
       setIsPlaying(globalIsPlaying);
+      setShowFooterPlayer(globalShowFooterPlayer);
     }
 
     return () => {
@@ -156,6 +162,9 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
         dispatchAudioEvent(audioPlayerEvents.PLAY_SONG, song);
         setIsPlaying(true);
         globalIsPlaying = true;
+        // Mostrar o footer player quando uma música é selecionada
+        setShowFooterPlayer(true);
+        globalShowFooterPlayer = true;
       } else {
         // Alternar entre play/pause para a música atual
         setIsPlaying(!isPlaying);
@@ -356,7 +365,7 @@ export const AudioFooterPlayer = () => {
     if (globalCurrentSong) {
       setCurrentSong(globalCurrentSong);
       setIsPlaying(globalIsPlaying);
-      setShowFooterPlayer(true);
+      setShowFooterPlayer(globalShowFooterPlayer);
       
       if (globalIsPlaying) {
         audioElement.current.src = globalCurrentSong.url;
@@ -377,6 +386,7 @@ export const AudioFooterPlayer = () => {
       
       // Fechar o player quando a música terminar
       setShowFooterPlayer(false);
+      globalShowFooterPlayer = false;
       
       // Também poderia automaticamente ir para a próxima música
       // Descomentar a linha abaixo se quiser este comportamento
@@ -436,6 +446,7 @@ export const AudioFooterPlayer = () => {
   useEffect(() => {
     if (currentSong) {
       setShowFooterPlayer(true);
+      globalShowFooterPlayer = true;
     }
   }, [currentSong]);
 

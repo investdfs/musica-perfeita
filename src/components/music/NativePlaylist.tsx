@@ -50,7 +50,6 @@ const songs: Song[] = [
   }
 ];
 
-// Criamos um evento customizado para comunicação entre componentes
 export const audioPlayerEvents = {
   PLAY_SONG: "play-song",
   TOGGLE_PLAY: "toggle-play",
@@ -58,12 +57,10 @@ export const audioPlayerEvents = {
   UPDATE_CURRENT_SONG: "update-current-song"
 };
 
-// Estado global para compartilhar entre componentes
 let globalAudioRef: HTMLAudioElement | null = null;
 let globalCurrentSong: Song | null = null;
 let globalIsPlaying: boolean = false;
 
-// Esta função permite disparar eventos customizados
 export const dispatchAudioEvent = (eventName: string, detail: any) => {
   const event = new CustomEvent(eventName, { detail });
   window.dispatchEvent(event);
@@ -76,7 +73,6 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Escuta eventos de atualização do player global
   useEffect(() => {
     const handleUpdateCurrentSong = (e: CustomEvent) => {
       setCurrentSong(e.detail);
@@ -111,16 +107,13 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
 
   const togglePlay = (song?: Song) => {
     if (song) {
-      // Se clicou em uma música específica
       if (!currentSong || song.id !== currentSong.id) {
-        // Se é uma música diferente, atualiza a música atual
         setCurrentSong(song);
         globalCurrentSong = song;
         dispatchAudioEvent(audioPlayerEvents.PLAY_SONG, song);
         setIsPlaying(true);
         globalIsPlaying = true;
       } else {
-        // Se é a mesma música, só alterna play/pause
         setIsPlaying(!isPlaying);
         globalIsPlaying = !isPlaying;
         dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, !isPlaying);
@@ -155,7 +148,6 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
         url: window.location.href
       }).catch(error => console.log('Erro ao compartilhar:', error));
     } else {
-      // Fallback para navegadores que não suportam a API Web Share
       navigator.clipboard.writeText(`${song.title} - ${song.artist}: ${window.location.href}`)
         .then(() => alert('Link copiado para a área de transferência!'))
         .catch(err => console.error('Erro ao copiar:', err));
@@ -184,7 +176,6 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
           </div>
         </div>
 
-        {/* Lista de músicas */}
         <div className="overflow-hidden">
           <ul className={cn(
             "space-y-0.5 transition-all duration-300",
@@ -295,9 +286,7 @@ export const AudioFooterPlayer = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressInterval = useRef<number | null>(null);
 
-  // Inicializa o player com uma música padrão quando o componente montar
   useEffect(() => {
-    // Carregar a primeira música por padrão se nenhuma estiver tocando
     if (!currentSong && songs.length > 0) {
       const defaultSong = songs[0];
       setCurrentSong(defaultSong);
@@ -308,7 +297,6 @@ export const AudioFooterPlayer = () => {
     
     globalAudioRef = audioRef.current;
 
-    // Restaurar o estado se já existir
     if (globalCurrentSong) {
       setCurrentSong(globalCurrentSong);
       setIsPlaying(globalIsPlaying);
@@ -324,7 +312,6 @@ export const AudioFooterPlayer = () => {
       }
     }
 
-    // Configurar ouvintes de eventos
     const handlePlaySong = (e: CustomEvent) => {
       const song = e.detail as Song;
       setCurrentSong(song);
@@ -385,7 +372,6 @@ export const AudioFooterPlayer = () => {
     setIsPlaying(newPlayState);
     globalIsPlaying = newPlayState;
     
-    // Notifica outros componentes
     dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, newPlayState);
   };
 
@@ -407,7 +393,6 @@ export const AudioFooterPlayer = () => {
         url: window.location.href
       }).catch(error => console.log('Erro ao compartilhar:', error));
     } else {
-      // Fallback para navegadores que não suportam a API Web Share
       navigator.clipboard.writeText(`${song.title} - ${song.artist}: ${window.location.href}`)
         .then(() => alert('Link copiado para a área de transferência!'))
         .catch(err => console.error('Erro ao copiar:', err));
@@ -435,7 +420,6 @@ export const AudioFooterPlayer = () => {
     setIsPlaying(true);
     globalIsPlaying = true;
     
-    // Notifica outros componentes
     dispatchAudioEvent(audioPlayerEvents.UPDATE_CURRENT_SONG, nextSong);
     dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, true);
   };
@@ -447,7 +431,6 @@ export const AudioFooterPlayer = () => {
     setIsPlaying(true);
     globalIsPlaying = true;
     
-    // Notifica outros componentes
     dispatchAudioEvent(audioPlayerEvents.UPDATE_CURRENT_SONG, prevSong);
     dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, true);
   };
@@ -465,7 +448,6 @@ export const AudioFooterPlayer = () => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // Gerencia o progresso de reprodução
   useEffect(() => {
     if (!audioRef.current) return;
 
@@ -489,7 +471,6 @@ export const AudioFooterPlayer = () => {
     };
   }, [isPlaying]);
 
-  // Manipula a reprodução de áudio
   useEffect(() => {
     if (!audioRef.current || !currentSong) return;
 
@@ -505,13 +486,11 @@ export const AudioFooterPlayer = () => {
     }
   }, [isPlaying, currentSong]);
 
-  // Atualiza o volume e o mute
   useEffect(() => {
     if (!audioRef.current) return;
     audioRef.current.volume = isMuted ? 0 : volume;
   }, [volume, isMuted]);
 
-  // Configura o novo áudio quando a música muda
   useEffect(() => {
     if (!currentSong) return;
     
@@ -531,7 +510,6 @@ export const AudioFooterPlayer = () => {
     }
   }, [currentSong]);
 
-  // Manipula o fim da reprodução
   useEffect(() => {
     const handleEnded = () => {
       const nextSong = getNextSong(currentSong?.id);
@@ -551,7 +529,6 @@ export const AudioFooterPlayer = () => {
     };
   }, [currentSong]);
 
-  // Elementos visuais de áudio (ondas sonoras)
   const AudioVisualizer = () => {
     return (
       <div className={cn(
@@ -578,7 +555,6 @@ export const AudioFooterPlayer = () => {
     <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg transition-transform duration-300 z-50 animate-fade-in">
       <div className="container mx-auto px-4 py-3">
         <div className="grid grid-cols-12 gap-4 items-center">
-          {/* Controles esquerda (música info) */}
           <div className="col-span-12 sm:col-span-6 md:col-span-4 flex items-center">
             <div className={cn(
               "w-12 h-12 rounded-lg mr-3 flex-shrink-0 bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center shadow-md",
@@ -597,7 +573,6 @@ export const AudioFooterPlayer = () => {
             </div>
           </div>
           
-          {/* Controles centro (reprodução) */}
           <div className="col-span-12 sm:col-span-6 md:col-span-4 order-first sm:order-none">
             <div className="flex items-center justify-center gap-3 mb-2">
               <button 
@@ -645,7 +620,6 @@ export const AudioFooterPlayer = () => {
             </div>
           </div>
           
-          {/* Controles direita (volume, etc) */}
           <div className="col-span-12 md:col-span-4 hidden md:flex items-center justify-end">
             <div className="flex items-center gap-3">
               <button 
@@ -701,10 +675,9 @@ export const AudioFooterPlayer = () => {
         </div>
       </div>
       
-      {/* Elemento de áudio escondido */}
       <audio ref={audioRef} preload="metadata" />
 
-      <style jsx>{`
+      <style>{`
         @keyframes equalizer {
           0% { height: 20%; }
           100% { height: 80%; }

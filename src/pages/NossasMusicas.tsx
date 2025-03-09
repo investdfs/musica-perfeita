@@ -39,18 +39,21 @@ const NossasMusicas = () => {
               </div>
             )}
             
-            <div className="aspect-[16/9] sm:aspect-auto sm:h-[450px] w-full">
-              <iframe 
-                width="100%" 
-                height="100%" 
-                scrolling="no" 
-                frameBorder="no" 
-                allow="autoplay" 
-                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1982385924&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"
-                onLoad={handleIframeLoad}
-                className="w-full h-full"
-                title="Playlist Música Perfeita"
-              ></iframe>
+            <div className="w-full">
+              {/* Ajuste de altura conforme dispositivo para melhorar visualização */}
+              <div className="aspect-[16/9] w-full">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  scrolling="no" 
+                  frameBorder="no" 
+                  allow="autoplay" 
+                  src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1982385924&color=%23ff5500&auto_play=false&hide_related=true&show_comments=true&show_user=true&show_reposts=false&show_teaser=false&visual=true"
+                  onLoad={handleIframeLoad}
+                  className="w-full h-full"
+                  title="Playlist Música Perfeita"
+                ></iframe>
+              </div>
             </div>
             
             <div className="bg-gray-100 p-3 text-xs text-gray-500 border-t border-gray-200">
@@ -74,6 +77,24 @@ const NossasMusicas = () => {
                   Música Perfeita
                 </a>
               </div>
+            </div>
+          </div>
+
+          {/* Adicionar versão alternativa do player para dispositivos móveis */}
+          <div className="w-full max-w-4xl mx-auto mt-6 rounded-lg overflow-hidden shadow-lg md:hidden">
+            <h3 className="text-lg font-medium mb-2 text-center text-gray-700">Versão Alternativa para Dispositivos Móveis</h3>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <a 
+                href="https://soundcloud.com/musicaperfeita/sets/musica-perfeita" 
+                target="_blank"
+                rel="noopener noreferrer" 
+                className="block w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-medium rounded-lg text-center hover:opacity-90 transition-opacity"
+              >
+                Ouvir Playlist no SoundCloud
+              </a>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                Se o player acima não mostrar todas as faixas corretamente, clique no botão para acessar a playlist completa diretamente no SoundCloud.
+              </p>
             </div>
           </div>
         </section>

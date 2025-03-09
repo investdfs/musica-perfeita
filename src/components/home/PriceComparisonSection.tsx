@@ -51,9 +51,18 @@ const PriceComparisonSection = () => {
             <div className="grid md:grid-cols-2 gap-4 p-6">
               {/* Opção 1: Somente a Música */}
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-center justify-center mb-4">
-                  <Music className="h-10 w-10 text-blue-500 mr-3" />
-                  <h4 className="text-xl font-semibold text-gray-800">Somente a Música</h4>
+                <div className="flex flex-col items-center mb-4">
+                  <div className="h-40 w-40 mb-4 flex items-center justify-center">
+                    <img 
+                      src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/9758649.png" 
+                      alt="Somente a Música" 
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <Music className="h-8 w-8 text-blue-500 mr-3" />
+                    <h4 className="text-xl font-semibold text-gray-800">Somente a Música</h4>
+                  </div>
                 </div>
                 <div className="text-center mb-4">
                   <p className="text-sm text-gray-600 mb-2">Entrega da Música Digital (Arquivo)</p>
@@ -72,9 +81,18 @@ const PriceComparisonSection = () => {
                 <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-semibold py-1 px-3 rounded-bl-lg">
                   Recomendado
                 </div>
-                <div className="flex items-center justify-center mb-4">
-                  <Package className="h-10 w-10 text-green-500 mr-3" />
-                  <h4 className="text-xl font-semibold text-gray-800">Música Digital + Quadro</h4>
+                <div className="flex flex-col items-center mb-4">
+                  <div className="h-40 w-40 mb-4 flex items-center justify-center">
+                    <img 
+                      src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/quadro-decorativo-personalizado-interativo-com-qr-code-fundo-branco-68936-removebg-preview.png" 
+                      alt="Música Digital + Quadro" 
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <Package className="h-8 w-8 text-green-500 mr-3" />
+                    <h4 className="text-xl font-semibold text-gray-800">Música Digital + Quadro</h4>
+                  </div>
                 </div>
                 <div className="text-center mb-4">
                   <p className="text-sm text-gray-600 mb-2">Quadro Player Físico com QR Code</p>

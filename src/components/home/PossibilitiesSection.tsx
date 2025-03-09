@@ -146,6 +146,20 @@ const PossibilitiesSection = () => {
                 </div>
                 <span className="font-medium text-purple-800 text-sm text-center">Bodas de Ouro</span>
               </div>
+              
+              <div className="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-pink-500 p-2 rounded-full mb-2">
+                  <Gift className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-medium text-purple-800 text-sm text-center">Homenagem a amigos</span>
+              </div>
+              
+              <div className="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
+                <div className="bg-pink-500 p-2 rounded-full mb-2">
+                  <Heart className="h-5 w-5 text-white" />
+                </div>
+                <span className="font-medium text-purple-800 text-sm text-center">Pedido de Desculpas</span>
+              </div>
             </div>
           </div>
         </div>

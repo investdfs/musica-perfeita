@@ -1,6 +1,7 @@
 
 import Header from "@/components/Header";
 import WelcomeSection from "@/components/home/WelcomeSection";
+import StepByStepSection from "@/components/home/StepByStepSection";
 import PossibilitiesSection from "@/components/home/PossibilitiesSection";
 import DifferentialsSection from "@/components/home/DifferentialsSection";
 import PriceComparisonSection from "@/components/home/PriceComparisonSection";
@@ -13,6 +14,7 @@ const Home = () => {
       <Header />
       <main>
         <WelcomeSection />
+        <StepByStepSection />
         <PossibilitiesSection />
         <DifferentialsSection />
         <PriceComparisonSection />

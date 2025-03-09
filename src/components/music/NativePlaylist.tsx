@@ -47,6 +47,30 @@ const songs: Song[] = [
     title: "Juntos há muitos anos",
     artist: "Música Perfeita",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Juntos-ha-muitos-anos-1.mp3"
+  },
+  {
+    id: "6",
+    title: "Meu anjo se foi",
+    artist: "Música Perfeita",
+    url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Meu-anjo-se-foi.mp3"
+  },
+  {
+    id: "7",
+    title: "Entre Mundos",
+    artist: "Música Perfeita",
+    url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Entre-Mundos.mp3"
+  },
+  {
+    id: "8",
+    title: "Emerald Eyes",
+    artist: "Música Instrumental",
+    url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Emerald-Eyes.mp3"
+  },
+  {
+    id: "9",
+    title: "Meu filho meu anjo",
+    artist: "Música Perfeita",
+    url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Meu-filho-meu-anjo.mp3"
   }
 ];
 

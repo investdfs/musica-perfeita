@@ -42,7 +42,7 @@ const steps = [
   {
     number: "5",
     title: "emocione",
-    description: "Ouça uma prévia, aprove, faça o pagamento e emocione a pessoa homenageada.",
+    description: "Aprovada a música, faça o pagamento! Agora é só emocionar a pessoa homenageada.",
     icon: <Heart className="h-8 w-8 text-red-500" />,
     color: "border-red-500",
     bgColor: "bg-red-50",

@@ -1,7 +1,8 @@
+
 import { useState, useRef, useEffect } from "react";
 import { 
   Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share, 
-  VolumeX, ListMusic, ChevronDown, ChevronUp, Clock, Music
+  VolumeX, ListMusic, ChevronDown, ChevronUp, Clock, Music, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
@@ -283,6 +284,7 @@ export const AudioFooterPlayer = () => {
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [showFooterPlayer, setShowFooterPlayer] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressInterval = useRef<number | null>(null);
 
@@ -540,6 +542,7 @@ export const AudioFooterPlayer = () => {
             key={i} 
             className="audio-bar bg-gradient-to-t from-purple-600 to-pink-500 rounded-t-sm"
             style={{ 
+              width: '2px',
               height: `${15 + Math.random() * 80}%`,
               animation: isPlaying ? `equalizer ${0.5 + Math.random() * 0.7}s ease-in-out infinite alternate` : 'none'
             }}
@@ -549,7 +552,7 @@ export const AudioFooterPlayer = () => {
     );
   };
 
-  if (!currentSong) return null;
+  if (!currentSong || !showFooterPlayer) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg transition-transform duration-300 z-50 animate-fade-in">
@@ -568,7 +571,7 @@ export const AudioFooterPlayer = () => {
               </h4>
               <p className="text-xs text-gray-500 truncate flex items-center">
                 {currentSong?.artist || "Artista"}
-                {isPlaying && <AudioVisualizer />}
+                <AudioVisualizer />
               </p>
             </div>
           </div>
@@ -670,6 +673,14 @@ export const AudioFooterPlayer = () => {
               >
                 <Share className="h-4 w-4" />
               </button>
+              
+              <button 
+                onClick={() => setShowFooterPlayer(false)}
+                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors ml-2"
+                aria-label="Fechar player"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -677,45 +688,47 @@ export const AudioFooterPlayer = () => {
       
       <audio ref={audioRef} preload="metadata" />
 
-      <style>{`
-        @keyframes equalizer {
-          0% { height: 20%; }
-          100% { height: 80%; }
-        }
-        
-        .audio-bar {
-          width: 2px;
-          animation: equalizer 0.8s ease-in-out infinite alternate;
-        }
-        
-        .animate-pulse-slow {
-          animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
+      <style>
+        {`
+          @keyframes equalizer {
+            0% { height: 20%; }
+            100% { height: 80%; }
           }
-          50% {
-            opacity: 0.5;
+          
+          .audio-bar {
+            width: 2px;
+            animation: equalizer 0.8s ease-in-out infinite alternate;
           }
-        }
-        
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out forwards;
-        }
-        
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
+          
+          .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
           }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+          
+          @keyframes pulse {
+            0%, 100% {
+              opacity: 1;
+            }
+            50% {
+              opacity: 0.5;
+            }
           }
-        }
-      `}</style>
+          
+          .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+          }
+          
+          @keyframes fadeIn {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
     </div>
   );
 };

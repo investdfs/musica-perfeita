@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { Music } from "@/types/music";
 import { formatTime } from "@/lib/formatTime";
@@ -27,8 +28,10 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
     const audio = audioRef.current;
     if (!audio) return;
     
+    // Configurar o volume inicial
     audio.volume = volume;
     
+    // Iniciar reprodução automaticamente
     audio.play().catch(err => {
       console.error("Erro ao reproduzir áudio:", err);
       setIsPlaying(false);
@@ -108,13 +111,14 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
   };
   
   const openFullPlayer = () => {
+    // Redirecionar para o player completo com a música atual
     window.open(`/music-player-full?id=${music.id}`, '_blank');
   };
   
   return (
     <div className={`
-      fixed bottom-0 left-0 right-0 bg-gradient-to-r from-purple-700 to-pink-600 shadow-lg 
-      border-t border-gray-200 z-50 transition-all duration-300 text-white
+      fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t 
+      border-gray-200 z-50 transition-all duration-300
       ${isExpanded ? 'h-32 sm:h-40' : 'h-16 sm:h-20'}
     `}>
       <audio 
@@ -128,7 +132,7 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
           variant="ghost"
           size="sm"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="rounded-t-lg rounded-b-none border border-gray-200 bg-purple-600 text-white h-6 px-3 hover:bg-purple-700"
+          className="rounded-t-lg rounded-b-none border border-gray-200 bg-white h-6 px-3"
         >
           {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
         </Button>
@@ -136,12 +140,13 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
       
       <div className="h-full container mx-auto px-4 flex flex-col">
         <div className="flex items-center h-16 sm:h-20">
-          <div className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-md overflow-hidden mr-3 border-2 border-white">
+          <div className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-md overflow-hidden mr-3">
             <img 
               src={music.coverUrl} 
               alt={music.title} 
               className="h-full w-full object-cover"
             />
+            {/* Ondas de áudio animadas sobrepostas na imagem */}
             {isPlaying && (
               <div className="absolute inset-0 flex items-end justify-center pb-1 bg-black/30">
                 <div className="flex space-x-0.5">
@@ -161,8 +166,8 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
           </div>
           
           <div className="flex-1 min-w-0 mr-3">
-            <h4 className="font-medium text-sm sm:text-base truncate text-white">{music.title}</h4>
-            <p className="text-xs text-gray-100 truncate">{music.artist}</p>
+            <h4 className="font-medium text-sm sm:text-base truncate">{music.title}</h4>
+            <p className="text-xs text-gray-500 truncate">{music.artist}</p>
           </div>
           
           <div className="flex items-center space-x-1 sm:space-x-2">
@@ -170,7 +175,7 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
               variant="ghost"
               size="icon"
               onClick={togglePlay}
-              className="h-9 w-9 text-white hover:bg-white/20"
+              className="h-9 w-9 text-purple-600"
             >
               {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </Button>
@@ -179,7 +184,7 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
               variant="ghost"
               size="icon"
               onClick={openFullPlayer}
-              className="h-9 w-9 text-white hover:bg-white/20"
+              className="h-9 w-9 text-pink-500"
             >
               <Maximize2 className="h-5 w-5" />
             </Button>
@@ -188,34 +193,35 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="h-9 w-9 text-white hover:bg-white/20"
+              className="h-9 w-9 text-gray-700"
             >
               <X className="h-5 w-5" />
             </Button>
           </div>
         </div>
         
+        {/* Conteúdo expandido */}
         {isExpanded && (
           <div className="pb-4">
             <div 
               ref={progressBarRef}
-              className="relative w-full h-2 bg-white/30 rounded-full overflow-hidden cursor-pointer mb-2 progress-bar-animated"
+              className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden cursor-pointer mb-2 progress-bar-animated"
               onClick={handleProgressClick}
             >
               <div 
-                className="absolute top-0 left-0 h-full bg-white rounded-full"
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-600 to-pink-500 rounded-full"
                 style={{ width: `${(currentTime / duration) * 100}%` }}
               />
             </div>
             
-            <div className="flex items-center justify-between text-xs text-gray-100">
+            <div className="flex items-center justify-between text-xs text-gray-500">
               <span>{formatTime(currentTime)}</span>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={toggleMute}
-                  className="h-7 w-7 text-white hover:bg-white/20"
+                  className="h-7 w-7 text-blue-500"
                 >
                   {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                 </Button>
@@ -227,7 +233,7 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
                   step="0.01"
                   value={isMuted ? 0 : volume}
                   onChange={handleVolumeChange}
-                  className="w-20 accent-white"
+                  className="w-20 accent-purple-600"
                 />
               </div>
               <span>-{formatTime(duration - currentTime)}</span>
@@ -235,38 +241,14 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
           </div>
         )}
         
+        {/* Barra de progresso para o modo não expandido */}
         {!isExpanded && (
           <Progress 
             value={(currentTime / duration) * 100} 
-            className="absolute bottom-0 left-0 w-full h-1 bg-white/30"
+            className="absolute bottom-0 left-0 w-full h-1 bg-gray-200 rounded-none"
           />
         )}
       </div>
-      
-      <style>
-        {`
-        @keyframes equalizer {
-          0% { height: 20%; }
-          100% { height: 60%; }
-        }
-        .progress-bar-animated::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-          transform: translateX(-100%);
-          animation: shimmer 2s infinite;
-        }
-        @keyframes shimmer {
-          100% {
-            transform: translateX(100%);
-          }
-        }
-        `}
-      </style>
     </div>
   );
 };

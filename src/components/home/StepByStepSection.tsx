@@ -1,46 +1,51 @@
 
-import { Music, Gift } from "lucide-react";
+import { Music, Gift, Headphones, CheckCircle, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const steps = [
   {
     number: "1",
-    title: "contrate",
+    title: "cadastre-se",
     description: (
       <>
-        Escolha <a href="/cadastro" className="text-amber-600 font-medium hover:underline">como a Canção será entregue</a> e a forma de pagamento.
+        Crie a sua conta <a href="/cadastro" className="text-purple-600 font-medium hover:underline">gratuitamente</a>.
       </>
     ),
-    icon: <Gift className="h-6 w-6 text-amber-500" />,
-    color: "border-amber-500",
+    icon: <Gift className="h-8 w-8 text-purple-500" />,
+    color: "border-purple-500",
+    bgColor: "bg-purple-50",
   },
   {
     number: "2",
     title: "conte",
     description: "Conte sua história com o máximo de detalhes, em um texto ou por áudio.",
-    icon: <Music className="h-6 w-6 text-amber-500" />,
-    color: "border-amber-500",
+    icon: <Music className="h-8 w-8 text-pink-500" />,
+    color: "border-pink-500",
+    bgColor: "bg-pink-50",
   },
   {
     number: "3",
     title: "aprove",
     description: "Você recebe uma versão simples da Canção para aprovação de música e letra.",
-    icon: <Music className="h-6 w-6 text-amber-500" />,
-    color: "border-amber-500",
+    icon: <CheckCircle className="h-8 w-8 text-blue-500" />,
+    color: "border-blue-500",
+    bgColor: "bg-blue-50",
   },
   {
     number: "4",
     title: "aguarde",
     description: "Segure a ansiedade e aguarde enquanto a gente produz a versão com o arranjo final!",
-    icon: <Music className="h-6 w-6 text-amber-500" />,
-    color: "border-amber-500",
+    icon: <Headphones className="h-8 w-8 text-teal-500" />,
+    color: "border-teal-500",
+    bgColor: "bg-teal-50",
   },
   {
     number: "5",
     title: "emocione",
-    description: "Receba a Canção da forma como escolheu e emocione quem você ama!",
-    icon: <Music className="h-6 w-6 text-amber-500" />,
-    color: "border-amber-500",
+    description: "Ouça uma prévia, aprove, faça o pagamento e emocione a pessoa homenageada.",
+    icon: <Heart className="h-8 w-8 text-red-500" />,
+    color: "border-red-500",
+    bgColor: "bg-red-50",
   },
 ];
 
@@ -63,19 +68,20 @@ const StepByStepSection = () => {
               key={index} 
               className={cn(
                 "flex flex-col items-center text-center p-6 bg-white rounded-lg border-t-4 shadow-md hover:shadow-lg transition-shadow",
-                step.color
+                step.color,
+                step.bgColor
               )}
             >
               <div className="relative mb-4">
-                <div className="text-amber-700 font-bold text-6xl" style={{ fontFamily: 'cursive' }}>
+                <div className={`text-${step.color.split('-')[1]} font-bold text-6xl`} style={{ fontFamily: 'cursive' }}>
                   {step.number}
                 </div>
-                <div className="absolute -top-1 right-0 transform translate-x-1/4">
+                <div className="absolute -top-1 -right-2 transform translate-x-1/4 bg-white p-2 rounded-full shadow-sm">
                   {step.icon}
                 </div>
               </div>
               
-              <h3 className="text-amber-700 font-bold text-xl mb-2">{step.title}</h3>
+              <h3 className={`text-${step.color.split('-')[1]} font-bold text-xl mb-2`}>{step.title}</h3>
               
               <p className="text-gray-600 text-sm">
                 {step.description}

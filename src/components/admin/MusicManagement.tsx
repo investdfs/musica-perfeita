@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Music } from "@/types/music";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,8 +14,12 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Music2, PlusCircle } from "lucide-react";
+import { Music2, PlusCircle, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import supabase from "@/lib/supabase";
+import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatTime } from "@/lib/formatTime";
 
 const formSchema = z.object({
   title: z.string().min(1, "O título é obrigatório"),
@@ -35,6 +39,8 @@ interface MusicManagementProps {
 
 const MusicManagement = ({ onAddMusic }: MusicManagementProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [musicList, setMusicList] = useState<Music[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm<MusicFormValues>({
     resolver: zodResolver(formSchema),
@@ -49,15 +55,59 @@ const MusicManagement = ({ onAddMusic }: MusicManagementProps) => {
     },
   });
 
+  // Carregar músicas do Supabase
+  useEffect(() => {
+    const fetchMusic = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('music_catalog')
+          .select('*')
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        
+        if (data) {
+          setMusicList(data as Music[]);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar músicas:', error);
+        toast({
+          title: "Erro ao carregar músicas",
+          description: "Não foi possível carregar a lista de músicas",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchMusic();
+    
+    // Inscrever para atualizações em tempo real
+    const musicChannel = supabase
+      .channel('music_catalog_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'music_catalog' 
+      }, () => {
+        console.log('Music catalog changed, refreshing data...');
+        fetchMusic();
+      })
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(musicChannel);
+    };
+  }, []);
+
   const onSubmit = async (values: MusicFormValues) => {
     setIsSubmitting(true);
     
     try {
-      // Simular id único
-      const id = Date.now().toString();
-
-      const newMusic: Music = {
-        id,
+      // Preparar dados para inserção
+      const newMusic: Omit<Music, 'id'> = {
         title: values.title,
         artist: values.artist,
         genre: values.genre,
@@ -67,19 +117,29 @@ const MusicManagement = ({ onAddMusic }: MusicManagementProps) => {
         plays: values.plays,
       };
 
-      // Aqui você adicionaria a lógica para salvar no banco de dados
-      // Mas por enquanto apenas simulamos com um callback
+      // Inserir no Supabase
+      const { data, error } = await supabase
+        .from('music_catalog')
+        .insert([newMusic])
+        .select();
+        
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        const insertedMusic = data[0] as Music;
+        
+        // Callback para o componente pai (se existir)
+        if (onAddMusic) {
+          onAddMusic(insertedMusic);
+        }
 
-      if (onAddMusic) {
-        onAddMusic(newMusic);
+        toast({
+          title: "Música adicionada",
+          description: `A música "${values.title}" foi adicionada com sucesso!`,
+        });
+
+        form.reset();
       }
-
-      toast({
-        title: "Música adicionada",
-        description: `A música "${values.title}" foi adicionada com sucesso!`,
-      });
-
-      form.reset();
     } catch (error) {
       console.error("Erro ao adicionar música:", error);
       toast({
@@ -89,6 +149,30 @@ const MusicManagement = ({ onAddMusic }: MusicManagementProps) => {
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteMusic = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('music_catalog')
+        .delete()
+        .eq('id', id);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Música removida",
+        description: "A música foi removida com sucesso!"
+      });
+      
+    } catch (error) {
+      console.error("Erro ao remover música:", error);
+      toast({
+        title: "Erro ao remover música",
+        description: "Ocorreu um erro ao remover a música. Tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -207,6 +291,59 @@ const MusicManagement = ({ onAddMusic }: MusicManagementProps) => {
           </Button>
         </form>
       </Form>
+
+      <div className="mt-8">
+        <h3 className="text-lg font-medium mb-4">Histórico de Músicas</h3>
+        {isLoading ? (
+          <div className="flex justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        ) : (
+          <ScrollArea className="h-[300px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Título</TableHead>
+                  <TableHead>Artista</TableHead>
+                  <TableHead>Gênero</TableHead>
+                  <TableHead>Duração</TableHead>
+                  <TableHead>Plays</TableHead>
+                  <TableHead>Ações</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {musicList.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center py-4 text-gray-500">
+                      Nenhuma música adicionada ainda
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  musicList.map((music) => (
+                    <TableRow key={music.id}>
+                      <TableCell className="font-medium">{music.title}</TableCell>
+                      <TableCell>{music.artist}</TableCell>
+                      <TableCell>{music.genre}</TableCell>
+                      <TableCell>{formatTime(music.duration)}</TableCell>
+                      <TableCell>{music.plays}</TableCell>
+                      <TableCell>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => handleDeleteMusic(music.id)}
+                          className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        )}
+      </div>
     </div>
   );
 };

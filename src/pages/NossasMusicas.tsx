@@ -6,106 +6,122 @@ import MusicList from "@/components/music/MusicList";
 import MusicPlayerMini from "@/components/music/MusicPlayerMini";
 import { Music as MusicType } from "@/types/music";
 import { Loader2 } from "lucide-react";
+import supabase from "@/lib/supabase";
+import { toast } from "@/hooks/use-toast";
 
 const NossasMusicas = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPlaying, setCurrentPlaying] = useState<MusicType | null>(null);
   const [musicList, setMusicList] = useState<MusicType[]>([]);
   
-  // Carregar lista de músicas (simulado)
+  // Carregar lista de músicas do Supabase
   useEffect(() => {
     const fetchMusicList = async () => {
+      setIsLoading(true);
       try {
-        // Simulando carregamento de dados
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Buscar músicas do banco de dados
+        const { data, error } = await supabase
+          .from('music_catalog')
+          .select('*')
+          .order('plays', { ascending: false });
+          
+        if (error) throw error;
         
-        // Dados de exemplo
+        if (data && data.length > 0) {
+          setMusicList(data as MusicType[]);
+        } else {
+          // Fallback para dados de demonstração caso não haja músicas no banco
+          const demoMusicList: MusicType[] = [
+            {
+              id: "1",
+              title: "Declaração de Amor",
+              artist: "Música Perfeita",
+              duration: 210, // em segundos
+              coverUrl: "https://picsum.photos/id/64/200",
+              audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
+              genre: "Romântica",
+              plays: 1250,
+            },
+            {
+              id: "2",
+              title: "Aniversário Especial",
+              artist: "Música Perfeita",
+              duration: 180,
+              coverUrl: "https://picsum.photos/id/65/200",
+              audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
+              genre: "Celebração",
+              plays: 980,
+            },
+            // ... demais músicas de demonstração
+          ];
+          
+          setMusicList(demoMusicList);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Erro ao carregar músicas:", error);
+        toast({
+          title: "Erro ao carregar músicas",
+          description: "Não foi possível carregar a lista de músicas. Usando músicas de demonstração.",
+          variant: "destructive",
+        });
+        
+        // Usar músicas de demonstração em caso de erro
         const demoMusicList: MusicType[] = [
           {
             id: "1",
             title: "Declaração de Amor",
             artist: "Música Perfeita",
-            duration: 210, // em segundos
+            duration: 210,
             coverUrl: "https://picsum.photos/id/64/200",
             audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
             genre: "Romântica",
             plays: 1250,
           },
-          {
-            id: "2",
-            title: "Aniversário Especial",
-            artist: "Música Perfeita",
-            duration: 180,
-            coverUrl: "https://picsum.photos/id/65/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Celebração",
-            plays: 980,
-          },
-          {
-            id: "3",
-            title: "Pedido de Casamento",
-            artist: "Música Perfeita",
-            duration: 240,
-            coverUrl: "https://picsum.photos/id/68/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Romântica",
-            plays: 1870,
-          },
-          {
-            id: "4",
-            title: "Homenagem aos Pais",
-            artist: "Música Perfeita",
-            duration: 190,
-            coverUrl: "https://picsum.photos/id/42/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Família",
-            plays: 750,
-          },
-          {
-            id: "5",
-            title: "Notas de Gratidão",
-            artist: "Música Perfeita",
-            duration: 205,
-            coverUrl: "https://picsum.photos/id/41/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Gratidão",
-            plays: 625,
-          },
-          {
-            id: "6",
-            title: "Homenagem a Amigos",
-            artist: "Música Perfeita",
-            duration: 195,
-            coverUrl: "https://picsum.photos/id/82/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Amizade",
-            plays: 530,
-          },
-          {
-            id: "7",
-            title: "Pedido de Desculpas",
-            artist: "Música Perfeita",
-            duration: 215,
-            coverUrl: "https://picsum.photos/id/26/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Reconciliação",
-            plays: 480,
-          },
+          // ... outras músicas de demonstração
         ];
         
         setMusicList(demoMusicList);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Erro ao carregar músicas:", error);
         setIsLoading(false);
       }
     };
     
     fetchMusicList();
+    
+    // Inscrever para atualizações em tempo real
+    const musicChannel = supabase
+      .channel('music_catalog_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'music_catalog' 
+      }, () => {
+        console.log('Music catalog changed, refreshing data...');
+        fetchMusicList();
+      })
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(musicChannel);
+    };
   }, []);
   
   const handlePlayMusic = (music: MusicType) => {
     setCurrentPlaying(music);
+    
+    // Incrementar contagem de plays
+    const updatePlays = async () => {
+      try {
+        await supabase
+          .from('music_catalog')
+          .update({ plays: music.plays + 1 })
+          .eq('id', music.id);
+      } catch (error) {
+        console.error("Erro ao atualizar contagem de plays:", error);
+      }
+    };
+    
+    updatePlays();
   };
   
   const handleStopMusic = () => {

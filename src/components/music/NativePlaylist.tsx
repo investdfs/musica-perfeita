@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { 
-  Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share, 
+  Play, Pause, Volume2, Heart, Share, 
   VolumeX, ListMusic, ChevronDown, ChevronUp, Clock, Music, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Song {
   id: string;
@@ -238,11 +239,10 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
           </div>
         </div>
 
-        <div className="overflow-hidden">
+        <ScrollArea className="w-full" style={{ maxHeight: expandedView ? "none" : "auto" }}>
           <ul className={cn(
             "space-y-0.5 transition-all duration-300",
-            expandedView ? "max-h-[600px]" : "max-h-[400px]",
-            "overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2"
+            "pr-2"
           )}>
             {songs.map(song => {
               const isCurrentlyPlaying = currentSong?.id === song.id && isPlaying;
@@ -334,7 +334,7 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
               );
             })}
           </ul>
-        </div>
+        </ScrollArea>
       </div>
     </div>
   );

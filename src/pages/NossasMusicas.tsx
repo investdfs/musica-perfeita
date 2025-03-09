@@ -39,14 +39,14 @@ const NossasMusicas = () => {
               </div>
             )}
             
-            <div className="aspect-[16/9] sm:aspect-auto sm:h-[450px] w-full">
+            <div className="aspect-[16/9] sm:aspect-auto sm:h-[300px] w-full">
               <iframe 
                 width="100%" 
                 height="100%" 
                 scrolling="no" 
                 frameBorder="no" 
                 allow="autoplay" 
-                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1982385924&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"
+                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1982385924&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=true"
                 onLoad={handleIframeLoad}
                 className="w-full h-full"
                 title="Playlist Música Perfeita"

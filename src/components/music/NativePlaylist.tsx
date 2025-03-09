@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { 
   Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share, 
@@ -289,12 +288,6 @@ export const AudioFooterPlayer = () => {
   const progressInterval = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!currentSong && songs.length > 0) {
-      const defaultSong = songs[0];
-      setCurrentSong(defaultSong);
-      globalCurrentSong = defaultSong;
-    }
-    
     if (!audioRef.current) return;
     
     globalAudioRef = audioRef.current;
@@ -532,11 +525,10 @@ export const AudioFooterPlayer = () => {
   }, [currentSong]);
 
   const AudioVisualizer = () => {
+    if (!isPlaying) return null;
+
     return (
-      <div className={cn(
-        "audio-visualizer flex items-end h-6 gap-[2px] w-16 mx-2",
-        !isPlaying && "invisible"
-      )}>
+      <div className="audio-visualizer flex items-end h-6 gap-[2px] w-16 mx-2">
         {Array.from({ length: 8 }).map((_, i) => (
           <div 
             key={i} 
@@ -544,7 +536,7 @@ export const AudioFooterPlayer = () => {
             style={{ 
               width: '2px',
               height: `${15 + Math.random() * 80}%`,
-              animation: isPlaying ? `equalizer ${0.5 + Math.random() * 0.7}s ease-in-out infinite alternate` : 'none'
+              animation: `equalizer ${0.5 + Math.random() * 0.7}s ease-in-out infinite alternate`
             }}
           />
         ))}

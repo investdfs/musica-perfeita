@@ -9,6 +9,42 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      music_catalog: {
+        Row: {
+          artist: string
+          audiourl: string
+          coverurl: string
+          created_at: string | null
+          duration: number
+          genre: string | null
+          id: string
+          plays: number | null
+          title: string
+        }
+        Insert: {
+          artist: string
+          audiourl: string
+          coverurl: string
+          created_at?: string | null
+          duration: number
+          genre?: string | null
+          id?: string
+          plays?: number | null
+          title: string
+        }
+        Update: {
+          artist?: string
+          audiourl?: string
+          coverurl?: string
+          created_at?: string | null
+          duration?: number
+          genre?: string | null
+          id?: string
+          plays?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
       music_requests: {
         Row: {
           cover_image_url: string | null

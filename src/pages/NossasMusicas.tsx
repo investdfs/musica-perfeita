@@ -1,115 +1,14 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import MusicList from "@/components/music/MusicList";
-import MusicPlayerMini from "@/components/music/MusicPlayerMini";
-import { Music as MusicType } from "@/types/music";
 import { Loader2 } from "lucide-react";
 
 const NossasMusicas = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [currentPlaying, setCurrentPlaying] = useState<MusicType | null>(null);
-  const [musicList, setMusicList] = useState<MusicType[]>([]);
   
-  // Carregar lista de músicas (simulado)
-  useEffect(() => {
-    const fetchMusicList = async () => {
-      try {
-        // Simulando carregamento de dados
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Dados de exemplo
-        const demoMusicList: MusicType[] = [
-          {
-            id: "1",
-            title: "Declaração de Amor",
-            artist: "Música Perfeita",
-            duration: 210, // em segundos
-            coverUrl: "https://picsum.photos/id/64/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Romântica",
-            plays: 1250,
-          },
-          {
-            id: "2",
-            title: "Aniversário Especial",
-            artist: "Música Perfeita",
-            duration: 180,
-            coverUrl: "https://picsum.photos/id/65/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Celebração",
-            plays: 980,
-          },
-          {
-            id: "3",
-            title: "Pedido de Casamento",
-            artist: "Música Perfeita",
-            duration: 240,
-            coverUrl: "https://picsum.photos/id/68/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Romântica",
-            plays: 1870,
-          },
-          {
-            id: "4",
-            title: "Homenagem aos Pais",
-            artist: "Música Perfeita",
-            duration: 190,
-            coverUrl: "https://picsum.photos/id/42/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Família",
-            plays: 750,
-          },
-          {
-            id: "5",
-            title: "Notas de Gratidão",
-            artist: "Música Perfeita",
-            duration: 205,
-            coverUrl: "https://picsum.photos/id/41/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Gratidão",
-            plays: 625,
-          },
-          {
-            id: "6",
-            title: "Homenagem a Amigos",
-            artist: "Música Perfeita",
-            duration: 195,
-            coverUrl: "https://picsum.photos/id/82/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Amizade",
-            plays: 530,
-          },
-          {
-            id: "7",
-            title: "Pedido de Desculpas",
-            artist: "Música Perfeita",
-            duration: 215,
-            coverUrl: "https://picsum.photos/id/26/200",
-            audioUrl: "https://wp.novaenergiamg.com.br/wp-content/uploads/2021/01/beethoven-moonlight-sonata.wav",
-            genre: "Reconciliação",
-            plays: 480,
-          },
-        ];
-        
-        setMusicList(demoMusicList);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Erro ao carregar músicas:", error);
-        setIsLoading(false);
-      }
-    };
-    
-    fetchMusicList();
-  }, []);
-  
-  const handlePlayMusic = (music: MusicType) => {
-    setCurrentPlaying(music);
-  };
-  
-  const handleStopMusic = () => {
-    setCurrentPlaying(null);
+  const handleIframeLoad = () => {
+    setIsLoading(false);
   };
   
   return (
@@ -133,26 +32,52 @@ const NossasMusicas = () => {
             </p>
           </div>
           
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+          <div className="w-full max-w-4xl mx-auto rounded-lg overflow-hidden shadow-lg relative">
+            {isLoading && (
+              <div className="absolute inset-0 flex justify-center items-center bg-white/80 z-10">
+                <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+              </div>
+            )}
+            
+            <div className="aspect-[16/9] sm:aspect-auto sm:h-[450px] w-full">
+              <iframe 
+                width="100%" 
+                height="100%" 
+                scrolling="no" 
+                frameBorder="no" 
+                allow="autoplay" 
+                src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1982385924&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false"
+                onLoad={handleIframeLoad}
+                className="w-full h-full"
+                title="Playlist Música Perfeita"
+              ></iframe>
             </div>
-          ) : (
-            <MusicList 
-              musicList={musicList} 
-              onPlayMusic={handlePlayMusic}
-              currentPlaying={currentPlaying}
-            />
-          )}
+            
+            <div className="bg-gray-100 p-3 text-xs text-gray-500 border-t border-gray-200">
+              <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+                <a 
+                  href="https://soundcloud.com/musicaperfeita" 
+                  title="Música Perfeita 🎶" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-purple-600 transition-colors"
+                >
+                  Música Perfeita 🎶
+                </a> · 
+                <a 
+                  href="https://soundcloud.com/musicaperfeita/sets/musica-perfeita" 
+                  title="Música Perfeita" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-gray-600 hover:text-purple-600 transition-colors ml-1"
+                >
+                  Música Perfeita
+                </a>
+              </div>
+            </div>
+          </div>
         </section>
       </main>
-      
-      {currentPlaying && (
-        <MusicPlayerMini 
-          music={currentPlaying}
-          onClose={handleStopMusic}
-        />
-      )}
       
       <Footer />
     </div>

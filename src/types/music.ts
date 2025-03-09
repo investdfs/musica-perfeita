@@ -8,4 +8,5 @@ export interface Music {
   audioUrl: string;
   genre?: string;
   plays: number;
+  created_at?: string;
 }

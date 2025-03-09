@@ -98,6 +98,12 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
       handleUpdatePlayState as EventListener
     );
 
+    // Verificar estado global inicial
+    if (globalCurrentSong) {
+      setCurrentSong(globalCurrentSong);
+      setIsPlaying(globalIsPlaying);
+    }
+
     return () => {
       window.removeEventListener(
         audioPlayerEvents.UPDATE_CURRENT_SONG, 
@@ -112,7 +118,12 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
   }, []);
 
   // Função para alternar reprodução
-  const togglePlay = (song?: Song) => {
+  const togglePlay = (song?: Song, event?: React.MouseEvent) => {
+    if (event) {
+      // Previnir propagação se for um clique no botão de play
+      event.stopPropagation();
+    }
+    
     if (song) {
       // Se não há música atual ou a música clicada é diferente da atual
       if (!currentSong || song.id !== currentSong.id) {
@@ -127,6 +138,11 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
         globalIsPlaying = !isPlaying;
         dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, !isPlaying);
       }
+    } else if (currentSong) {
+      // Alternar play/pause na música atual (sem passar uma nova música)
+      setIsPlaying(!isPlaying);
+      globalIsPlaying = !isPlaying;
+      dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, !isPlaying);
     }
   };
 
@@ -211,10 +227,13 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center min-w-0 flex-1">
                       <div className="w-9 h-9 flex-shrink-0 mr-3 flex items-center justify-center">
-                        <div className={cn(
-                          "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
-                          isCurrent ? "bg-gradient-to-r from-purple-600 to-pink-500 shadow-md" : "bg-gray-100 group-hover:bg-gray-200"
-                        )}>
+                        <button 
+                          className={cn(
+                            "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
+                            isCurrent ? "bg-gradient-to-r from-purple-600 to-pink-500 shadow-md" : "bg-gray-100 group-hover:bg-gray-200"
+                          )}
+                          onClick={(e) => togglePlay(song, e)}
+                        >
                           {isCurrent ? (
                             isPlaying ? (
                               <Pause className="h-4 w-4 text-white" />
@@ -222,9 +241,9 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
                               <Play className="h-4 w-4 text-white" />
                             )
                           ) : (
-                            <Music className="h-4 w-4 text-gray-500" />
+                            <Play className="h-4 w-4 text-gray-500" />
                           )}
-                        </div>
+                        </button>
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className={cn(
@@ -293,7 +312,7 @@ export const AudioFooterPlayer = () => {
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [showFooterPlayer, setShowFooterPlayer] = useState(true);
+  const [showFooterPlayer, setShowFooterPlayer] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioElement = useRef<HTMLAudioElement | null>(null); 
   const progressInterval = useRef<number | null>(null);
@@ -313,6 +332,7 @@ export const AudioFooterPlayer = () => {
     if (globalCurrentSong) {
       setCurrentSong(globalCurrentSong);
       setIsPlaying(globalIsPlaying);
+      setShowFooterPlayer(true);
       
       if (globalIsPlaying) {
         audioElement.current.src = globalCurrentSong.url;
@@ -378,6 +398,13 @@ export const AudioFooterPlayer = () => {
       }
     };
   }, []);
+
+  // Efeito adicional para atualizar o estado do player quando a música muda
+  useEffect(() => {
+    if (currentSong) {
+      setShowFooterPlayer(true);
+    }
+  }, [currentSong]);
 
   // Função unificada para reproduzir uma música
   const playSong = (song: Song) => {
@@ -555,9 +582,9 @@ export const AudioFooterPlayer = () => {
     if (!isPlaying) return null;
 
     return (
-      <div className="audio-visualizer flex items-end h-6 gap-[2px] w-16 mx-2">
+      <span className="audio-visualizer flex items-end h-6 gap-[2px] w-16 mx-2">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div 
+          <span 
             key={i} 
             className="audio-bar bg-gradient-to-t from-purple-600 to-pink-500 rounded-t-sm"
             style={{ 
@@ -567,7 +594,7 @@ export const AudioFooterPlayer = () => {
             }}
           />
         ))}
-      </div>
+      </span>
     );
   };
 

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Music } from "@/types/music";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,6 @@ const MusicManagement = () => {
     audioUrl: "",
   });
   
-  // Buscar músicas existentes
   const fetchMusicList = async () => {
     setIsLoading(true);
     try {
@@ -52,7 +50,6 @@ const MusicManagement = () => {
   useEffect(() => {
     fetchMusicList();
     
-    // Configurar realtime subscription
     const musicChannel = supabase
       .channel('admin_music_changes')
       .on('postgres_changes', { 
@@ -80,7 +77,6 @@ const MusicManagement = () => {
   };
   
   const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Converter minutos:segundos para segundos
     const [minutes, seconds] = e.target.value.split(':').map(Number);
     const totalSeconds = (minutes * 60) + (seconds || 0);
     setFormData(prev => ({ ...prev, duration: totalSeconds }));
@@ -164,7 +160,6 @@ const MusicManagement = () => {
         description: "A música foi removida do catálogo",
       });
       
-      // Atualizar a lista local
       setMusicList(prev => prev.filter(music => music.id !== id));
     } catch (error) {
       console.error("Erro ao excluir música:", error);

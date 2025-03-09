@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Music } from "@/types/music";
 import { formatTime } from "@/lib/formatTime";
@@ -28,10 +27,8 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
     const audio = audioRef.current;
     if (!audio) return;
     
-    // Configurar o volume inicial
     audio.volume = volume;
     
-    // Iniciar reprodução automaticamente
     audio.play().catch(err => {
       console.error("Erro ao reproduzir áudio:", err);
       setIsPlaying(false);
@@ -111,7 +108,6 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
   };
   
   const openFullPlayer = () => {
-    // Redirecionar para o player completo com a música atual
     window.open(`/music-player-full?id=${music.id}`, '_blank');
   };
   
@@ -146,7 +142,6 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
               alt={music.title} 
               className="h-full w-full object-cover"
             />
-            {/* Ondas de áudio animadas sobrepostas na imagem */}
             {isPlaying && (
               <div className="absolute inset-0 flex items-end justify-center pb-1 bg-black/30">
                 <div className="flex space-x-0.5">
@@ -200,7 +195,6 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
           </div>
         </div>
         
-        {/* Conteúdo expandido */}
         {isExpanded && (
           <div className="pb-4">
             <div 
@@ -241,7 +235,6 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
           </div>
         )}
         
-        {/* Barra de progresso para o modo não expandido - CORRIGIDO */}
         {!isExpanded && (
           <Progress 
             value={(currentTime / duration) * 100} 
@@ -250,8 +243,8 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
         )}
       </div>
       
-      {/* Adicionar styles para a animação das barras equalizadoras */}
-      <style jsx>{`
+      <style>
+        {`
         @keyframes equalizer {
           0% { height: 20%; }
           100% { height: 60%; }
@@ -272,7 +265,8 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
             transform: translateX(100%);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

@@ -2,6 +2,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Music, Mic, PenTool, Sparkles, Zap, Heart, Image, Package } from "lucide-react";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 // Lista dos recursos para exibir com ícones coloridos
 const features = [
@@ -83,11 +84,25 @@ const PriceComparisonSection = () => {
                 </div>
                 <div className="flex flex-col items-center mb-4">
                   <div className="h-40 w-40 mb-4 flex items-center justify-center">
-                    <img 
-                      src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/quadro-decorativo-personalizado-interativo-com-qr-code-fundo-branco-68936-removebg-preview.png" 
-                      alt="Música Digital + Quadro" 
-                      className="max-h-full max-w-full object-contain"
-                    />
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <div className="cursor-pointer">
+                          <img 
+                            src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/quadro-decorativo-personalizado-interativo-com-qr-code-fundo-branco-68936-removebg-preview.png" 
+                            alt="Música Digital + Quadro" 
+                            className="max-h-full max-w-full object-contain hover:opacity-90 transition-opacity"
+                          />
+                          <p className="text-xs text-gray-500 mt-1 italic">clique para ampliar</p>
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl p-1 bg-white">
+                        <img 
+                          src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/quadro-decorativo-personalizado-interativo-com-qr-code-fundo-branco-68936-removebg-preview.png" 
+                          alt="Música Digital + Quadro - Ampliado" 
+                          className="w-full h-auto object-contain"
+                        />
+                      </DialogContent>
+                    </Dialog>
                   </div>
                   <div className="flex items-center justify-center">
                     <Package className="h-8 w-8 text-green-500 mr-3" />

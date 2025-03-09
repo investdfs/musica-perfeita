@@ -1,10 +1,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { 
-  Play, Pause, SkipForward, Volume2, Heart, Share, 
-  VolumeX, ListMusic, ChevronDown, ChevronUp 
+  Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share, 
+  VolumeX, ListMusic, ChevronDown, ChevronUp, Clock, Music
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
 interface Song {
   id: string;
@@ -62,6 +63,7 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressInterval = useRef<number | null>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
 
   // Sugere a próxima música baseada na atual
   const getNextSong = (currentId?: string): Song => {
@@ -69,6 +71,13 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
     const currentIndex = songs.findIndex(song => song.id === currentId);
     const nextIndex = (currentIndex + 1) % songs.length;
     return songs[nextIndex];
+  };
+
+  const getPreviousSong = (currentId?: string): Song => {
+    if (!currentId) return songs[songs.length - 1];
+    const currentIndex = songs.findIndex(song => song.id === currentId);
+    const prevIndex = (currentIndex - 1 + songs.length) % songs.length;
+    return songs[prevIndex];
   };
 
   const togglePlay = (song?: Song) => {
@@ -133,6 +142,19 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
     const nextSong = getNextSong(currentSong?.id);
     setCurrentSong(nextSong);
     setIsPlaying(true);
+  };
+
+  const skipToPrevious = () => {
+    const prevSong = getPreviousSong(currentSong?.id);
+    setCurrentSong(prevSong);
+    setIsPlaying(true);
+  };
+
+  const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!audioRef.current || !duration) return;
+    const newTime = parseFloat(e.target.value);
+    audioRef.current.currentTime = newTime;
+    setProgress(newTime);
   };
 
   const formatTime = (seconds: number) => {
@@ -223,11 +245,14 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
   // Elementos visuais de áudio (ondas sonoras)
   const AudioVisualizer = () => {
     return (
-      <div className="audio-visualizer flex items-end h-6 gap-[2px] w-16 mx-2">
+      <div className={cn(
+        "audio-visualizer flex items-end h-6 gap-[2px] w-16 mx-2",
+        !isPlaying && "invisible"
+      )}>
         {Array.from({ length: 8 }).map((_, i) => (
           <div 
             key={i} 
-            className="audio-bar bg-gradient-to-t from-purple-600 to-pink-500"
+            className="audio-bar bg-gradient-to-t from-purple-600 to-pink-500 rounded-t-sm"
             style={{ 
               height: `${15 + Math.random() * 80}%`,
               animation: isPlaying ? `equalizer ${0.5 + Math.random() * 0.7}s ease-in-out infinite alternate` : 'none'
@@ -239,169 +264,263 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
   };
 
   return (
-    <div className={cn("rounded-lg overflow-hidden shadow-lg bg-white", className)}>
-      <div className="p-4 border-b border-gray-100">
+    <div className={cn("rounded-xl overflow-hidden shadow-lg bg-white/80 backdrop-blur-sm border border-gray-100", className)}>
+      <div className="p-5">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium text-gray-800 flex items-center gap-2">
             <ListMusic className="h-5 w-5 text-purple-600" />
-            Playlist Nativa
+            Lista de Reprodução
           </h3>
-          <button 
-            onClick={() => setExpandedView(!expandedView)}
-            className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors"
-          >
-            {expandedView ? 
-              <ChevronUp className="h-5 w-5" /> : 
-              <ChevronDown className="h-5 w-5" />
-            }
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setExpandedView(!expandedView)}
+              className="text-gray-500 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label={expandedView ? "Modo compacto" : "Modo expandido"}
+            >
+              {expandedView ? 
+                <ChevronUp className="h-5 w-5" /> : 
+                <ChevronDown className="h-5 w-5" />
+              }
+            </button>
+          </div>
         </div>
 
-        {/* Player fixo para música atual */}
-        {currentSong && (
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 mb-4 shadow-sm">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center flex-1 min-w-0">
-                <button 
-                  onClick={() => togglePlay()}
-                  className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 rounded-full shadow-sm hover:opacity-90 transition-opacity mr-3 flex-shrink-0"
-                >
-                  {isPlaying ? 
-                    <Pause className="h-5 w-5" /> : 
-                    <Play className="h-5 w-5" />
-                  }
-                </button>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center">
-                    <div className="truncate">
-                      <p className="font-medium text-gray-900 truncate">{currentSong.title}</p>
-                      <p className="text-xs text-gray-500 truncate">{currentSong.artist}</p>
-                    </div>
-                    {isPlaying && <AudioVisualizer />}
-                  </div>
-                  
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-xs text-gray-500">{formatTime(progress)}</span>
-                    <div className="relative flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                      <div 
-                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-600 to-pink-500 progress-bar-animated"
-                        style={{ width: `${(progress / duration) * 100}%` }}
-                      ></div>
-                    </div>
-                    <span className="text-xs text-gray-500">{formatTime(duration)}</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center ml-3 space-x-2 flex-shrink-0">
-                  {expandedView && (
-                    <div className="hidden sm:flex items-center mr-2">
-                      <button onClick={toggleMute} className="text-gray-500 hover:text-gray-700 p-1">
-                        {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-                      </button>
-                      <input 
-                        type="range" 
-                        min="0" 
-                        max="1" 
-                        step="0.01" 
-                        value={volume}
-                        onChange={handleVolumeChange}
-                        className="w-16 h-1 mx-2"
-                      />
-                    </div>
+        {/* Lista de músicas */}
+        <div className="overflow-hidden">
+          <ul className={cn(
+            "space-y-0.5 transition-all duration-300",
+            expandedView ? "max-h-[600px]" : "max-h-[400px]",
+            "overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 pr-2"
+          )}>
+            {songs.map(song => {
+              const isCurrentlyPlaying = currentSong?.id === song.id && isPlaying;
+              const isCurrent = currentSong?.id === song.id;
+              const isFavorite = favorites.includes(song.id);
+              const isExpanded = expandedItems.includes(song.id) || expandedView;
+              
+              return (
+                <li 
+                  key={song.id}
+                  className={cn(
+                    "rounded-lg px-3 py-2.5 transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 cursor-pointer group",
+                    isCurrent ? "bg-gradient-to-r from-purple-50 to-pink-50 border-l-2 border-purple-500" : "",
+                    "transform transition-transform hover:scale-[1.01] active:scale-[0.99]"
                   )}
+                  onClick={() => togglePlay(song)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center min-w-0 flex-1">
+                      <div className="w-9 h-9 flex-shrink-0 mr-3 flex items-center justify-center">
+                        <div className={cn(
+                          "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
+                          isCurrent ? "bg-gradient-to-r from-purple-600 to-pink-500 shadow-md" : "bg-gray-100 group-hover:bg-gray-200"
+                        )}>
+                          {isCurrent ? (
+                            isPlaying ? (
+                              <Pause className="h-4 w-4 text-white" />
+                            ) : (
+                              <Play className="h-4 w-4 text-white" />
+                            )
+                          ) : (
+                            <Music className="h-4 w-4 text-gray-500" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className={cn(
+                          "font-medium truncate", 
+                          isCurrentlyPlaying ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500" : "text-gray-800"
+                        )}>
+                          {song.title}
+                        </p>
+                        {isExpanded && (
+                          <p className="text-xs text-gray-500 truncate">{song.artist}</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-1 flex-shrink-0">
+                      {isExpanded && (
+                        <span className="text-xs text-gray-400 mr-1 hidden sm:inline">
+                          <Clock className="h-3 w-3 inline mr-1" />
+                          {duration ? formatTime(duration) : "--:--"}
+                        </span>
+                      )}
+                      <button 
+                        onClick={(e) => toggleFavorite(song.id, e)}
+                        className={cn(
+                          "p-1.5 rounded-full transition-colors",
+                          isFavorite 
+                            ? "text-pink-500 hover:text-pink-600" 
+                            : "text-gray-400 hover:text-gray-600"
+                        )}
+                        aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                      >
+                        <Heart className="h-3.5 w-3.5" fill={isFavorite ? "currentColor" : "none"} />
+                      </button>
+                      
+                      <button 
+                        onClick={(e) => shareTrack(song, e)}
+                        className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
+                        aria-label="Compartilhar"
+                      >
+                        <Share className="h-3.5 w-3.5" />
+                      </button>
+                      
+                      {!expandedView && (
+                        <button 
+                          onClick={(e) => toggleExpand(song.id, e)}
+                          className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
+                          aria-label={isExpanded ? "Menos detalhes" : "Mais detalhes"}
+                        >
+                          {isExpanded ? 
+                            <ChevronUp className="h-3.5 w-3.5" /> : 
+                            <ChevronDown className="h-3.5 w-3.5" />
+                          }
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+      
+      {/* Player flutuante no rodapé */}
+      {currentSong && (
+        <div 
+          ref={playerRef}
+          className={cn(
+            "fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg transition-transform duration-300 z-50",
+            "transform animate-fade-in"
+          )}
+        >
+          <div className="container mx-auto px-4 py-3">
+            <div className="grid grid-cols-12 gap-4 items-center">
+              {/* Controles esquerda (música info) */}
+              <div className="col-span-12 sm:col-span-6 md:col-span-4 flex items-center">
+                <div className={cn(
+                  "w-12 h-12 rounded-lg mr-3 flex-shrink-0 bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center shadow-md",
+                  "animate-pulse-slow"
+                )}>
+                  <Music className="h-6 w-6 text-white" />
+                </div>
+                <div className="min-w-0">
+                  <h4 className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 truncate">
+                    {currentSong.title}
+                  </h4>
+                  <p className="text-xs text-gray-500 truncate flex items-center">
+                    {currentSong.artist}
+                    <AudioVisualizer />
+                  </p>
+                </div>
+              </div>
+              
+              {/* Controles centro (reprodução) */}
+              <div className="col-span-12 sm:col-span-6 md:col-span-4 order-first sm:order-none">
+                <div className="flex items-center justify-center gap-3 mb-2">
+                  <button 
+                    onClick={skipToPrevious}
+                    className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"
+                    aria-label="Música anterior"
+                  >
+                    <SkipBack className="h-5 w-5" />
+                  </button>
+                  
+                  <button 
+                    onClick={() => togglePlay()}
+                    className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-3 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
+                    aria-label={isPlaying ? "Pausar" : "Reproduzir"}
+                  >
+                    {isPlaying ? 
+                      <Pause className="h-6 w-6" /> : 
+                      <Play className="h-6 w-6" />
+                    }
+                  </button>
+                  
                   <button 
                     onClick={skipToNext}
-                    className="text-gray-600 hover:text-gray-800 p-1 rounded-full hover:bg-gray-100 transition-colors"
+                    className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"
+                    aria-label="Próxima música"
                   >
-                    <SkipForward className="h-4 w-4" />
+                    <SkipForward className="h-5 w-5" />
+                  </button>
+                </div>
+                
+                <div className="flex items-center gap-2 px-1">
+                  <span className="text-xs text-gray-500 font-mono">{formatTime(progress)}</span>
+                  <div className="relative flex-1 h-1.5 rounded-full overflow-hidden">
+                    <input
+                      type="range"
+                      min="0"
+                      max={duration || 100}
+                      value={progress}
+                      onChange={handleProgressChange}
+                      className="absolute w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <Progress value={(progress / (duration || 1)) * 100} className="h-1.5" />
+                  </div>
+                  <span className="text-xs text-gray-500 font-mono">{formatTime(duration)}</span>
+                </div>
+              </div>
+              
+              {/* Controles direita (volume, etc) */}
+              <div className="col-span-12 md:col-span-4 hidden md:flex items-center justify-end">
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={toggleMute} 
+                    className="text-gray-500 hover:text-gray-700 p-1.5 rounded-full hover:bg-gray-100 transition-colors"
+                    aria-label={isMuted ? "Ativar som" : "Silenciar"}
+                  >
+                    {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                  </button>
+                  <div className="relative w-20 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={volume}
+                      onChange={handleVolumeChange}
+                      className="absolute w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-600 to-pink-500 rounded-full"
+                      style={{ width: `${volume * 100}%` }}
+                    ></div>
+                  </div>
+                  
+                  <button 
+                    onClick={(e) => toggleFavorite(currentSong.id, e)}
+                    className={cn(
+                      "p-1.5 rounded-full transition-colors",
+                      favorites.includes(currentSong.id) 
+                        ? "text-pink-500 hover:text-pink-600" 
+                        : "text-gray-400 hover:text-gray-600"
+                    )}
+                    aria-label={favorites.includes(currentSong.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                  >
+                    <Heart 
+                      className="h-4 w-4" 
+                      fill={favorites.includes(currentSong.id) ? "currentColor" : "none"} 
+                    />
+                  </button>
+                  
+                  <button 
+                    onClick={(e) => shareTrack(currentSong, e)}
+                    className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
+                    aria-label="Compartilhar"
+                  >
+                    <Share className="h-4 w-4" />
                   </button>
                 </div>
               </div>
             </div>
           </div>
-        )}
-
-        {/* Lista de músicas */}
-        <ul className="space-y-1.5">
-          {songs.map(song => {
-            const isCurrentlyPlaying = currentSong?.id === song.id && isPlaying;
-            const isFavorite = favorites.includes(song.id);
-            const isExpanded = expandedItems.includes(song.id) || expandedView;
-            
-            return (
-              <li 
-                key={song.id}
-                className={cn(
-                  "rounded-md px-3 py-2 transition-colors hover:bg-gray-50 cursor-pointer",
-                  isCurrentlyPlaying ? "bg-gray-50 border-l-2 border-purple-500" : ""
-                )}
-                onClick={() => togglePlay(song)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center min-w-0 flex-1">
-                    <div className="w-8 h-8 flex-shrink-0 mr-3 flex items-center justify-center">
-                      {currentSong?.id === song.id ? (
-                        isPlaying ? (
-                          <Pause className="h-4 w-4 text-purple-600" />
-                        ) : (
-                          <Play className="h-4 w-4 text-gray-500" />
-                        )
-                      ) : (
-                        <Play className="h-4 w-4 text-gray-400" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className={cn(
-                        "font-medium truncate", 
-                        isCurrentlyPlaying ? "text-purple-600" : "text-gray-800"
-                      )}>
-                        {song.title}
-                      </p>
-                      {isExpanded && (
-                        <p className="text-xs text-gray-500 truncate">{song.artist}</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 flex-shrink-0">
-                    <button 
-                      onClick={(e) => toggleFavorite(song.id, e)}
-                      className={cn(
-                        "p-1.5 rounded-full transition-colors",
-                        isFavorite 
-                          ? "text-pink-500 hover:text-pink-600" 
-                          : "text-gray-400 hover:text-gray-600"
-                      )}
-                    >
-                      <Heart className="h-3.5 w-3.5" fill={isFavorite ? "currentColor" : "none"} />
-                    </button>
-                    
-                    <button 
-                      onClick={(e) => shareTrack(song, e)}
-                      className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
-                    >
-                      <Share className="h-3.5 w-3.5" />
-                    </button>
-                    
-                    {!expandedView && (
-                      <button 
-                        onClick={(e) => toggleExpand(song.id, e)}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
-                      >
-                        {isExpanded ? 
-                          <ChevronUp className="h-3.5 w-3.5" /> : 
-                          <ChevronDown className="h-3.5 w-3.5" />
-                        }
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+        </div>
+      )}
       
       {/* Elemento de áudio escondido */}
       <audio ref={audioRef} preload="metadata" />

@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { 
   Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share, 
@@ -17,6 +18,7 @@ interface NativePlaylistProps {
   className?: string;
 }
 
+// Lista de músicas com URLs corretas
 const songs: Song[] = [
   {
     id: "1",
@@ -50,6 +52,7 @@ const songs: Song[] = [
   }
 ];
 
+// Definição de eventos para comunicação entre componentes
 export const audioPlayerEvents = {
   PLAY_SONG: "play-song",
   TOGGLE_PLAY: "toggle-play",
@@ -57,10 +60,12 @@ export const audioPlayerEvents = {
   UPDATE_CURRENT_SONG: "update-current-song"
 };
 
+// Variáveis globais para compartilhar estado entre componentes
 let globalAudioRef: HTMLAudioElement | null = null;
 let globalCurrentSong: Song | null = null;
 let globalIsPlaying: boolean = false;
 
+// Função auxiliar para disparar eventos
 export const dispatchAudioEvent = (eventName: string, detail: any) => {
   const event = new CustomEvent(eventName, { detail });
   window.dispatchEvent(event);
@@ -73,6 +78,7 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  // Efeito para ouvir atualizações de estado dos eventos
   useEffect(() => {
     const handleUpdateCurrentSong = (e: CustomEvent) => {
       setCurrentSong(e.detail);
@@ -105,8 +111,10 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
     };
   }, []);
 
+  // Função para alternar reprodução
   const togglePlay = (song?: Song) => {
     if (song) {
+      // Se não há música atual ou a música clicada é diferente da atual
       if (!currentSong || song.id !== currentSong.id) {
         setCurrentSong(song);
         globalCurrentSong = song;
@@ -114,6 +122,7 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
         setIsPlaying(true);
         globalIsPlaying = true;
       } else {
+        // Alternar entre play/pause para a música atual
         setIsPlaying(!isPlaying);
         globalIsPlaying = !isPlaying;
         dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, !isPlaying);
@@ -121,6 +130,7 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
     }
   };
 
+  // Funções para interagir com a lista de músicas
   const toggleFavorite = (songId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     setFavorites(prev => 
@@ -285,21 +295,29 @@ export const AudioFooterPlayer = () => {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFooterPlayer, setShowFooterPlayer] = useState(true);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioElement = useRef<HTMLAudioElement | null>(null); 
   const progressInterval = useRef<number | null>(null);
 
+  // Efeito para configuração inicial e limpeza do player
   useEffect(() => {
-    if (!audioRef.current) return;
+    // Criar elemento de áudio diretamente
+    if (!audioElement.current) {
+      audioElement.current = new Audio();
+      audioElement.current.volume = volume;
+    }
     
-    globalAudioRef = audioRef.current;
+    audioRef.current = audioElement.current;
+    globalAudioRef = audioElement.current;
 
+    // Carregar estado global se existir
     if (globalCurrentSong) {
       setCurrentSong(globalCurrentSong);
       setIsPlaying(globalIsPlaying);
       
       if (globalIsPlaying) {
-        audioRef.current.src = globalCurrentSong.url;
-        audioRef.current.load();
-        audioRef.current.play().catch(e => {
+        audioElement.current.src = globalCurrentSong.url;
+        audioElement.current.load();
+        audioElement.current.play().catch(e => {
           console.error("Erro ao retomar reprodução:", e);
           setIsPlaying(false);
           globalIsPlaying = false;
@@ -307,18 +325,25 @@ export const AudioFooterPlayer = () => {
       }
     }
 
+    // Configurar manipuladores de eventos
+    const handleEnded = () => {
+      const nextSong = getNextSong(currentSong?.id);
+      playSong(nextSong);
+    };
+
+    if (audioElement.current) {
+      audioElement.current.addEventListener('ended', handleEnded);
+    }
+
+    // Configurar ouvintes de eventos para comunicação entre componentes
     const handlePlaySong = (e: CustomEvent) => {
       const song = e.detail as Song;
-      setCurrentSong(song);
-      globalCurrentSong = song;
-      setIsPlaying(true);
-      globalIsPlaying = true;
+      playSong(song);
     };
 
     const handleTogglePlay = (e: CustomEvent) => {
       const shouldPlay = e.detail as boolean;
-      setIsPlaying(shouldPlay);
-      globalIsPlaying = shouldPlay;
+      togglePlayback(shouldPlay);
     };
 
     window.addEventListener(
@@ -331,6 +356,7 @@ export const AudioFooterPlayer = () => {
       handleTogglePlay as EventListener
     );
 
+    // Função de limpeza
     return () => {
       window.removeEventListener(
         audioPlayerEvents.PLAY_SONG, 
@@ -345,9 +371,96 @@ export const AudioFooterPlayer = () => {
       if (progressInterval.current) {
         clearInterval(progressInterval.current);
       }
+
+      if (audioElement.current) {
+        audioElement.current.removeEventListener('ended', handleEnded);
+        audioElement.current.pause();
+      }
     };
   }, []);
 
+  // Função unificada para reproduzir uma música
+  const playSong = (song: Song) => {
+    if (!audioElement.current) return;
+    
+    setCurrentSong(song);
+    globalCurrentSong = song;
+    
+    // Definir URL e carregar
+    audioElement.current.src = song.url;
+    audioElement.current.load();
+    
+    // Reproduzir e atualizar estado
+    audioElement.current.play()
+      .then(() => {
+        setIsPlaying(true);
+        globalIsPlaying = true;
+        dispatchAudioEvent(audioPlayerEvents.UPDATE_CURRENT_SONG, song);
+        dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, true);
+        
+        // Iniciar atualização de progresso
+        if (progressInterval.current) {
+          clearInterval(progressInterval.current);
+        }
+        progressInterval.current = window.setInterval(updateProgress, 100);
+      })
+      .catch(error => {
+        console.error("Erro ao reproduzir áudio:", error);
+        setIsPlaying(false);
+        globalIsPlaying = false;
+      });
+  };
+
+  // Função para alternar entre play/pause
+  const togglePlayback = (shouldPlay?: boolean) => {
+    if (!audioElement.current || !currentSong) return;
+    
+    const newPlayState = shouldPlay !== undefined ? shouldPlay : !isPlaying;
+    
+    if (newPlayState) {
+      audioElement.current.play()
+        .then(() => {
+          setIsPlaying(true);
+          globalIsPlaying = true;
+          
+          // Iniciar atualização de progresso
+          if (progressInterval.current) {
+            clearInterval(progressInterval.current);
+          }
+          progressInterval.current = window.setInterval(updateProgress, 100);
+        })
+        .catch(error => {
+          console.error("Erro ao reproduzir áudio:", error);
+          setIsPlaying(false);
+          globalIsPlaying = false;
+        });
+    } else {
+      audioElement.current.pause();
+      setIsPlaying(false);
+      globalIsPlaying = false;
+      
+      // Parar atualização de progresso
+      if (progressInterval.current) {
+        clearInterval(progressInterval.current);
+      }
+    }
+  };
+
+  // Função para atualizar o progresso
+  const updateProgress = () => {
+    if (!audioElement.current) return;
+    
+    setProgress(audioElement.current.currentTime);
+    setDuration(audioElement.current.duration || 0);
+    
+    // Disparar evento de atualização de progresso
+    dispatchAudioEvent(audioPlayerEvents.UPDATE_PROGRESS, {
+      currentTime: audioElement.current.currentTime,
+      duration: audioElement.current.duration || 0
+    });
+  };
+
+  // Navegação entre músicas
   const getNextSong = (currentId?: string): Song => {
     if (!currentId) return songs[0];
     const currentIndex = songs.findIndex(song => song.id === currentId);
@@ -363,11 +476,7 @@ export const AudioFooterPlayer = () => {
   };
 
   const togglePlay = () => {
-    const newPlayState = !isPlaying;
-    setIsPlaying(newPlayState);
-    globalIsPlaying = newPlayState;
-    
-    dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, newPlayState);
+    togglePlayback();
   };
 
   const toggleFavorite = (songId: string, event: React.MouseEvent) => {
@@ -397,6 +506,11 @@ export const AudioFooterPlayer = () => {
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
+    
+    if (audioElement.current) {
+      audioElement.current.volume = newVolume;
+    }
+    
     if (newVolume === 0) {
       setIsMuted(true);
     } else {
@@ -405,35 +519,29 @@ export const AudioFooterPlayer = () => {
   };
 
   const toggleMute = () => {
-    setIsMuted(!isMuted);
+    const newMuteState = !isMuted;
+    setIsMuted(newMuteState);
+    
+    if (audioElement.current) {
+      audioElement.current.volume = newMuteState ? 0 : volume;
+    }
   };
 
   const skipToNext = () => {
     const nextSong = getNextSong(currentSong?.id);
-    setCurrentSong(nextSong);
-    globalCurrentSong = nextSong;
-    setIsPlaying(true);
-    globalIsPlaying = true;
-    
-    dispatchAudioEvent(audioPlayerEvents.UPDATE_CURRENT_SONG, nextSong);
-    dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, true);
+    playSong(nextSong);
   };
 
   const skipToPrevious = () => {
     const prevSong = getPreviousSong(currentSong?.id);
-    setCurrentSong(prevSong);
-    globalCurrentSong = prevSong;
-    setIsPlaying(true);
-    globalIsPlaying = true;
-    
-    dispatchAudioEvent(audioPlayerEvents.UPDATE_CURRENT_SONG, prevSong);
-    dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, true);
+    playSong(prevSong);
   };
 
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!audioRef.current || !duration) return;
+    if (!audioElement.current || !duration) return;
+    
     const newTime = parseFloat(e.target.value);
-    audioRef.current.currentTime = newTime;
+    audioElement.current.currentTime = newTime;
     setProgress(newTime);
   };
 
@@ -442,87 +550,6 @@ export const AudioFooterPlayer = () => {
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
-
-  useEffect(() => {
-    if (!audioRef.current) return;
-
-    const updateProgress = () => {
-      if (audioRef.current) {
-        setProgress(audioRef.current.currentTime);
-        setDuration(audioRef.current.duration || 0);
-      }
-    };
-
-    if (isPlaying) {
-      progressInterval.current = window.setInterval(updateProgress, 100);
-    } else if (progressInterval.current) {
-      clearInterval(progressInterval.current);
-    }
-
-    return () => {
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-      }
-    };
-  }, [isPlaying]);
-
-  useEffect(() => {
-    if (!audioRef.current || !currentSong) return;
-
-    if (isPlaying) {
-      audioRef.current.play().catch(error => {
-        console.error("Erro ao reproduzir:", error);
-        setIsPlaying(false);
-        globalIsPlaying = false;
-        dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, false);
-      });
-    } else {
-      audioRef.current.pause();
-    }
-  }, [isPlaying, currentSong]);
-
-  useEffect(() => {
-    if (!audioRef.current) return;
-    audioRef.current.volume = isMuted ? 0 : volume;
-  }, [volume, isMuted]);
-
-  useEffect(() => {
-    if (!currentSong) return;
-    
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = currentSong.url;
-      audioRef.current.load();
-      
-      if (isPlaying) {
-        audioRef.current.play().catch(e => {
-          console.error("Erro ao carregar nova música:", e);
-          setIsPlaying(false);
-          globalIsPlaying = false;
-          dispatchAudioEvent(audioPlayerEvents.TOGGLE_PLAY, false);
-        });
-      }
-    }
-  }, [currentSong]);
-
-  useEffect(() => {
-    const handleEnded = () => {
-      const nextSong = getNextSong(currentSong?.id);
-      setCurrentSong(nextSong);
-      globalCurrentSong = nextSong;
-      dispatchAudioEvent(audioPlayerEvents.UPDATE_CURRENT_SONG, nextSong);
-    };
-
-    if (audioRef.current) {
-      audioRef.current.addEventListener('ended', handleEnded);
-    }
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('ended', handleEnded);
-      }
-    };
-  }, [currentSong]);
 
   const AudioVisualizer = () => {
     if (!isPlaying) return null;
@@ -678,8 +705,6 @@ export const AudioFooterPlayer = () => {
         </div>
       </div>
       
-      <audio ref={audioRef} preload="metadata" />
-
       <style>
         {`
           @keyframes equalizer {

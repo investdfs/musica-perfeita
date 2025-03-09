@@ -4,7 +4,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MusicList from "@/components/music/MusicList";
 import MusicPlayerMini from "@/components/music/MusicPlayerMini";
-import { useTheme } from "@/components/theme/ThemeProvider";
 import { Music as MusicType } from "@/types/music";
 import { Loader2 } from "lucide-react";
 
@@ -13,7 +12,6 @@ const NossasMusicas = () => {
   const [currentPlaying, setCurrentPlaying] = useState<MusicType | null>(null);
   const [musicList, setMusicList] = useState<MusicType[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const { theme } = useTheme();
   
   // Carregar lista de músicas (simulado)
   useEffect(() => {
@@ -140,7 +138,7 @@ const NossasMusicas = () => {
   };
   
   return (
-    <div className={`min-h-screen flex flex-col ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+    <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900">
       <Header />
       
       <main className="flex-grow container mx-auto px-4 py-8">
@@ -150,8 +148,11 @@ const NossasMusicas = () => {
               Nossas Músicas
             </span>
           </h1>
-          <p className="text-center sm:text-left text-gray-500 dark:text-gray-400 mb-6">
-            Ouça nossas composições exclusivas e personalizadas
+          <p className="text-center sm:text-left text-gray-600 mb-6 max-w-3xl">
+            Aqui você encontra alguns exemplos das composições exclusivas criadas pela equipe do Música Perfeita. 
+            Cada música foi cuidadosamente composta para atender a uma ocasião especial específica. 
+            Estas são apenas algumas amostras do nosso trabalho. Para uma música personalizada para sua ocasião, 
+            não hesite em solicitar sua própria composição!
           </p>
           
           {isLoading ? (

@@ -25,12 +25,13 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   // Detectar preferência do sistema
   useEffect(() => {
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setTheme(prefersDark ? "dark" : "light");
     
     // Verificar se há uma preferência salva
     const savedTheme = localStorage.getItem("musicaperfeita_theme") as Theme | null;
     if (savedTheme) {
       setTheme(savedTheme);
+    } else {
+      setTheme(prefersDark ? "dark" : "light");
     }
   }, []);
   

@@ -5,17 +5,19 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
+import { useTheme } from "./theme/ThemeProvider";
 
 const Header = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme } = useTheme();
 
   const handleLogoClick = () => {
     navigate("/");
   };
 
   return (
-    <header className="w-full py-3 px-4 sm:py-4 sm:px-6 flex items-center justify-between bg-white shadow-sm sticky top-0 z-10">
+    <header className={`w-full py-3 px-4 sm:py-4 sm:px-6 flex items-center justify-between ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} shadow-sm sticky top-0 z-50`}>
       <div 
         onClick={handleLogoClick}
         className="flex items-center cursor-pointer"

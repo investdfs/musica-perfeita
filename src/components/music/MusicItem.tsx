@@ -48,7 +48,7 @@ const MusicItem = ({
   return (
     <li 
       className={`
-        ${isPlaying ? 'bg-purple-50 dark:bg-purple-900/20' : 'hover:bg-gray-50 dark:hover:bg-gray-800/80'} 
+        ${isPlaying ? 'bg-purple-50' : 'hover:bg-gray-50'} 
         transition-colors relative
       `}
       onMouseEnter={() => setIsHovered(true)}
@@ -91,7 +91,7 @@ const MusicItem = ({
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className={`h-8 w-8 mr-2 ${isPlaying ? 'text-purple-600' : 'text-gray-500'}`}
+                className={`h-8 w-8 mr-2 ${isPlaying ? 'text-purple-600' : 'text-blue-500'}`}
                 onClick={() => onPlay(music)}
               >
                 {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
@@ -101,7 +101,7 @@ const MusicItem = ({
             <div className="truncate">
               <h3 className="font-medium text-sm sm:text-base truncate">{music.title}</h3>
               {viewMode === "expanded" && (
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
+                <p className="text-xs sm:text-sm text-gray-500 truncate">
                   {music.artist} • {music.genre}
                 </p>
               )}
@@ -110,13 +110,13 @@ const MusicItem = ({
           
           {/* Informações adicionais visíveis apenas no modo expandido */}
           {viewMode === "expanded" && (
-            <div className="flex items-center mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center mt-1 text-xs text-gray-500">
               <span className="flex items-center mr-3">
-                <Clock className="h-3 w-3 mr-1" />
+                <Clock className="h-3 w-3 mr-1 text-teal-500" />
                 {formatTime(music.duration)}
               </span>
               <span className="flex items-center">
-                <BarChart2 className="h-3 w-3 mr-1" />
+                <BarChart2 className="h-3 w-3 mr-1 text-indigo-500" />
                 {music.plays.toLocaleString()} reproduções
               </span>
             </div>
@@ -126,7 +126,7 @@ const MusicItem = ({
         <div className="flex items-center space-x-1">
           {/* Duração para modo compacto */}
           {viewMode === "compact" && (
-            <span className="text-xs text-gray-500 dark:text-gray-400 mr-2">
+            <span className="text-xs text-gray-500 mr-2">
               {formatTime(music.duration)}
             </span>
           )}
@@ -134,7 +134,7 @@ const MusicItem = ({
           <Button
             variant="ghost"
             size="icon"
-            className={`h-8 w-8 ${isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
+            className={`h-8 w-8 ${isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'}`}
             onClick={() => onToggleFavorite(music.id)}
           >
             <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
@@ -143,7 +143,7 @@ const MusicItem = ({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="h-8 w-8 text-green-500 hover:text-green-600"
             onClick={handleShare}
           >
             <Share2 className="h-4 w-4" />

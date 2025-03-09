@@ -29,8 +29,8 @@ const MusicList = ({
     : musicList;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="p-4 border-b border-gray-200 flex justify-between items-center">
         <div className="flex gap-2">
           <Button
             variant={filter === "all" ? "default" : "outline"}
@@ -38,7 +38,7 @@ const MusicList = ({
             size="sm"
             className="font-medium"
           >
-            <Music2 className="h-4 w-4 mr-1" />
+            <Music2 className="h-4 w-4 mr-1 text-blue-500" />
             Todas
           </Button>
           <Button
@@ -47,7 +47,7 @@ const MusicList = ({
             size="sm"
             className="font-medium"
           >
-            <HeartIcon className="h-4 w-4 mr-1" />
+            <HeartIcon className="h-4 w-4 mr-1 text-pink-500" />
             Favoritas
           </Button>
         </div>
@@ -56,7 +56,7 @@ const MusicList = ({
           variant="ghost"
           size="sm"
           onClick={() => setViewMode(viewMode === "compact" ? "expanded" : "compact")}
-          className="text-gray-500 dark:text-gray-400"
+          className="text-purple-600"
         >
           {viewMode === "compact" ? (
             <>
@@ -74,13 +74,13 @@ const MusicList = ({
       
       <ScrollArea className="h-[calc(100vh-20rem)] min-h-[400px]">
         {filteredMusic.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400">
-            <HeartIcon className="h-12 w-12 mb-2 stroke-1" />
+          <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+            <HeartIcon className="h-12 w-12 mb-2 stroke-1 text-pink-500" />
             <p className="text-lg">Você ainda não tem favoritos</p>
             <p className="text-sm">Marque músicas como favoritas para vê-las aqui</p>
           </div>
         ) : (
-          <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+          <ul className="divide-y divide-gray-100">
             {filteredMusic.map((music) => (
               <MusicItem 
                 key={music.id}

@@ -32,7 +32,7 @@ const PriceComparisonSection = () => {
           </p>
           <div className="bg-amber-100 border-l-4 border-amber-500 p-4 rounded-r-lg max-w-3xl mx-auto text-left mb-8">
             <p className="text-amber-800">
-              <strong>Você sabia?</strong> A média de preço para músicas personalizadas no mercado varia de R$ 700 a R$ 3.500, 
+              <strong>Você sabia?</strong> A média de preço para músicas personalizadas no mercado varia de <strong>R$ 700</strong> a <strong>R$ 3.500</strong>, 
               com valores raramente divulgados nas páginas dos serviços. No <strong>Música Perfeita</strong>, 
               você conhece todos os detalhes e preços antes mesmo de contratar, e só paga depois de se 
               emocionar com o resultado!

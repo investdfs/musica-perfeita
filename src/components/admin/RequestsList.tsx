@@ -70,32 +70,32 @@ const RequestsList = ({
 
   return (
     <>
-      <h2 className="text-xl font-semibold mb-6">Lista de Pedidos</h2>
+      <h2 className="text-xl font-semibold mb-6 text-gray-900">Lista de Pedidos</h2>
       
       {isLoading ? (
-        <p className="text-center py-8">Carregando pedidos...</p>
+        <p className="text-center py-8 text-gray-700">Carregando pedidos...</p>
       ) : requests.length === 0 ? (
-        <p className="text-center py-8">Nenhum pedido encontrado.</p>
+        <p className="text-center py-8 text-gray-700">Nenhum pedido encontrado.</p>
       ) : (
         <div className="overflow-x-auto">
           <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[80px]">ID</TableHead>
-                <TableHead className="w-[120px]">Cliente</TableHead>
-                <TableHead className="w-[120px]">Homenageado</TableHead>
-                <TableHead className="w-[100px]">Status</TableHead>
-                <TableHead className="w-[100px]">Pagamento</TableHead>
-                <TableHead className="w-[100px]">Data</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead className="w-[80px] text-gray-700">ID</TableHead>
+                <TableHead className="w-[120px] text-gray-700">Cliente</TableHead>
+                <TableHead className="w-[120px] text-gray-700">Homenageado</TableHead>
+                <TableHead className="w-[100px] text-gray-700">Status</TableHead>
+                <TableHead className="w-[100px] text-gray-700">Pagamento</TableHead>
+                <TableHead className="w-[100px] text-gray-700">Data</TableHead>
+                <TableHead className="text-right text-gray-700">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {requests.map((request) => (
                 <TableRow key={request.id}>
-                  <TableCell className="font-mono text-xs">{request.id.substring(0, 6)}...</TableCell>
-                  <TableCell className="truncate max-w-[120px]">{getUserName(request.user_id)}</TableCell>
-                  <TableCell className="truncate max-w-[120px]">{request.honoree_name}</TableCell>
+                  <TableCell className="font-mono text-xs text-gray-900">{request.id.substring(0, 6)}...</TableCell>
+                  <TableCell className="truncate max-w-[120px] text-gray-900">{getUserName(request.user_id)}</TableCell>
+                  <TableCell className="truncate max-w-[120px] text-gray-900">{request.honoree_name}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
                       request.status === 'pending' 
@@ -120,7 +120,7 @@ const RequestsList = ({
                       {request.payment_status === 'pending' ? 'Não Pago' : 'Pago'}
                     </span>
                   </TableCell>
-                  <TableCell>{formatDate(request.created_at)}</TableCell>
+                  <TableCell className="text-gray-900">{formatDate(request.created_at)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end">
                       <DropdownMenu>

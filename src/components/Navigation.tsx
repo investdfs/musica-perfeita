@@ -47,41 +47,26 @@ const Navigation = ({ className }: { className?: string }) => {
     <nav className={cn("flex items-center space-x-6", className)}>
       <Link 
         to="/" 
-        className={cn(
-          "flex items-center gap-1 transition-colors",
-          isActive("/") 
-            ? "text-primary font-semibold border-b-2 border-primary py-1" 
-            : "hover:text-primary/80"
-        )}
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
-        <Home className="h-4 w-4" />
+        <Home className="h-4 w-4 text-blue-500" />
         <span>Home</span>
       </Link>
       
       <Link 
         to="/nossas-musicas" 
-        className={cn(
-          "flex items-center gap-1 transition-colors",
-          isActive("/nossas-musicas") 
-            ? "text-primary font-semibold border-b-2 border-primary py-1" 
-            : "hover:text-primary/80"
-        )}
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
-        <Music className="h-4 w-4" />
+        <Music className="h-4 w-4 text-purple-500" />
         <span>Nossas Músicas</span>
       </Link>
       
       {!isLoggedIn && (
         <Link 
           to="/cadastro" 
-          className={cn(
-            "flex items-center gap-1 transition-colors",
-            isActive("/cadastro") 
-              ? "text-primary font-semibold border-b-2 border-primary py-1" 
-              : "hover:text-primary/80"
-          )}
+          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
-          <UserPlus className="h-4 w-4" />
+          <UserPlus className="h-4 w-4 text-green-500" />
           <span>Cadastro</span>
         </Link>
       )}
@@ -90,14 +75,9 @@ const Navigation = ({ className }: { className?: string }) => {
         <>
           <Link
             to="/dashboard"
-            className={cn(
-              "flex items-center gap-1 transition-colors",
-              isActive("/dashboard") 
-                ? "text-primary font-semibold border-b-2 border-primary py-1" 
-                : "hover:text-primary/80"
-            )}
+            className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
           >
-            <User className="h-4 w-4" />
+            <User className="h-4 w-4 text-teal-500" />
             <span>Minha Conta</span>
           </Link>
           
@@ -113,28 +93,18 @@ const Navigation = ({ className }: { className?: string }) => {
       ) : (
         <Link 
           to="/login" 
-          className={cn(
-            "flex items-center gap-1 transition-colors",
-            isActive("/login") 
-              ? "text-primary font-semibold border-b-2 border-primary py-1" 
-              : "hover:text-primary/80"
-          )}
+          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
-          <LogIn className="h-4 w-4" />
+          <LogIn className="h-4 w-4 text-indigo-500" />
           <span>Login</span>
         </Link>
       )}
       
       <Link 
         to="/sobre" 
-        className={cn(
-          "flex items-center gap-1 transition-colors",
-          isActive("/sobre") 
-            ? "text-primary font-semibold border-b-2 border-primary py-1" 
-            : "hover:text-primary/80"
-        )}
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
-        <Info className="h-4 w-4" />
+        <Info className="h-4 w-4 text-amber-500" />
         <span>Sobre</span>
       </Link>
     </nav>

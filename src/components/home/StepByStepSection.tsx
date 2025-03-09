@@ -14,6 +14,7 @@ const steps = [
     icon: <Gift className="h-8 w-8 text-purple-500" />,
     color: "border-purple-500",
     bgColor: "bg-purple-50",
+    textColor: "text-purple-500",
   },
   {
     number: "2",
@@ -22,6 +23,7 @@ const steps = [
     icon: <Music className="h-8 w-8 text-pink-500" />,
     color: "border-pink-500",
     bgColor: "bg-pink-50",
+    textColor: "text-pink-500",
   },
   {
     number: "3",
@@ -30,6 +32,7 @@ const steps = [
     icon: <Headphones className="h-8 w-8 text-teal-500" />,
     color: "border-teal-500",
     bgColor: "bg-teal-50",
+    textColor: "text-teal-500",
   },
   {
     number: "4",
@@ -38,6 +41,7 @@ const steps = [
     icon: <CheckCircle className="h-8 w-8 text-blue-500" />,
     color: "border-blue-500",
     bgColor: "bg-blue-50",
+    textColor: "text-blue-500",
   },
   {
     number: "5",
@@ -46,6 +50,7 @@ const steps = [
     icon: <Heart className="h-8 w-8 text-red-500" />,
     color: "border-red-500",
     bgColor: "bg-red-50",
+    textColor: "text-red-500",
   },
 ];
 
@@ -73,7 +78,7 @@ const StepByStepSection = () => {
               )}
             >
               <div className="relative mb-4">
-                <div className={`text-${step.color.split('-')[1]} font-bold text-6xl`} style={{ fontFamily: 'cursive' }}>
+                <div className={`${step.textColor} font-bold text-6xl`} style={{ fontFamily: 'cursive' }}>
                   {step.number}
                 </div>
                 {/* Ajuste na posição do ícone para não encobrir o número */}
@@ -82,7 +87,7 @@ const StepByStepSection = () => {
                 </div>
               </div>
               
-              <h3 className={`text-${step.color.split('-')[1]} font-bold text-xl mb-2`}>{step.title}</h3>
+              <h3 className={`${step.textColor} font-bold text-xl mb-2`}>{step.title}</h3>
               
               <p className="text-gray-600 text-sm">
                 {step.description}

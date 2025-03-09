@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from "react";
 import { 
   Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share, 
@@ -215,7 +216,7 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
 
   return (
     <div className={cn("rounded-xl overflow-hidden shadow-lg bg-white/80 backdrop-blur-sm border border-gray-100", className)}>
-      <div className="p-5">
+      <div className="p-4 sm:p-5">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-medium text-gray-800 flex items-center gap-2">
             <ListMusic className="h-5 w-5 text-purple-600" />
@@ -251,7 +252,7 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
                 <li 
                   key={song.id}
                   className={cn(
-                    "rounded-lg px-3 py-2.5 transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 cursor-pointer group",
+                    "rounded-lg px-2 sm:px-3 py-2 transition-all duration-300 hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 cursor-pointer group",
                     isCurrent ? "bg-gradient-to-r from-purple-50 to-pink-50 border-l-2 border-purple-500" : "",
                     "transform transition-transform hover:scale-[1.01] active:scale-[0.99]"
                   )}
@@ -259,28 +260,28 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center min-w-0 flex-1">
-                      <div className="w-9 h-9 flex-shrink-0 mr-3 flex items-center justify-center">
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0 mr-2 sm:mr-3 flex items-center justify-center">
                         <button 
                           className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
+                            "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300",
                             isCurrent ? "bg-gradient-to-r from-purple-600 to-pink-500 shadow-md" : "bg-gray-100 group-hover:bg-gray-200"
                           )}
                           onClick={(e) => togglePlay(song, e)}
                         >
                           {isCurrent ? (
                             isPlaying ? (
-                              <Pause className="h-4 w-4 text-white" />
+                              <Pause className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                             ) : (
-                              <Play className="h-4 w-4 text-white" />
+                              <Play className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                             )
                           ) : (
-                            <Play className="h-4 w-4 text-gray-500" />
+                            <Play className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
                           )}
                         </button>
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className={cn(
-                          "font-medium truncate", 
+                          "font-medium truncate text-sm sm:text-base", 
                           isCurrentlyPlaying ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500" : "text-gray-800"
                         )}>
                           {song.title}
@@ -295,33 +296,33 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
                       <button 
                         onClick={(e) => toggleFavorite(song.id, e)}
                         className={cn(
-                          "p-1.5 rounded-full transition-colors",
+                          "p-1 sm:p-1.5 rounded-full transition-colors",
                           isFavorite 
                             ? "text-pink-500 hover:text-pink-600" 
                             : "text-gray-400 hover:text-gray-600"
                         )}
                         aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                       >
-                        <Heart className="h-3.5 w-3.5" fill={isFavorite ? "currentColor" : "none"} />
+                        <Heart className="h-3 w-3 sm:h-3.5 sm:w-3.5" fill={isFavorite ? "currentColor" : "none"} />
                       </button>
                       
                       <button 
                         onClick={(e) => shareTrack(song, e)}
-                        className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
+                        className="p-1 sm:p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
                         aria-label="Compartilhar"
                       >
-                        <Share className="h-3.5 w-3.5" />
+                        <Share className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                       </button>
                       
                       {!expandedView && (
                         <button 
                           onClick={(e) => toggleExpand(song.id, e)}
-                          className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
+                          className="p-1 sm:p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
                           aria-label={isExpanded ? "Menos detalhes" : "Mais detalhes"}
                         >
                           {isExpanded ? 
-                            <ChevronUp className="h-3.5 w-3.5" /> : 
-                            <ChevronDown className="h-3.5 w-3.5" />
+                            <ChevronUp className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> : 
+                            <ChevronDown className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                           }
                         </button>
                       )}
@@ -646,17 +647,18 @@ export const AudioFooterPlayer = () => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg transition-transform duration-300 z-50 animate-fade-in">
-      <div className="container mx-auto px-4 py-3">
-        <div className="grid grid-cols-12 gap-4 items-center">
-          <div className="col-span-12 sm:col-span-6 md:col-span-4 flex items-center">
+      <div className="container mx-auto px-3 py-2 sm:px-4 sm:py-3">
+        <div className="grid grid-cols-12 gap-2 sm:gap-4 items-center">
+          {/* Informações da música - reduzido em mobile */}
+          <div className="col-span-8 sm:col-span-6 md:col-span-4 flex items-center">
             <div className={cn(
-              "w-12 h-12 rounded-lg mr-3 flex-shrink-0 bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center shadow-md",
+              "w-10 h-10 sm:w-12 sm:h-12 rounded-lg mr-2 sm:mr-3 flex-shrink-0 bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center shadow-md",
               "animate-pulse-slow"
             )}>
-              <Music className="h-6 w-6 text-white" />
+              <Music className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
             </div>
             <div className="min-w-0">
-              <h4 className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 truncate">
+              <h4 className="font-medium text-sm sm:text-base text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 truncate">
                 {currentSong?.title || "Selecione uma música"}
               </h4>
               <p className="text-xs text-gray-500 truncate flex items-center">
@@ -666,37 +668,41 @@ export const AudioFooterPlayer = () => {
             </div>
           </div>
           
-          <div className="col-span-12 sm:col-span-6 md:col-span-4 order-first sm:order-none">
-            <div className="flex items-center justify-center gap-3 mb-2">
+          {/* Controles principais - em cima no mobile, ao centro em desktop */}
+          <div className="col-span-4 sm:col-span-6 md:col-span-4 order-none sm:order-none flex items-end sm:items-center justify-end sm:justify-center">
+            <div className="flex items-center gap-2 sm:gap-3 mb-0 sm:mb-2">
               <button 
                 onClick={skipToPrevious}
-                className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"
+                className="p-1 sm:p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"
                 aria-label="Música anterior"
               >
-                <SkipBack className="h-5 w-5" />
+                <SkipBack className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
               
               <button 
                 onClick={togglePlay}
-                className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-3 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
+                className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 sm:p-3 rounded-full shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
                 aria-label={isPlaying ? "Pausar" : "Reproduzir"}
               >
                 {isPlaying ? 
-                  <Pause className="h-6 w-6" /> : 
-                  <Play className="h-6 w-6" />
+                  <Pause className="h-5 w-5 sm:h-6 sm:w-6" /> : 
+                  <Play className="h-5 w-5 sm:h-6 sm:w-6" />
                 }
               </button>
               
               <button 
                 onClick={skipToNext}
-                className="p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"
+                className="p-1 sm:p-2 text-gray-600 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"
                 aria-label="Próxima música"
               >
-                <SkipForward className="h-5 w-5" />
+                <SkipForward className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
-            
-            <div className="flex items-center gap-2 px-1">
+          </div>
+          
+          {/* Barra de progresso - abaixo em todas as resoluções */}
+          <div className="col-span-12 order-last">
+            <div className="flex items-center gap-1 sm:gap-2 px-1">
               <span className="text-xs text-gray-500 font-mono">{formatTime(progress)}</span>
               <div className="relative flex-1 h-1.5 rounded-full overflow-hidden">
                 <input
@@ -713,7 +719,8 @@ export const AudioFooterPlayer = () => {
             </div>
           </div>
           
-          <div className="col-span-12 md:col-span-4 hidden md:flex items-center justify-end">
+          {/* Controles secundários - escondidos em mobile, visíveis em desktop */}
+          <div className="col-span-12 sm:col-span-12 md:col-span-4 hidden md:flex items-center justify-end">
             <div className="flex items-center gap-3">
               <button 
                 onClick={toggleMute} 
@@ -763,16 +770,20 @@ export const AudioFooterPlayer = () => {
               >
                 <Share className="h-4 w-4" />
               </button>
-              
-              <button 
-                onClick={() => setShowFooterPlayer(false)}
-                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors ml-2"
-                aria-label="Fechar player"
-              >
-                <X className="h-4 w-4" />
-              </button>
             </div>
           </div>
+          
+          {/* Botão de fechar - visível em todas as resoluções */}
+          <button 
+            onClick={() => {
+              setShowFooterPlayer(false);
+              globalShowFooterPlayer = false;
+            }}
+            className="absolute top-1 right-2 sm:top-3 sm:right-4 p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
+            aria-label="Fechar player"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       </div>
       

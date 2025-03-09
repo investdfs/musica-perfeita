@@ -27,8 +27,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
           location.pathname !== "/login" && 
           location.pathname !== "/cadastro" && 
           location.pathname !== "/sobre" &&
-          location.pathname !== "/nossas-musicas" &&
-          location.pathname !== "/minha-musica"
+          location.pathname !== "/nossas-musicas"
         ) {
           // Salvar a rota atual para redirecionamento após login
           localStorage.setItem("redirect_after_login", location.pathname + location.search);
@@ -59,8 +58,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       location.pathname !== "/login" && 
       location.pathname !== "/cadastro" && 
       location.pathname !== "/sobre" &&
-      location.pathname !== "/nossas-musicas" &&
-      location.pathname !== "/minha-musica") {
+      location.pathname !== "/nossas-musicas") {
     return null;
   }
 

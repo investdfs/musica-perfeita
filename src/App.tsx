@@ -13,8 +13,6 @@ import Pagamento from "./pages/Pagamento";
 import Confirmacao from "./pages/Confirmacao";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
-import MusicPreview from "./pages/MusicPreview";
-import MinhaMusica from "./pages/MinhaMusica";
 import NotFound from "./pages/NotFound";
 import MusicPlayer from "./pages/MusicPlayer";
 import MusicPlayerFull from "./pages/MusicPlayerFull";
@@ -42,8 +40,6 @@ const App = () => (
               <Route path="/confirmacao" element={<Confirmacao />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin-login" element={<AdminLogin />} />
-              <Route path="/music-preview" element={<MusicPreview />} />
-              <Route path="/minha-musica" element={<MinhaMusica />} />
               <Route path="/music-player" element={<MusicPlayer />} />
               <Route path="/music-player-full" element={<MusicPlayerFull />} />
               <Route path="/nossas-musicas" element={<NossasMusicas />} />

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -289,4 +290,28 @@
   );
   background-size: 200% auto;
   animation: shine 3s linear infinite;
+}
+
+/* Efeitos de áudio para o player de música */
+@keyframes equalizer {
+  0% {
+    height: 15%;
+  }
+  100% {
+    height: 95%;
+  }
+}
+
+.audio-visualizer {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  width: 100%;
+}
+
+.audio-bar {
+  width: 2px;
+  background-color: white;
+  margin: 0 1px;
+  border-radius: 1px;
 }

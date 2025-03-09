@@ -18,37 +18,42 @@ import MinhaMusica from "./pages/MinhaMusica";
 import NotFound from "./pages/NotFound";
 import MusicPlayer from "./pages/MusicPlayer";
 import MusicPlayerFull from "./pages/MusicPlayerFull";
+import NossasMusicas from "./pages/NossasMusicas";
 import AuthGuard from "./components/auth/AuthGuard";
+import { ThemeProvider } from "./components/theme/ThemeProvider";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter basename="/">
-        <AuthGuard>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/cadastro" element={<Cadastro />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/sobre" element={<Sobre />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/pagamento" element={<Pagamento />} />
-            <Route path="/confirmacao" element={<Confirmacao />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/admin-login" element={<AdminLogin />} />
-            <Route path="/music-preview" element={<MusicPreview />} />
-            <Route path="/minha-musica" element={<MinhaMusica />} />
-            <Route path="/music-player" element={<MusicPlayer />} />
-            <Route path="/music-player-full" element={<MusicPlayerFull />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AuthGuard>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter basename="/">
+          <AuthGuard>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/cadastro" element={<Cadastro />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/sobre" element={<Sobre />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/pagamento" element={<Pagamento />} />
+              <Route path="/confirmacao" element={<Confirmacao />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin-login" element={<AdminLogin />} />
+              <Route path="/music-preview" element={<MusicPreview />} />
+              <Route path="/minha-musica" element={<MinhaMusica />} />
+              <Route path="/music-player" element={<MusicPlayer />} />
+              <Route path="/music-player-full" element={<MusicPlayerFull />} />
+              <Route path="/nossas-musicas" element={<NossasMusicas />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthGuard>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

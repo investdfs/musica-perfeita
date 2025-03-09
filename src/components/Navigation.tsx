@@ -1,5 +1,5 @@
 
-import { Home, UserPlus, Info, LogIn, LogOut, User } from "lucide-react";
+import { Home, UserPlus, Info, LogIn, LogOut, User, Music } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -56,6 +56,19 @@ const Navigation = ({ className }: { className?: string }) => {
       >
         <Home className="h-4 w-4" />
         <span>Home</span>
+      </Link>
+      
+      <Link 
+        to="/nossas-musicas" 
+        className={cn(
+          "flex items-center gap-1 transition-colors",
+          isActive("/nossas-musicas") 
+            ? "text-primary font-medium" 
+            : "hover:text-primary/80"
+        )}
+      >
+        <Music className="h-4 w-4" />
+        <span>Nossas Músicas</span>
       </Link>
       
       {!isLoggedIn && (

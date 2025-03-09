@@ -25,19 +25,19 @@ const steps = [
   },
   {
     number: "3",
-    title: "aprove",
-    description: "Você recebe uma versão simples da Canção para aprovação de música e letra.",
-    icon: <CheckCircle className="h-8 w-8 text-blue-500" />,
-    color: "border-blue-500",
-    bgColor: "bg-blue-50",
-  },
-  {
-    number: "4",
     title: "aguarde",
     description: "Segure a ansiedade e aguarde enquanto a gente produz a versão com o arranjo final!",
     icon: <Headphones className="h-8 w-8 text-teal-500" />,
     color: "border-teal-500",
     bgColor: "bg-teal-50",
+  },
+  {
+    number: "4",
+    title: "aprove",
+    description: "Você receberá um corte da Canção para aprovação de música e letra.",
+    icon: <CheckCircle className="h-8 w-8 text-blue-500" />,
+    color: "border-blue-500",
+    bgColor: "bg-blue-50",
   },
   {
     number: "5",

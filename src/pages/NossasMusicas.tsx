@@ -28,6 +28,7 @@ const NossasMusicas = () => {
         if (error) throw error;
         
         if (data && data.length > 0) {
+          console.log("Músicas carregadas do banco:", data);
           setMusicList(data as MusicType[]);
         } else {
           // Fallback para dados de demonstração caso não haja músicas no banco

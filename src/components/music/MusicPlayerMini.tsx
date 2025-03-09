@@ -241,15 +241,38 @@ const MusicPlayerMini = ({ music, onClose }: MusicPlayerMiniProps) => {
           </div>
         )}
         
-        {/* Barra de progresso para o modo não expandido */}
+        {/* Barra de progresso para o modo não expandido - CORRIGIDO */}
         {!isExpanded && (
           <Progress 
             value={(currentTime / duration) * 100} 
             className="absolute bottom-0 left-0 w-full h-1 bg-white/30"
-            indicatorClassName="bg-white"
           />
         )}
       </div>
+      
+      {/* Adicionar styles para a animação das barras equalizadoras */}
+      <style jsx>{`
+        @keyframes equalizer {
+          0% { height: 20%; }
+          100% { height: 60%; }
+        }
+        .progress-bar-animated::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+          transform: translateX(-100%);
+          animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+          100% {
+            transform: translateX(100%);
+          }
+        }
+      `}</style>
     </div>
   );
 };

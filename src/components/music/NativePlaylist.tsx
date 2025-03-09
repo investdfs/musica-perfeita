@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { 
   Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share, 
@@ -285,7 +284,6 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
   );
 };
 
-// Componente separado para o player de áudio global para o rodapé
 export const AudioFooterPlayer = () => {
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -297,8 +295,15 @@ export const AudioFooterPlayer = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressInterval = useRef<number | null>(null);
 
-  // Inicializa o player
+  // Inicializa o player com uma música padrão quando o componente montar
   useEffect(() => {
+    // Carregar a primeira música por padrão se nenhuma estiver tocando
+    if (!currentSong && songs.length > 0) {
+      const defaultSong = songs[0];
+      setCurrentSong(defaultSong);
+      globalCurrentSong = defaultSong;
+    }
+    
     if (!audioRef.current) return;
     
     globalAudioRef = audioRef.current;
@@ -361,7 +366,6 @@ export const AudioFooterPlayer = () => {
     };
   }, []);
 
-  // Sugere a próxima música baseada na atual
   const getNextSong = (currentId?: string): Song => {
     if (!currentId) return songs[0];
     const currentIndex = songs.findIndex(song => song.id === currentId);
@@ -584,11 +588,11 @@ export const AudioFooterPlayer = () => {
             </div>
             <div className="min-w-0">
               <h4 className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500 truncate">
-                {currentSong.title}
+                {currentSong?.title || "Selecione uma música"}
               </h4>
               <p className="text-xs text-gray-500 truncate flex items-center">
-                {currentSong.artist}
-                <AudioVisualizer />
+                {currentSong?.artist || "Artista"}
+                {isPlaying && <AudioVisualizer />}
               </p>
             </div>
           </div>
@@ -668,25 +672,27 @@ export const AudioFooterPlayer = () => {
               </div>
               
               <button 
-                onClick={(e) => toggleFavorite(currentSong.id, e)}
+                onClick={(e) => toggleFavorite(currentSong?.id || "", e)}
                 className={cn(
                   "p-1.5 rounded-full transition-colors",
-                  favorites.includes(currentSong.id) 
+                  currentSong && favorites.includes(currentSong.id) 
                     ? "text-pink-500 hover:text-pink-600" 
                     : "text-gray-400 hover:text-gray-600"
                 )}
-                aria-label={favorites.includes(currentSong.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                aria-label={currentSong && favorites.includes(currentSong.id) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                disabled={!currentSong}
               >
                 <Heart 
                   className="h-4 w-4" 
-                  fill={favorites.includes(currentSong.id) ? "currentColor" : "none"} 
+                  fill={currentSong && favorites.includes(currentSong.id) ? "currentColor" : "none"} 
                 />
               </button>
               
               <button 
-                onClick={(e) => shareTrack(currentSong, e)}
+                onClick={(e) => currentSong && shareTrack(currentSong, e)}
                 className="p-1.5 text-gray-400 hover:text-gray-600 rounded-full transition-colors"
                 aria-label="Compartilhar"
+                disabled={!currentSong}
               >
                 <Share className="h-4 w-4" />
               </button>
@@ -697,6 +703,46 @@ export const AudioFooterPlayer = () => {
       
       {/* Elemento de áudio escondido */}
       <audio ref={audioRef} preload="metadata" />
+
+      <style jsx>{`
+        @keyframes equalizer {
+          0% { height: 20%; }
+          100% { height: 80%; }
+        }
+        
+        .audio-bar {
+          width: 2px;
+          animation: equalizer 0.8s ease-in-out infinite alternate;
+        }
+        
+        .animate-pulse-slow {
+          animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </div>
   );
 };

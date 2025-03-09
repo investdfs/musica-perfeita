@@ -72,6 +72,12 @@ const songs: Song[] = [
     title: "Meu filho meu anjo",
     artist: "Música Perfeita",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Meu-filho-meu-anjo.mp3"
+  },
+  {
+    id: "10",
+    title: "Homem Leão: Selva Feroz",
+    artist: "Música Perfeita",
+    url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Homem-leao-Selva-feroz.mp3"
   }
 ];
 

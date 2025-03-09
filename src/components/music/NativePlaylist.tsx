@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { 
   Play, Pause, SkipForward, SkipBack, Volume2, Heart, Share, 
@@ -57,7 +56,8 @@ export const audioPlayerEvents = {
   PLAY_SONG: "play-song",
   TOGGLE_PLAY: "toggle-play",
   UPDATE_PROGRESS: "update-progress",
-  UPDATE_CURRENT_SONG: "update-current-song"
+  UPDATE_CURRENT_SONG: "update-current-song",
+  SONG_ENDED: "song-ended"
 };
 
 // Variáveis globais para compartilhar estado entre componentes
@@ -88,6 +88,20 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
       setIsPlaying(e.detail);
     };
 
+    const handleSongEnded = () => {
+      setIsPlaying(false);
+      globalIsPlaying = false;
+      dispatchAudioEvent(audioPlayerEvents.SONG_ENDED, null);
+      
+      // Fechar o player quando a música terminar
+      setShowFooterPlayer(false);
+      
+      // Também poderia automaticamente ir para a próxima música
+      // Descomentar a linha abaixo se quiser este comportamento
+      // const nextSong = getNextSong(currentSong?.id);
+      // playSong(nextSong);
+    };
+
     window.addEventListener(
       audioPlayerEvents.UPDATE_CURRENT_SONG, 
       handleUpdateCurrentSong as EventListener
@@ -96,6 +110,11 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
     window.addEventListener(
       audioPlayerEvents.TOGGLE_PLAY, 
       handleUpdatePlayState as EventListener
+    );
+    
+    window.addEventListener(
+      audioPlayerEvents.SONG_ENDED,
+      handleSongEnded as EventListener
     );
 
     // Verificar estado global inicial
@@ -113,6 +132,11 @@ export const NativePlaylist = ({ className }: NativePlaylistProps) => {
       window.removeEventListener(
         audioPlayerEvents.TOGGLE_PLAY, 
         handleUpdatePlayState as EventListener
+      );
+      
+      window.removeEventListener(
+        audioPlayerEvents.SONG_ENDED,
+        handleSongEnded as EventListener
       );
     };
   }, []);
@@ -347,8 +371,17 @@ export const AudioFooterPlayer = () => {
 
     // Configurar manipuladores de eventos
     const handleEnded = () => {
-      const nextSong = getNextSong(currentSong?.id);
-      playSong(nextSong);
+      setIsPlaying(false);
+      globalIsPlaying = false;
+      dispatchAudioEvent(audioPlayerEvents.SONG_ENDED, null);
+      
+      // Fechar o player quando a música terminar
+      setShowFooterPlayer(false);
+      
+      // Também poderia automaticamente ir para a próxima música
+      // Descomentar a linha abaixo se quiser este comportamento
+      // const nextSong = getNextSong(currentSong?.id);
+      // playSong(nextSong);
     };
 
     if (audioElement.current) {

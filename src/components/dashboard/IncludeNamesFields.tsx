@@ -49,7 +49,7 @@ const IncludeNamesFields = ({ form }: IncludeNamesFieldsProps) => {
               <FormControl>
                 <Input 
                   placeholder="Digite até 4 nomes separados por vírgula" 
-                  className="border-pink-200 focus-visible:ring-pink-400"
+                  className="border-pink-200 focus-visible:ring-pink-400 bg-white text-gray-900"
                   {...field} 
                   value={field.value || ''}
                 />

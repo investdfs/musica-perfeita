@@ -19,7 +19,7 @@ const PersonInfoFields = ({ form }: PersonInfoFieldsProps) => {
           <FormItem>
             <FormLabel className="text-purple-700">Para quem é esta música?</FormLabel>
             <FormControl>
-              <Input placeholder="Nome da pessoa homenageada" className="border-pink-200 focus-visible:ring-pink-400" {...field} />
+              <Input placeholder="Nome da pessoa homenageada" className="border-pink-200 focus-visible:ring-pink-400 bg-white text-gray-900" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>

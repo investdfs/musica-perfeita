@@ -74,7 +74,7 @@ const MusicItem = ({
             )}
             
             <div className="truncate">
-              <h3 className="font-medium text-sm sm:text-base truncate">{music.title}</h3>
+              <h3 className="font-medium text-sm sm:text-base truncate text-gray-900">{music.title}</h3>
               {viewMode === "expanded" && (
                 <p className="text-xs sm:text-sm text-gray-500 truncate">
                   {music.artist} • {music.genre}

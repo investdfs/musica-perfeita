@@ -21,11 +21,11 @@ const GenreSelector = ({ form }: GenreSelectorProps) => {
             defaultValue={field.value}
           >
             <FormControl>
-              <SelectTrigger className="border-pink-200 focus-visible:ring-pink-400">
+              <SelectTrigger className="border-pink-200 focus-visible:ring-pink-400 bg-white text-gray-900">
                 <SelectValue placeholder="Selecione o gênero musical" />
               </SelectTrigger>
             </FormControl>
-            <SelectContent>
+            <SelectContent className="bg-white text-gray-900">
               <SelectItem value="romantic">Romântica</SelectItem>
               <SelectItem value="mpb">MPB</SelectItem>
               <SelectItem value="pop">Pop</SelectItem>

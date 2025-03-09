@@ -28,11 +28,11 @@ const RelationshipFields = ({ form }: RelationshipFieldsProps) => {
               defaultValue={field.value}
             >
               <FormControl>
-                <SelectTrigger className="border-pink-200 focus-visible:ring-pink-400">
+                <SelectTrigger className="border-pink-200 focus-visible:ring-pink-400 bg-white text-gray-900">
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
+              <SelectContent className="bg-white text-gray-900">
                 <SelectItem value="esposa">Esposa</SelectItem>
                 <SelectItem value="noiva">Noiva</SelectItem>
                 <SelectItem value="namorada">Namorada</SelectItem>
@@ -63,7 +63,7 @@ const RelationshipFields = ({ form }: RelationshipFieldsProps) => {
               <FormControl>
                 <Input 
                   placeholder="Ex: Chefe, vizinho, etc" 
-                  className="border-pink-200 focus-visible:ring-pink-400"
+                  className="border-pink-200 focus-visible:ring-pink-400 bg-white text-gray-900"
                   {...field}
                   value={field.value || ''} 
                 />

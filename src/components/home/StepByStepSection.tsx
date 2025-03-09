@@ -76,7 +76,8 @@ const StepByStepSection = () => {
                 <div className={`text-${step.color.split('-')[1]} font-bold text-6xl`} style={{ fontFamily: 'cursive' }}>
                   {step.number}
                 </div>
-                <div className="absolute -top-1 -right-2 transform translate-x-1/4 bg-white p-2 rounded-full shadow-sm">
+                {/* Ajuste na posição do ícone para não encobrir o número */}
+                <div className="absolute -top-3 -right-4 transform translate-x-1/2 bg-white p-2 rounded-full shadow-sm">
                   {step.icon}
                 </div>
               </div>

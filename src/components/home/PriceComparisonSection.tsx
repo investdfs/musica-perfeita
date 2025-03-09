@@ -40,28 +40,69 @@ const PriceComparisonSection = () => {
           </div>
         </div>
 
-        {/* Versão desktop (ou tablet grande) */}
+        {/* Novo componente de opções de preço */}
+        <div className="mb-10">
+          <Card className="border-2 border-green-300 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-6 text-center">
+              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-2">Nossas Opções</h3>
+              <p className="text-green-600 font-medium">Escolha o plano ideal para você</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-4 p-6">
+              {/* Opção 1: Somente a Música */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-center justify-center mb-4">
+                  <Music className="h-10 w-10 text-blue-500 mr-3" />
+                  <h4 className="text-xl font-semibold text-gray-800">Somente a Música</h4>
+                </div>
+                <div className="text-center mb-4">
+                  <p className="text-sm text-gray-600 mb-2">Entrega da Música Digital (Arquivo)</p>
+                  <p className="text-3xl font-bold text-blue-600">R$ 79,90</p>
+                </div>
+                <Button 
+                  onClick={() => window.location.href = "/cadastro"} 
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                >
+                  Selecionar
+                </Button>
+              </div>
+              
+              {/* Opção 2: Música + Quadro Físico */}
+              <div className="bg-white rounded-xl border-2 border-green-500 shadow-md p-6 relative hover:shadow-lg transition-shadow">
+                <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-semibold py-1 px-3 rounded-bl-lg">
+                  Recomendado
+                </div>
+                <div className="flex items-center justify-center mb-4">
+                  <Package className="h-10 w-10 text-green-500 mr-3" />
+                  <h4 className="text-xl font-semibold text-gray-800">Música Digital + Quadro</h4>
+                </div>
+                <div className="text-center mb-4">
+                  <p className="text-sm text-gray-600 mb-2">Quadro Player Físico com QR Code</p>
+                  <p className="text-3xl font-bold text-green-600">R$ 169,90</p>
+                  <span className="inline-block mt-1 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Frete Grátis</span>
+                </div>
+                <Button 
+                  onClick={() => window.location.href = "/cadastro"} 
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  Selecionar
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Versão desktop (ou tablet grande) para os recursos */}
         <div className="hidden lg:block">
           <div className="bg-white rounded-xl overflow-hidden border border-green-200 shadow-xl">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-8 flex items-center justify-between">
-              <div className="flex items-center gap-6">
-                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-                  <Music className="h-10 w-10 text-green-600" />
+            <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-6 text-center">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <Music className="h-6 w-6 text-green-600" />
                 </div>
-                <div className="text-left">
-                  <span className="bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full mb-2 inline-block">
-                    Recomendado
-                  </span>
-                  <h3 className="text-2xl font-bold text-green-700">Música Perfeita</h3>
-                  <p className="text-3xl font-bold text-green-600 mt-1">R$ 100,00</p>
-                </div>
+                <h3 className="text-2xl font-bold text-green-700">Música Perfeita</h3>
               </div>
-              <Button 
-                onClick={() => window.location.href = "/cadastro"}
-                className="bg-green-600 hover:bg-green-700 text-white font-medium text-lg px-8 py-6 h-auto shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1"
-              >
-                Começar Agora
-              </Button>
+              <p className="text-lg font-medium text-green-600">Todos os recursos inclusos em cada produção</p>
             </div>
             
             <div className="p-6">
@@ -96,18 +137,14 @@ const PriceComparisonSection = () => {
           </div>
         </div>
 
-        {/* Versão mobile e tablet pequeno */}
+        {/* Versão mobile e tablet pequeno para os recursos */}
         <div className="lg:hidden">
-          <Card className="relative overflow-hidden border-2 border-green-500 shadow-lg">
-            <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-semibold py-1 px-3 rounded-bl-lg">
-              Recomendado
-            </div>
+          <Card className="relative overflow-hidden border-2 border-green-300 shadow-lg">
             <CardContent className="pt-8 px-4 pb-6 flex flex-col items-center">
               <div className="w-16 h-16 flex items-center justify-center rounded-full mb-4 bg-green-100 text-green-600">
                 <Music className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-semibold mb-2 text-green-700">Música Perfeita</h3>
-              <p className="text-2xl font-bold mb-6">R$ 100,00</p>
+              <h3 className="text-xl font-semibold mb-4 text-green-700">Recursos Inclusos</h3>
               
               <div className="w-full space-y-3 mb-6">
                 {features.map(feature => (

@@ -10,14 +10,14 @@ import { useTheme } from "./theme/ThemeProvider";
 const Header = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogoClick = () => {
     navigate("/");
   };
 
   return (
-    <header className={`w-full py-3 px-4 sm:py-4 sm:px-6 flex items-center justify-between ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'} shadow-sm sticky top-0 z-50`}>
+    <header className="w-full py-3 px-4 sm:py-4 sm:px-6 flex items-center justify-between bg-white text-gray-900 shadow-sm sticky top-0 z-50">
       <div 
         onClick={handleLogoClick}
         className="flex items-center cursor-pointer"

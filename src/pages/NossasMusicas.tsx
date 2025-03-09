@@ -11,7 +11,6 @@ const NossasMusicas = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPlaying, setCurrentPlaying] = useState<MusicType | null>(null);
   const [musicList, setMusicList] = useState<MusicType[]>([]);
-  const [favorites, setFavorites] = useState<string[]>([]);
   
   // Carregar lista de músicas (simulado)
   useEffect(() => {
@@ -95,13 +94,6 @@ const NossasMusicas = () => {
         ];
         
         setMusicList(demoMusicList);
-        
-        // Carregar favoritos do localStorage
-        const savedFavorites = localStorage.getItem('musicaperfeita_favorites');
-        if (savedFavorites) {
-          setFavorites(JSON.parse(savedFavorites));
-        }
-        
         setIsLoading(false);
       } catch (error) {
         console.error("Erro ao carregar músicas:", error);
@@ -111,23 +103,6 @@ const NossasMusicas = () => {
     
     fetchMusicList();
   }, []);
-  
-  // Salvar favoritos no localStorage quando mudar
-  useEffect(() => {
-    if (favorites.length > 0) {
-      localStorage.setItem('musicaperfeita_favorites', JSON.stringify(favorites));
-    }
-  }, [favorites]);
-  
-  const toggleFavorite = (musicId: string) => {
-    setFavorites(prev => {
-      if (prev.includes(musicId)) {
-        return prev.filter(id => id !== musicId);
-      } else {
-        return [...prev, musicId];
-      }
-    });
-  };
   
   const handlePlayMusic = (music: MusicType) => {
     setCurrentPlaying(music);
@@ -148,12 +123,21 @@ const NossasMusicas = () => {
               Nossas Músicas
             </span>
           </h1>
-          <p className="text-center sm:text-left text-gray-600 mb-6 max-w-3xl">
-            Aqui você encontra alguns exemplos das composições exclusivas criadas pela equipe do Música Perfeita. 
-            Cada música foi cuidadosamente composta para atender a uma ocasião especial específica. 
-            Estas são apenas algumas amostras do nosso trabalho. Para uma música personalizada para sua ocasião, 
-            não hesite em solicitar sua própria composição!
-          </p>
+          <div className="text-center sm:text-left text-gray-600 mb-8 max-w-3xl">
+            <p className="text-lg mb-3">
+              Aqui você encontra alguns exemplos das composições exclusivas criadas pela 
+              equipe do Música Perfeita.
+            </p>
+            <p className="mb-3">
+              Cada música foi cuidadosamente composta para atender a uma ocasião especial específica. 
+              Estas são apenas algumas amostras do nosso trabalho - uma pequena demonstração 
+              da nossa capacidade de criar músicas personalizadas.
+            </p>
+            <p className="font-medium text-purple-600">
+              Para uma música personalizada para sua ocasião, 
+              não hesite em solicitar sua própria composição!
+            </p>
+          </div>
           
           {isLoading ? (
             <div className="flex justify-center items-center h-64">
@@ -162,8 +146,6 @@ const NossasMusicas = () => {
           ) : (
             <MusicList 
               musicList={musicList} 
-              favorites={favorites}
-              onToggleFavorite={toggleFavorite}
               onPlayMusic={handlePlayMusic}
               currentPlaying={currentPlaying}
             />

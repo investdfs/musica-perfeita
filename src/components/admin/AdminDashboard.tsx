@@ -10,6 +10,8 @@ import AnalyticsDashboard from "@/components/admin/AnalyticsDashboard";
 import RequestsFilters from "@/components/admin/RequestsFilters";
 import { useAdminFilters } from "@/contexts/AdminContext";
 import AdminManagement from "@/components/admin/AdminManagement";
+import MusicManagement from "@/components/admin/MusicManagement";
+import { Music } from "@/types/music";
 
 const AdminDashboard = () => {
   const { 
@@ -49,12 +51,28 @@ const AdminDashboard = () => {
 
   // Filter regular users (non-admin)
   const regularUsers = users.filter(user => !user.is_admin);
+  
+  const handleAddMusic = (music: Music) => {
+    // Aqui você adicionaria a lógica para salvar a música no banco de dados
+    // Por enquanto, apenas exibimos um toast de sucesso
+    toast({
+      title: "Música adicionada com sucesso",
+      description: `A música "${music.title}" foi adicionada ao catálogo.`
+    });
+    
+    console.log("Nova música adicionada:", music);
+  };
 
   return (
     <div className="space-y-8">
       <Card className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">Análises</h2>
         <AnalyticsDashboard requests={requests} users={regularUsers} />
+      </Card>
+      
+      <Card className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-4">Gerenciar Músicas</h2>
+        <MusicManagement onAddMusic={handleAddMusic} />
       </Card>
       
       <Card className="bg-white rounded-lg shadow-md p-6 overflow-hidden">

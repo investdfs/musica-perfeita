@@ -3,13 +3,11 @@ import { useState } from "react";
 import { Music } from "@/types/music";
 import { formatTime } from "@/lib/formatTime";
 import { Button } from "@/components/ui/button";
-import { Heart, Play, Pause, Share2, Clock, BarChart2 } from "lucide-react";
+import { Play, Pause, Share2, Clock, BarChart2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface MusicItemProps {
   music: Music;
-  isFavorite: boolean;
-  onToggleFavorite: (id: string) => void;
   onPlay: (music: Music) => void;
   isPlaying: boolean;
   viewMode: "compact" | "expanded";
@@ -17,8 +15,6 @@ interface MusicItemProps {
 
 const MusicItem = ({ 
   music, 
-  isFavorite, 
-  onToggleFavorite, 
   onPlay, 
   isPlaying,
   viewMode
@@ -130,15 +126,6 @@ const MusicItem = ({
               {formatTime(music.duration)}
             </span>
           )}
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`h-8 w-8 ${isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'}`}
-            onClick={() => onToggleFavorite(music.id)}
-          >
-            <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
-          </Button>
           
           <Button
             variant="ghost"

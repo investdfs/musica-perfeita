@@ -104,7 +104,7 @@ const PossibilitiesSection = () => {
           <h3 className="text-xl text-purple-800 font-medium mb-5 sm:mb-6">Mais ocasiões para eternizar com música</h3>
           
           <div className="max-w-4xl mx-auto bg-pink-50 rounded-lg p-5 sm:p-8 shadow-md">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
               <div className="flex flex-col items-center bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-all">
                 <div className="bg-pink-500 p-2 rounded-full mb-2">
                   <Gift className="h-5 w-5 text-white" />

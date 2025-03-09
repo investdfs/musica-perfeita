@@ -2,14 +2,14 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import NativePlaylist from "@/components/music/NativePlaylist";
+import NativePlaylist, { AudioFooterPlayer } from "@/components/music/NativePlaylist";
 
 const NossasMusicas = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-100 text-gray-900">
       <Header />
       
-      <main className="flex-grow container mx-auto px-4 py-8 pb-24">
+      <main className="flex-grow container mx-auto px-4 py-8 pb-32">
         <section className="mb-8">
           {/* Nova playlist nativa */}
           <div className="w-full max-w-4xl mx-auto mt-8">
@@ -26,6 +26,9 @@ const NossasMusicas = () => {
           </div>
         </section>
       </main>
+      
+      {/* Player global de áudio no rodapé da página */}
+      <AudioFooterPlayer />
       
       <Footer />
     </div>

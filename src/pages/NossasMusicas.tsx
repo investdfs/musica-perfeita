@@ -3,6 +3,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Loader2 } from "lucide-react";
+import NativePlaylist from "@/components/music/NativePlaylist";
 
 const NossasMusicas = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -32,7 +33,7 @@ const NossasMusicas = () => {
             </p>
           </div>
           
-          <div className="w-full max-w-4xl mx-auto rounded-lg overflow-hidden shadow-lg relative">
+          <div className="w-full max-w-4xl mx-auto rounded-lg overflow-hidden shadow-lg relative mb-8">
             {isLoading && (
               <div className="absolute inset-0 flex justify-center items-center bg-white/80 z-10">
                 <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
@@ -96,6 +97,20 @@ const NossasMusicas = () => {
                 Se o player acima não mostrar todas as faixas corretamente, clique no botão para acessar a playlist completa diretamente no SoundCloud.
               </p>
             </div>
+          </div>
+          
+          {/* Nova playlist nativa */}
+          <div className="w-full max-w-4xl mx-auto mt-8">
+            <h3 className="text-xl font-semibold mb-4 text-center text-gray-800">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">
+                Playlist Nativa
+              </span>
+            </h3>
+            <p className="text-center text-gray-600 mb-4 max-w-3xl mx-auto">
+              Experimente nosso player de música nativo com recursos avançados. 
+              Uma experiência de reprodução mais fluida e rica diretamente no navegador.
+            </p>
+            <NativePlaylist className="mb-4" />
           </div>
         </section>
       </main>

@@ -69,7 +69,7 @@ const Footer = () => {
               href="https://www.musicaperfeita.com.br" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors font-medium mt-2"
+              className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors font-medium mt-2"
             >
               <Globe className="h-4 w-4 mr-1" />
               www.musicaperfeita.com.br
@@ -81,27 +81,27 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 text-gray-800">Links Rápidos</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-gray-600 hover:text-gray-800 transition-colors">
+                <Link to="/" className="text-blue-600 hover:text-blue-800 transition-colors">
                   Página Inicial
                 </Link>
               </li>
               <li>
-                <Link to="/sobre" className="text-gray-600 hover:text-gray-800 transition-colors">
+                <Link to="/sobre" className="text-blue-600 hover:text-blue-800 transition-colors">
                   Quem Somos
                 </Link>
               </li>
               <li>
-                <Link to="/cadastro" className="text-gray-600 hover:text-gray-800 transition-colors">
+                <Link to="/cadastro" className="text-blue-600 hover:text-blue-800 transition-colors">
                   Cadastre-se
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="text-gray-600 hover:text-gray-800 transition-colors">
+                <Link to="/login" className="text-blue-600 hover:text-blue-800 transition-colors">
                   Login
                 </Link>
               </li>
               <li>
-                <Link to="/nossas-musicas" className="text-gray-600 hover:text-gray-800 transition-colors">
+                <Link to="/nossas-musicas" className="text-blue-600 hover:text-blue-800 transition-colors">
                   Nossas Músicas
                 </Link>
               </li>
@@ -113,16 +113,16 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 text-gray-800">Contato</h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
-                <Phone className="h-5 w-5 text-gray-500 mt-0.5" />
-                <span className="text-gray-600">(32) 998847713 (somente WhatsApp)</span>
+                <Phone className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                <span className="text-gray-600 inline-block">(32) 998847713 (somente WhatsApp)</span>
               </li>
               <li className="flex items-start gap-2">
-                <Mail className="h-5 w-5 text-gray-500 mt-0.5" />
-                <span className="text-gray-600 break-all">contato.musicaperfeita@gmail.com</span>
+                <Mail className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                <span className="text-gray-600 inline-block">contato.musicaperfeita@gmail.com</span>
               </li>
               <li className="flex items-start gap-2">
-                <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
-                <span className="text-gray-600">São Paulo, SP - Brasil</span>
+                <MapPin className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                <span className="text-gray-600 inline-block">Santos Dumont, MG - Brasil</span>
               </li>
             </ul>
           </div>
@@ -131,31 +131,27 @@ const Footer = () => {
           <div>
             <h4 className="text-lg font-semibold mb-4 text-gray-800">Siga-nos</h4>
             <div className="flex gap-3 mb-6">
-              <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
-                <Instagram className="h-5 w-5 text-gray-700" />
+              <a href="#" className="bg-pink-500 p-2 rounded-full hover:bg-pink-600 transition-colors">
+                <Instagram className="h-5 w-5 text-white" />
               </a>
-              <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
-                <Facebook className="h-5 w-5 text-gray-700" />
+              <a href="#" className="bg-blue-600 p-2 rounded-full hover:bg-blue-700 transition-colors">
+                <Facebook className="h-5 w-5 text-white" />
               </a>
-              <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
-                <Twitter className="h-5 w-5 text-gray-700" />
+              <a href="#" className="bg-blue-400 p-2 rounded-full hover:bg-blue-500 transition-colors">
+                <Twitter className="h-5 w-5 text-white" />
               </a>
-              <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
-                <Youtube className="h-5 w-5 text-gray-700" />
+              <a href="#" className="bg-red-600 p-2 rounded-full hover:bg-red-700 transition-colors">
+                <Youtube className="h-5 w-5 text-white" />
               </a>
             </div>
             
             <h4 className="text-lg font-semibold mb-2 text-gray-800">Formas de Pagamento</h4>
-            <div className="grid grid-cols-3 gap-1">
-              <Card className="p-1 bg-white border-gray-200">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="Mastercard" className="h-6 object-contain mx-auto" />
-              </Card>
-              <Card className="p-1 bg-white border-gray-200">
-                <img src="https://logodownload.org/wp-content/uploads/2016/10/visa-logo.png" alt="Visa" className="h-6 object-contain mx-auto" />
-              </Card>
-              <Card className="p-1 bg-white border-gray-200">
-                <img src="https://logodownload.org/wp-content/uploads/2018/09/mercado-pago-logo.png" alt="Mercado Pago" className="h-6 object-contain mx-auto" />
-              </Card>
+            <div className="mt-2">
+              <img 
+                src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/chamada-pix-mercado-pago__1_-removebg-preview.png" 
+                alt="Formas de Pagamento" 
+                className="h-12 object-contain"
+              />
             </div>
           </div>
         </div>
@@ -164,9 +160,9 @@ const Footer = () => {
         <div className="pt-8 mt-8 border-t border-gray-200 text-center text-gray-600">
           <p>&copy; {currentYear} Musicaperfeita. Todos os direitos reservados.</p>
           <div className="flex flex-wrap justify-center gap-4 mt-2 text-sm">
-            <Link to="#" className="hover:text-gray-800">Termos de Uso</Link>
-            <Link to="#" className="hover:text-gray-800">Política de Privacidade</Link>
-            <Link to="#" className="hover:text-gray-800">FAQ</Link>
+            <Link to="#" className="text-blue-600 hover:text-blue-800">Termos de Uso</Link>
+            <Link to="#" className="text-blue-600 hover:text-blue-800">Política de Privacidade</Link>
+            <Link to="#" className="text-blue-600 hover:text-blue-800">FAQ</Link>
           </div>
           <div className="mt-3 flex flex-col items-center">
             <a 

@@ -1,0 +1,12 @@
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://musicaperfeita.com.br/sitemap.xml
+
+# Disallow administrative sections and login pages
+Disallow: /admin
+Disallow: /admin-login
+Disallow: /pagamento
+Disallow: /confirmacao

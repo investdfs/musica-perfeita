@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Music, Mic, PenTool, Sparkles, Zap, Heart, Image, Package, Badge, Clock, ArrowDown } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Lista dos recursos para exibir com ícones coloridos
 const features = [
@@ -20,6 +21,19 @@ const features = [
   { id: "transparencia", name: "Preço transparente", description: "Sem surpresas ou taxas adicionais depois", icon: <Heart className="h-5 w-5 text-red-500" /> },
   { id: "pacote", name: "Pacote completo", description: "Todos os serviços inclusos em um único valor acessível", icon: <Package className="h-5 w-5 text-green-500" /> },
 ];
+
+// Tooltips para a seção "Mais ocasiões"
+const occasionTooltips = {
+  aniversario: "Comemore aniversários com uma melodia única que celebra a vida e a história do aniversariante.",
+  casamento: "Eternize o amor do casal com uma canção personalizada para o casamento, cerimônia ou recepção.",
+  nascimento: "Anuncie a chegada do seu bebê de uma forma mágica e musical, com uma melodia que traga emoção e alegria para este momento único.",
+  formatura: "Celebre esta conquista acadêmica com uma música que represente a jornada de aprendizado e superação.",
+  namoro: "Declare seu amor com uma composição única que expresse seus sentimentos mais profundos.",
+  reconciliacao: "Peça perdão ou reconcilie-se com alguém especial através de uma melodia emocionante.",
+  homenagem: "Homenageie pessoas especiais em vida ou eternize a memória de quem já partiu com uma canção.",
+  agradecimento: "Demonstre gratidão de forma inesquecível com uma música personalizada de agradecimento.",
+  pedidoCasamento: "Faça um pedido de casamento inesquecível com uma canção romântica e personalizada.",
+};
 
 const PriceComparisonSection = () => {
   return (
@@ -61,7 +75,7 @@ const PriceComparisonSection = () => {
           </div>
         </div>
 
-        {/* Agora vem a seção de "Ouça exemplos" com a imagem mais discreta */}
+        {/* Agora vem a seção de "Ouça exemplos" com a imagem ainda menor e mais discreta */}
         <div className="mb-12">
           <div className="text-center mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
@@ -69,13 +83,13 @@ const PriceComparisonSection = () => {
             </h2>
           </div>
           
-          <Link to="/nossas-musicas" className="block mx-auto max-w-2xl">
+          <Link to="/nossas-musicas" className="block mx-auto max-w-xl">
             <div className="relative bg-blue-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all">
-              {/* Imagem menor e mais discreta */}
+              {/* Imagem ainda menor e mais discreta */}
               <img 
                 src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-3d-render-of-a-playlist-with-waves-of-_QHhhBN7WTKeV9ExYGhFK3g_1xdiS_4ERbOtBvueTPsITg.webp" 
                 alt="Playlist de músicas personalizadas" 
-                className="w-full h-auto object-cover aspect-[16/9] opacity-80"
+                className="w-full h-auto object-cover aspect-[16/7] opacity-80"
               />
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-blue-900/80 to-transparent p-6 text-white">
                 <h3 className="text-xl sm:text-2xl font-bold mb-3 drop-shadow-md">Ouça exemplos de músicas personalizadas</h3>
@@ -149,7 +163,7 @@ const PriceComparisonSection = () => {
                 </div>
                 <Button 
                   onClick={() => window.location.href = "/cadastro"} 
-                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-sm py-2 md:text-base md:py-3"
                 >
                   Selecionar
                 </Button>
@@ -201,7 +215,7 @@ const PriceComparisonSection = () => {
                 </div>
                 <Button 
                   onClick={() => window.location.href = "/cadastro"} 
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full bg-green-600 hover:bg-green-700 text-sm py-2 md:text-base md:py-3"
                 >
                   Selecionar
                 </Button>
@@ -210,14 +224,17 @@ const PriceComparisonSection = () => {
           </Card>
         </div>
 
-        <div className="mt-8 text-center">
-          <Button 
-            onClick={() => window.location.href = "/cadastro"}
-            className="bg-green-600 hover:bg-green-700 text-white font-medium px-10 py-6 h-auto shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-lg"
-          >
-            Criar Minha Música Personalizada
-          </Button>
-        </div>
+        {/* Tooltips para "Mais ocasiões para eternizar com música" */}
+        <TooltipProvider>
+          <div className="mt-8 text-center">
+            <Button 
+              onClick={() => window.location.href = "/cadastro"}
+              className="bg-green-600 hover:bg-green-700 text-white font-medium px-10 py-6 h-auto shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-lg"
+            >
+              Criar Minha Música Personalizada
+            </Button>
+          </div>
+        </TooltipProvider>
       </div>
     </section>
   );

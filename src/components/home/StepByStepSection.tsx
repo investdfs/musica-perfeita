@@ -1,6 +1,12 @@
 
 import { Music, Gift, Headphones, CheckCircle, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { 
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip";
 
 const steps = [
   {
@@ -81,8 +87,8 @@ const StepByStepSection = () => {
                 <div className={`${step.textColor} font-bold text-6xl`} style={{ fontFamily: 'cursive' }}>
                   {step.number}
                 </div>
-                {/* Ajuste na posição do ícone para ficar mais afastado do número */}
-                <div className="absolute -top-3 -right-6 transform translate-x-1/2 bg-white p-2 rounded-full shadow-sm">
+                {/* Afastado ainda mais o ícone do número */}
+                <div className="absolute -top-3 -right-10 transform translate-x-1/2 bg-white p-2 rounded-full shadow-sm">
                   {step.icon}
                 </div>
               </div>

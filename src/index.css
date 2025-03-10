@@ -99,6 +99,19 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Responsividade para textos em mobile */
+  @media (max-width: 640px) {
+    h1, h2, h3, h4, h5, h6 {
+      word-break: break-word;
+      hyphens: auto;
+    }
+    
+    p, li, span {
+      word-break: break-word;
+      hyphens: auto;
+    }
+  }
 }
 
 @keyframes shimmer {
@@ -364,4 +377,32 @@
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Melhorias para visualização mobile */
+@media (max-width: 640px) {
+  /* Evitar que textos fiquem muito grandes em telas pequenas */
+  h1 {
+    font-size: clamp(1.5rem, 8vw, 2.5rem);
+  }
+  
+  h2 {
+    font-size: clamp(1.25rem, 6vw, 2rem);
+  }
+  
+  h3 {
+    font-size: clamp(1.1rem, 5vw, 1.75rem);
+  }
+  
+  /* Ajustar espaçamento para mobile */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Melhorar visualização de imagens */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
 }

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -118,15 +119,24 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 text-gray-800">Contato</h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
-                <a 
-                  href="https://wa.link/opvb86"
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors"
-                >
-                  <MessageCircle className="h-5 w-5 flex-shrink-0" />
-                  <span className="inline-block">(32) 998847713 (WhatsApp)</span>
-                </a>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a 
+                        href="https://wa.link/opvb86"
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors"
+                      >
+                        <MessageCircle className="h-5 w-5 flex-shrink-0" />
+                        <span className="inline-block">(32) 998847713 (WhatsApp)</span>
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Clique para enviar mensagem no WhatsApp</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />

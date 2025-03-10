@@ -6,7 +6,6 @@ import NotificationsPanel from "@/components/admin/NotificationsPanel";
 import AdminDashboard from "@/components/admin/AdminDashboard";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { toast } from "@/hooks/use-toast";
-import { LogOut } from "lucide-react";
 import { isDevelopmentOrPreview } from "@/lib/environment";
 
 const AdminPage = () => {
@@ -104,21 +103,6 @@ const AdminPage = () => {
     };
   }, [navigate]);
   
-  // Add admin logout handler
-  const handleAdminLogout = () => {
-    localStorage.removeItem("musicaperfeita_admin");
-    localStorage.removeItem("admin_email");
-    localStorage.removeItem("admin_id");
-    localStorage.removeItem("admin_is_main");
-    
-    toast({
-      title: "Logout realizado",
-      description: "Você saiu da conta de administrador com sucesso"
-    });
-    
-    navigate("/admin-login");
-  };
-  
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -137,13 +121,6 @@ const AdminPage = () => {
               <h1 className="text-3xl font-bold text-gray-900">Painel do Administrador</h1>
               <div className="flex items-center gap-4">
                 <NotificationsPanel />
-                <button
-                  onClick={handleAdminLogout}
-                  className="flex items-center gap-1 px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>Sair</span>
-                </button>
               </div>
             </div>
             

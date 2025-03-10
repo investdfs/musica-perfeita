@@ -23,15 +23,21 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
-import { Shield, Trash, Edit, PlusCircle } from "lucide-react";
+import { Shield, Trash, Edit, PlusCircle, UserPlus } from "lucide-react";
 
 interface AdminManagementProps {
   users: UserProfile[];
   fetchUsers: () => void | Promise<void>;
   isMainAdmin: boolean;
+  showPasswordField?: boolean;
 }
 
-const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, isMainAdmin }) => {
+const AdminManagement: React.FC<AdminManagementProps> = ({ 
+  users, 
+  fetchUsers, 
+  isMainAdmin,
+  showPasswordField = false
+}) => {
   const [showAdminForm, setShowAdminForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [formData, setFormData] = useState({
@@ -207,7 +213,7 @@ const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, is
               setShowAdminForm(true);
             }}
           >
-            <PlusCircle className="w-4 h-4 mr-2" />
+            <UserPlus className="w-4 h-4 mr-2" />
             Novo Administrador
           </Button>
         )}
@@ -222,6 +228,7 @@ const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, is
               <TableRow>
                 <TableHead>Nome</TableHead>
                 <TableHead>Email</TableHead>
+                {showPasswordField && <TableHead>Senha</TableHead>}
                 <TableHead>WhatsApp</TableHead>
                 <TableHead>Data de Cadastro</TableHead>
                 <TableHead>Principal</TableHead>
@@ -233,6 +240,7 @@ const AdminManagement: React.FC<AdminManagementProps> = ({ users, fetchUsers, is
                 <TableRow key={admin.id}>
                   <TableCell className="font-medium">{admin.name}</TableCell>
                   <TableCell>{admin.email}</TableCell>
+                  {showPasswordField && <TableCell>{admin.password}</TableCell>}
                   <TableCell>{admin.whatsapp}</TableCell>
                   <TableCell>{formatDate(admin.created_at)}</TableCell>
                   <TableCell>

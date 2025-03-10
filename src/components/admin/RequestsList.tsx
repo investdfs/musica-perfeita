@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MusicRequest } from "@/types/database.types";
-import { Send, Download, Save } from "lucide-react";
+import { Send, Download, Save, ExternalLink, Music } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,6 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal } from "lucide-react";
 
 interface RequestsListProps {
@@ -81,51 +82,93 @@ const RequestsList = ({
           <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[80px] text-gray-700">ID</TableHead>
-                <TableHead className="w-[120px] text-gray-700">Cliente</TableHead>
-                <TableHead className="w-[120px] text-gray-700">Homenageado</TableHead>
-                <TableHead className="w-[100px] text-gray-700">Status</TableHead>
-                <TableHead className="w-[100px] text-gray-700">Pagamento</TableHead>
+                <TableHead className="w-[150px] text-gray-700">Cliente</TableHead>
+                <TableHead className="w-[150px] text-gray-700">Homenageado</TableHead>
+                <TableHead className="w-[120px] text-gray-700">Status</TableHead>
+                <TableHead className="w-[120px] text-gray-700">Pagamento</TableHead>
                 <TableHead className="w-[100px] text-gray-700">Data</TableHead>
-                <TableHead className="text-right text-gray-700">Ações</TableHead>
+                <TableHead className="text-gray-700">Link da Música</TableHead>
+                <TableHead className="w-[100px] text-right text-gray-700">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {requests.map((request) => (
                 <TableRow key={request.id}>
-                  <TableCell className="font-mono text-xs text-gray-900">{request.id.substring(0, 6)}...</TableCell>
-                  <TableCell className="truncate max-w-[120px] text-gray-900">{getUserName(request.user_id)}</TableCell>
-                  <TableCell className="truncate max-w-[120px] text-gray-900">{request.honoree_name}</TableCell>
+                  <TableCell className="font-medium truncate max-w-[150px] text-gray-900">
+                    {getUserName(request.user_id)}
+                    <div className="text-xs text-gray-500 mt-1">ID: {request.id.substring(0, 6)}...</div>
+                  </TableCell>
+                  <TableCell className="truncate max-w-[150px] text-gray-900">{request.honoree_name}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      request.status === 'pending' 
-                        ? 'bg-yellow-100 text-yellow-800' 
-                        : request.status === 'in_production' 
-                          ? 'bg-blue-100 text-blue-800' 
-                          : 'bg-green-100 text-green-800'
-                    }`}>
+                    <Badge variant={
+                      request.status === 'pending' ? 'warning' : 
+                      request.status === 'in_production' ? 'info' : 'success'
+                    }>
                       {request.status === 'pending' 
                         ? 'Pendente' 
                         : request.status === 'in_production' 
                           ? 'Em Produção' 
                           : 'Concluído'}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      request.payment_status === 'pending' 
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}>
+                    <Badge variant={request.payment_status === 'pending' ? 'destructive' : 'success'}>
                       {request.payment_status === 'pending' ? 'Não Pago' : 'Pago'}
-                    </span>
+                    </Badge>
                   </TableCell>
                   <TableCell className="text-gray-900">{formatDate(request.created_at)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <Input
+                        type="text"
+                        className="h-8 text-xs"
+                        placeholder="Link Música"
+                        value={soundcloudIds[request.id] || ''}
+                        onChange={(e) => handleSoundCloudIdChange(request.id, e.target.value)}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onViewDetails(request)}
+                        disabled={!soundcloudIds[request.id]?.trim()}
+                        className="h-8 w-8 ml-1"
+                        title="Salvar Link"
+                      >
+                        <Save className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end">
+                    <div className="flex justify-end space-x-1">
+                      {request.status === 'completed' && (
+                        <>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => onDeliverMusic(request)}
+                            className="h-8 w-8"
+                            title="Entregar Música"
+                          >
+                            <Send className="w-4 h-4" />
+                          </Button>
+                          
+                          {onDownloadFile && request.full_song_url && (
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => onDownloadFile && onDownloadFile(request)}
+                              className="h-8 w-8"
+                              title="Download"
+                            >
+                              <Download className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </>
+                      )}
+                      
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
+                          <Button variant="ghost" className="h-8 w-8">
                             <span className="sr-only">Abrir menu</span>
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
@@ -135,6 +178,7 @@ const RequestsList = ({
                           <DropdownMenuSeparator />
                           
                           <DropdownMenuItem onClick={() => onViewDetails(request)}>
+                            <ExternalLink className="w-4 h-4 mr-2" />
                             Ver Detalhes
                           </DropdownMenuItem>
                           
@@ -158,48 +202,8 @@ const RequestsList = ({
                           <DropdownMenuItem onClick={() => onUpdateStatus(request.id, undefined, 'completed')}>
                             Pagamento: Pago
                           </DropdownMenuItem>
-                          
-                          {request.status === 'completed' && (
-                            <>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuLabel>Ações de Entrega</DropdownMenuLabel>
-                              <DropdownMenuItem onClick={() => onDeliverMusic(request)}>
-                                <Send className="w-4 h-4 mr-2" />
-                                Entregar Música
-                              </DropdownMenuItem>
-                              
-                              {onDownloadFile && request.full_song_url && (
-                                <DropdownMenuItem onClick={() => onDownloadFile(request)}>
-                                  <Download className="w-4 h-4 mr-2" />
-                                  Download
-                                </DropdownMenuItem>
-                              )}
-                            </>
-                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      
-                      {/* SoundCloud ID input in a more compact form */}
-                      <div className="flex items-center mr-2 ml-2">
-                        <div className="relative flex items-center max-w-[180px]">
-                          <Input
-                            type="text"
-                            className="h-8 w-32 text-xs pr-8"
-                            placeholder="Link Música"
-                            value={soundcloudIds[request.id] || ''}
-                            onChange={(e) => handleSoundCloudIdChange(request.id, e.target.value)}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => onViewDetails(request)}
-                            disabled={!soundcloudIds[request.id]?.trim()}
-                            className="h-6 w-6 absolute right-1"
-                          >
-                            <Save className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
                     </div>
                   </TableCell>
                 </TableRow>

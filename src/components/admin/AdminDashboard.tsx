@@ -84,6 +84,7 @@ const AdminDashboard = () => {
           users={users} 
           fetchUsers={fetchUsers} 
           isMainAdmin={isMainAdmin}
+          showPasswordField={true}
         />
       </Card>
       

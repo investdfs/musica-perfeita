@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Music, Mic, PenTool, Sparkles, Zap, Heart, Image, Package, Badge, Clock, ArrowDown } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Link } from "react-router-dom";
 
 // Lista dos recursos para exibir com ícones coloridos
 const features = [
@@ -38,7 +39,7 @@ const PriceComparisonSection = () => {
             </div>
             
             <div className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {features.map((feature) => (
                   <div key={feature.id} className="flex p-4 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all">
                     <div className="mr-4 flex-shrink-0">
@@ -58,6 +59,35 @@ const PriceComparisonSection = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Agora vem a seção de "Ouça exemplos" com a imagem mais discreta */}
+        <div className="mb-12">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
+              Ouça exemplos de nossas criações
+            </h2>
+          </div>
+          
+          <Link to="/nossas-musicas" className="block mx-auto max-w-2xl">
+            <div className="relative bg-blue-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all">
+              {/* Imagem menor e mais discreta */}
+              <img 
+                src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-3d-render-of-a-playlist-with-waves-of-_QHhhBN7WTKeV9ExYGhFK3g_1xdiS_4ERbOtBvueTPsITg.webp" 
+                alt="Playlist de músicas personalizadas" 
+                className="w-full h-auto object-cover aspect-[16/9] opacity-80"
+              />
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-blue-900/80 to-transparent p-6 text-white">
+                <h3 className="text-xl sm:text-2xl font-bold mb-3 drop-shadow-md">Ouça exemplos de músicas personalizadas</h3>
+                <p className="text-white/90 max-w-lg text-center mb-4 drop-shadow">
+                  Músicas personalizadas criadas com carinho e tecnologia para momentos especiais.
+                </p>
+                <Button className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded-full shadow-lg flex items-center gap-2">
+                  <Music className="h-5 w-5" /> Ouvir Agora
+                </Button>
+              </div>
+            </div>
+          </Link>
         </div>
 
         {/* Agora vem a seção de preços com promoção */}
@@ -93,10 +123,10 @@ const PriceComparisonSection = () => {
             </div>
             
             <div className="grid md:grid-cols-2 gap-4 p-6">
-              {/* Opção 1: Somente a Música */}
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 hover:shadow-md transition-shadow">
+              {/* Opção 1: Somente a Música - Melhorias para mobile */}
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow">
                 <div className="flex flex-col items-center mb-4">
-                  <div className="h-40 w-40 mb-4 flex items-center justify-center">
+                  <div className="h-32 sm:h-40 w-auto mb-4 flex items-center justify-center">
                     <img 
                       src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/9758649.png" 
                       alt="Somente a Música" 
@@ -104,16 +134,16 @@ const PriceComparisonSection = () => {
                     />
                   </div>
                   <div className="flex items-center justify-center">
-                    <Music className="h-8 w-8 text-blue-500 mr-3" />
-                    <h4 className="text-xl font-semibold text-gray-800">Somente a Música</h4>
+                    <Music className="h-6 sm:h-8 w-6 sm:w-8 text-blue-500 mr-3" />
+                    <h4 className="text-lg sm:text-xl font-semibold text-gray-800">Somente a Música</h4>
                   </div>
                 </div>
                 <div className="text-center mb-4">
                   <p className="text-sm text-gray-600 mb-2">Entrega da Música Digital (Arquivo)</p>
-                  <div className="flex items-center justify-center">
-                    <p className="text-lg font-medium text-gray-500 line-through mr-2">R$ 149,90</p>
+                  <div className="flex flex-wrap items-center justify-center gap-1">
+                    <p className="text-base sm:text-lg font-medium text-gray-500 line-through">R$ 149,90</p>
                     <ArrowDown className="h-4 w-4 text-red-500 mx-1" />
-                    <p className="text-3xl font-bold text-blue-600">R$ 79,90</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-blue-600">R$ 79,90</p>
                   </div>
                   <span className="inline-block mt-1 bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full">Economize R$ 70,00</span>
                 </div>
@@ -125,13 +155,13 @@ const PriceComparisonSection = () => {
                 </Button>
               </div>
               
-              {/* Opção 2: Música + Quadro Físico */}
-              <div className="bg-white rounded-xl border-2 border-green-500 shadow-md p-6 relative hover:shadow-lg transition-shadow">
+              {/* Opção 2: Música + Quadro Físico - Melhorias para mobile */}
+              <div className="bg-white rounded-xl border-2 border-green-500 shadow-md p-4 sm:p-6 relative hover:shadow-lg transition-shadow">
                 <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-semibold py-1 px-3 rounded-bl-lg">
                   Recomendado
                 </div>
                 <div className="flex flex-col items-center mb-4">
-                  <div className="h-40 w-40 mb-4 flex items-center justify-center">
+                  <div className="h-32 sm:h-40 w-auto mb-4 flex items-center justify-center">
                     <Dialog>
                       <DialogTrigger asChild>
                         <div className="cursor-pointer">
@@ -153,19 +183,21 @@ const PriceComparisonSection = () => {
                     </Dialog>
                   </div>
                   <div className="flex items-center justify-center">
-                    <Package className="h-8 w-8 text-green-500 mr-3" />
-                    <h4 className="text-xl font-semibold text-gray-800">Música Digital + Quadro</h4>
+                    <Package className="h-6 sm:h-8 w-6 sm:w-8 text-green-500 mr-3" />
+                    <h4 className="text-lg sm:text-xl font-semibold text-gray-800">Música Digital + Quadro</h4>
                   </div>
                 </div>
                 <div className="text-center mb-4">
                   <p className="text-sm text-gray-600 mb-2">Quadro Player Físico com QR Code</p>
-                  <div className="flex items-center justify-center">
-                    <p className="text-lg font-medium text-gray-500 line-through mr-2">R$ 219,90</p>
+                  <div className="flex flex-wrap items-center justify-center gap-1">
+                    <p className="text-base sm:text-lg font-medium text-gray-500 line-through">R$ 219,90</p>
                     <ArrowDown className="h-4 w-4 text-red-500 mx-1" />
-                    <p className="text-3xl font-bold text-green-600">R$ 169,90</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-green-600">R$ 169,90</p>
                   </div>
-                  <span className="inline-block mt-1 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Economize R$ 50,00</span>
-                  <span className="inline-block mt-1 ml-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Frete Grátis</span>
+                  <div className="flex flex-wrap gap-1 justify-center mt-1">
+                    <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Economize R$ 50,00</span>
+                    <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Frete Grátis</span>
+                  </div>
                 </div>
                 <Button 
                   onClick={() => window.location.href = "/cadastro"} 

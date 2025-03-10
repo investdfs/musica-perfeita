@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Globe, Lock, HelpCircle, MessageCircle } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Globe, HelpCircle, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -187,13 +187,7 @@ const Footer = () => {
             >
               Visite nosso site oficial: www.musicaperfeita.com.br
             </a>
-            <Link 
-              to="/admin-login"
-              className="mt-2 inline-flex items-center text-gray-500 hover:text-gray-700 transition-colors"
-              aria-label="Área de administração"
-            >
-              <Lock className="h-3 w-3" />
-            </Link>
+            {/* Removido o link do cadeado conforme solicitado */}
           </div>
         </div>
       </div>

@@ -1,4 +1,3 @@
-
 import Header from "@/components/Header";
 import WelcomeSection from "@/components/home/WelcomeSection";
 import StepByStepSection from "@/components/home/StepByStepSection";
@@ -44,9 +43,9 @@ const Home = () => {
       <main>
         <WelcomeSection />
         <StepByStepSection />
+        <PossibilitiesSection />
         <DifferentialsSection />
         <PriceComparisonSection />
-        <PossibilitiesSection />
         <CallToAction />
       </main>
       <Footer />

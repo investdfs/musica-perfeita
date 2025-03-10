@@ -185,7 +185,7 @@ const RequestsList = ({
                           <Input
                             type="text"
                             className="h-8 w-32 text-xs pr-8"
-                            placeholder="ID SoundCloud"
+                            placeholder="Link Música"
                             value={soundcloudIds[request.id] || ''}
                             onChange={(e) => handleSoundCloudIdChange(request.id, e.target.value)}
                           />

@@ -32,7 +32,7 @@ const RequestsManagement = ({
     setShowDeliveryForm,
     handleViewDetails,
     handleDeliverMusic,
-    handleSaveSoundCloudId,
+    handleSaveMusicUrl,
     handleSendEmail,
     handleFileUpload,
     handleUpdateStatus,
@@ -63,7 +63,7 @@ const RequestsManagement = ({
         showDetails={showDetails} 
         setShowDetails={setShowDetails} 
         selectedRequest={selectedRequest} 
-        handleSaveSoundCloudId={handleSaveSoundCloudId} 
+        handleSaveMusicUrl={handleSaveMusicUrl} 
         isUploading={isUploading} 
       />
 

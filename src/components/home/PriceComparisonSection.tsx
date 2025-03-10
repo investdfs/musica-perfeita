@@ -75,7 +75,7 @@ const PriceComparisonSection = () => {
           </div>
         </div>
 
-        {/* Agora vem a seção de preços com promoção */}
+        {/* Agora vem a seção de preços com promoção, REMOVIDA a seção duplicada de "Ouça exemplos" */}
         <div className="mb-10">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -197,7 +197,31 @@ const PriceComparisonSection = () => {
           </Card>
         </div>
 
-        {/* Removida a seção duplicada "Ouça exemplos de nossas criações" que estava aqui */}
+        {/* Agora vem a seção de "Ouça exemplos" com a imagem MUITO menor e mais discreta */}
+        <div className="mb-12">
+          <div className="text-center mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+              Ouça exemplos de nossas criações
+            </h2>
+          </div>
+          
+          <Link to="/nossas-musicas" className="block mx-auto max-w-md">
+            <div className="relative bg-blue-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all">
+              {/* Imagem MUITO menor e mais discreta */}
+              <img 
+                src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-3d-render-of-a-playlist-with-waves-of-_QHhhBN7WTKeV9ExYGhFK3g_1xdiS_4ERbOtBvueTPsITg.webp" 
+                alt="Playlist de músicas personalizadas" 
+                className="w-full h-auto object-cover aspect-[16/6] opacity-75"
+              />
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-blue-900/90 to-blue-900/50 p-4 text-white">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 drop-shadow-md">Exemplos de músicas personalizadas</h3>
+                <Button className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-1 text-sm rounded-full shadow-lg flex items-center gap-2">
+                  <Music className="h-4 w-4" /> Ouvir Agora
+                </Button>
+              </div>
+            </div>
+          </Link>
+        </div>
 
         {/* Tooltips para "Mais ocasiões para eternizar com música" */}
         <TooltipProvider>

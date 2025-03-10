@@ -1,3 +1,4 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Music, Mic, PenTool, Sparkles, Zap, Heart, Image, Package, Badge, Clock, ArrowDown } from "lucide-react";
@@ -74,36 +75,7 @@ const PriceComparisonSection = () => {
           </div>
         </div>
 
-        {/* Agora vem a seção de "Ouça exemplos" com a imagem ainda menor e mais discreta */}
-        <div className="mb-12">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3">
-              Ouça exemplos de nossas criações
-            </h2>
-          </div>
-          
-          <Link to="/nossas-musicas" className="block mx-auto max-w-xl">
-            <div className="relative bg-blue-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all">
-              {/* Imagem ainda menor e mais discreta */}
-              <img 
-                src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-3d-render-of-a-playlist-with-waves-of-_QHhhBN7WTKeV9ExYGhFK3g_1xdiS_4ERbOtBvueTPsITg.webp" 
-                alt="Playlist de músicas personalizadas" 
-                className="w-full h-auto object-cover aspect-[16/7] opacity-80"
-              />
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-blue-900/80 to-transparent p-6 text-white">
-                <h3 className="text-xl sm:text-2xl font-bold mb-3 drop-shadow-md">Ouça exemplos de músicas personalizadas</h3>
-                <p className="text-white/90 max-w-lg text-center mb-4 drop-shadow">
-                  Músicas personalizadas criadas com carinho e tecnologia para momentos especiais.
-                </p>
-                <Button className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded-full shadow-lg flex items-center gap-2">
-                  <Music className="h-5 w-5" /> Ouvir Agora
-                </Button>
-              </div>
-            </div>
-          </Link>
-        </div>
-
-        {/* Agora vem a seção de preços com promoção */}
+        {/* Agora vem a seção de preços com promoção, REMOVIDA a seção duplicada de "Ouça exemplos" */}
         <div className="mb-10">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -175,7 +147,7 @@ const PriceComparisonSection = () => {
                 </div>
                 <div className="flex flex-col items-center mb-4">
                   {/* Reduzir ainda mais a altura para evitar sobreposição */}
-                  <div className="h-28 sm:h-36 w-auto mb-4 flex items-center justify-center">
+                  <div className="h-24 sm:h-32 w-auto mb-4 flex items-center justify-center">
                     <Dialog>
                       <DialogTrigger asChild>
                         <div className="cursor-pointer">
@@ -183,7 +155,7 @@ const PriceComparisonSection = () => {
                             src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/quadro-decorativo-personalizado-interativo-com-qr-code-fundo-branco-68936-removebg-preview.png" 
                             alt="Música Digital + Quadro" 
                             className="max-h-full max-w-full object-contain hover:opacity-90 transition-opacity"
-                            style={{ maxHeight: "100%" }}
+                            style={{ maxHeight: "100%", maxWidth: "90%" }}
                           />
                           <p className="text-xs text-gray-500 mt-1 italic">clique para ampliar</p>
                         </div>
@@ -223,6 +195,32 @@ const PriceComparisonSection = () => {
               </div>
             </div>
           </Card>
+        </div>
+
+        {/* Agora vem a seção de "Ouça exemplos" com a imagem MUITO menor e mais discreta */}
+        <div className="mb-12">
+          <div className="text-center mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+              Ouça exemplos de nossas criações
+            </h2>
+          </div>
+          
+          <Link to="/nossas-musicas" className="block mx-auto max-w-md">
+            <div className="relative bg-blue-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all">
+              {/* Imagem MUITO menor e mais discreta */}
+              <img 
+                src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-3d-render-of-a-playlist-with-waves-of-_QHhhBN7WTKeV9ExYGhFK3g_1xdiS_4ERbOtBvueTPsITg.webp" 
+                alt="Playlist de músicas personalizadas" 
+                className="w-full h-auto object-cover aspect-[16/6] opacity-75"
+              />
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-blue-900/90 to-blue-900/50 p-4 text-white">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 drop-shadow-md">Exemplos de músicas personalizadas</h3>
+                <Button className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-1 text-sm rounded-full shadow-lg flex items-center gap-2">
+                  <Music className="h-4 w-4" /> Ouvir Agora
+                </Button>
+              </div>
+            </div>
+          </Link>
         </div>
 
         {/* Tooltips para "Mais ocasiões para eternizar com música" */}

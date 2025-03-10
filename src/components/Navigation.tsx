@@ -1,5 +1,5 @@
 
-import { Home, UserPlus, Info, LogIn, LogOut, User, Music } from "lucide-react";
+import { Home, UserPlus, Info, LogIn, LogOut, User, Music, MessageSquareHeart } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -61,6 +61,22 @@ const Navigation = ({ className }: { className?: string }) => {
         <span>Nossas Músicas</span>
       </Link>
       
+      <Link 
+        to="/depoimentos" 
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+      >
+        <MessageSquareHeart className="h-4 w-4 text-pink-500" />
+        <span>Depoimentos</span>
+      </Link>
+      
+      <Link 
+        to="/sobre" 
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+      >
+        <Info className="h-4 w-4 text-amber-500" />
+        <span>Sobre</span>
+      </Link>
+      
       {!isLoggedIn && (
         <Link 
           to="/cadastro" 
@@ -72,24 +88,13 @@ const Navigation = ({ className }: { className?: string }) => {
       )}
       
       {isLoggedIn ? (
-        <>
-          <Link
-            to="/dashboard"
-            className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
-          >
-            <User className="h-4 w-4 text-teal-500" />
-            <span>Minha Conta</span>
-          </Link>
-          
-          <a
-            href="/"
-            onClick={handleLogout}
-            className="flex items-center gap-1 transition-colors text-red-600 hover:text-red-800"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Sair</span>
-          </a>
-        </>
+        <Link
+          to="/dashboard"
+          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+        >
+          <User className="h-4 w-4 text-teal-500" />
+          <span>Minha Conta</span>
+        </Link>
       ) : (
         <Link 
           to="/login" 
@@ -100,13 +105,16 @@ const Navigation = ({ className }: { className?: string }) => {
         </Link>
       )}
       
-      <Link 
-        to="/sobre" 
-        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
-      >
-        <Info className="h-4 w-4 text-amber-500" />
-        <span>Sobre</span>
-      </Link>
+      {isLoggedIn && (
+        <a
+          href="/"
+          onClick={handleLogout}
+          className="flex items-center gap-1 transition-colors text-red-600 hover:text-red-800"
+        >
+          <LogOut className="h-4 w-4" />
+          <span>Sair</span>
+        </a>
+      )}
     </nav>
   );
 };

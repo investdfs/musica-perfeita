@@ -82,6 +82,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
           location.pathname !== "/cadastro" && 
           location.pathname !== "/sobre" &&
           location.pathname !== "/nossas-musicas" &&
+          location.pathname !== "/depoimentos" &&
           location.pathname !== "/admin-login"
         ) {
           // Salvar a rota atual para redirecionamento após login
@@ -115,6 +116,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       location.pathname !== "/cadastro" && 
       location.pathname !== "/sobre" &&
       location.pathname !== "/nossas-musicas" &&
+      location.pathname !== "/depoimentos" &&
       location.pathname !== "/admin-login") {
     return null;
   }

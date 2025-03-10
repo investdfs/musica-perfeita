@@ -12,16 +12,6 @@ const NossasMusicas = () => {
       <Header />
       
       <main className="flex-grow container mx-auto px-3 sm:px-4 py-6 sm:py-8 pb-24">
-        <section className="text-center max-w-4xl mx-auto mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
-            Ouça Nossas Músicas Personalizadas Criadas com Inteligência Artificial
-          </h1>
-          <p className="text-gray-700 mb-8">
-            Exemplos das emocionantes composições musicais criadas com nossa tecnologia de inteligência artificial para 
-            aniversários, casamentos, declarações de amor e outras ocasiões especiais.
-          </p>
-        </section>
-        
         <section className="mb-10 bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-2xl font-semibold mb-4 text-center text-purple-800">Sobre Nossas Composições</h2>
           <div className="grid md:grid-cols-3 gap-6 mb-8">

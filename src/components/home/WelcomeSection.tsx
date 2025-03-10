@@ -141,7 +141,7 @@ const WelcomeSection = () => {
             </div>
           </div>
           <p className="text-center text-sm text-gray-500 mt-2">
-            Vídeo: Momento da emoção ao receber uma música personalizada como presente.
+            Vídeo: Momento da emoção ao receber sua música perfeita!
           </p>
         </div>
       </div>

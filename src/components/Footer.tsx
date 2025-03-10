@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Globe, Lock, HelpCircle, WhatsApp } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Globe, Lock, HelpCircle, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -124,7 +124,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors"
                 >
-                  <WhatsApp className="h-5 w-5 flex-shrink-0" />
+                  <MessageCircle className="h-5 w-5 flex-shrink-0" />
                   <span className="inline-block">(32) 998847713 (WhatsApp)</span>
                 </a>
               </li>

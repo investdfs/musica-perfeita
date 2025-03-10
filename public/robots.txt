@@ -2,6 +2,15 @@
 User-agent: *
 Allow: /
 
+# Diretivas para crawlers específicos
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
 # Sitemap
 Sitemap: https://musicaperfeita.com.br/sitemap.xml
 
@@ -10,3 +19,4 @@ Disallow: /admin
 Disallow: /admin-login
 Disallow: /pagamento
 Disallow: /confirmacao
+Disallow: /dashboard

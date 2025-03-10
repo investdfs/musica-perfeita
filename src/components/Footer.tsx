@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Phone, ArrowRight, Globe, Lock, HelpCircle } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Globe, Lock, HelpCircle, WhatsApp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -44,7 +44,7 @@ const Footer = () => {
                 required
               />
               <Button type="submit" className="bg-gray-800 hover:bg-gray-700 text-white whitespace-nowrap">
-                Inscrever <ArrowRight className="h-4 w-4 ml-1" />
+                Inscrever <HelpCircle className="h-4 w-4 ml-1" />
               </Button>
             </form>
           </div>
@@ -118,8 +118,15 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4 text-gray-800">Contato</h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
-                <Phone className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-600 inline-block">(32) 998847713 (somente WhatsApp)</span>
+                <a 
+                  href="https://wa.link/opvb86"
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors"
+                >
+                  <WhatsApp className="h-5 w-5 flex-shrink-0" />
+                  <span className="inline-block">(32) 998847713 (WhatsApp)</span>
+                </a>
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />

@@ -1,7 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Music, Mic, PenTool, Sparkles, Zap, Heart, Image, Package } from "lucide-react";
+import { Check, Music, Mic, PenTool, Sparkles, Zap, Heart, Image, Package, Badge, Clock, ArrowDown } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 
 // Lista dos recursos para exibir com ícones coloridos
@@ -24,29 +24,72 @@ const PriceComparisonSection = () => {
   return (
     <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-purple-50">
       <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Por Que Escolher o Música Perfeita?
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
-            Um serviço completo de música personalizada com preço justo e transparente
-          </p>
-          <div className="bg-amber-100 border-l-4 border-amber-500 p-4 rounded-r-lg max-w-3xl mx-auto text-left mb-8">
-            <p className="text-amber-800">
-              <strong>Você sabia?</strong> A média de preço para músicas personalizadas no mercado varia de <strong>R$ 700</strong> a <strong>R$ 3.500</strong>, 
-              com valores raramente divulgados nas páginas dos serviços. No <strong>Música Perfeita</strong>, 
-              você conhece todos os detalhes e preços antes mesmo de contratar, e só paga depois de se 
-              emocionar com o resultado!
-            </p>
+        {/* Primeiro, mostramos a seção "Música Perfeita" (anteriormente estava abaixo) */}
+        <div className="mb-12">
+          <div className="bg-white rounded-xl overflow-hidden border border-green-200 shadow-xl">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-6 text-center">
+              <div className="flex items-center justify-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <Music className="h-6 w-6 text-green-600" />
+                </div>
+                <h3 className="text-2xl font-bold text-green-700">Música Perfeita</h3>
+              </div>
+              <p className="text-lg font-medium text-green-600">Todos os recursos inclusos em cada produção</p>
+            </div>
+            
+            <div className="p-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {features.map((feature) => (
+                  <div key={feature.id} className="flex p-4 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                    <div className="mr-4 flex-shrink-0">
+                      <div className="rounded-full p-2 bg-green-100">
+                        <Check className="h-5 w-5 text-green-600" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        {feature.icon}
+                        <h4 className="font-semibold text-gray-800">{feature.name}</h4>
+                      </div>
+                      <p className="text-sm text-gray-600">{feature.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Novo componente de opções de preço */}
+        {/* Agora vem a seção de preços com promoção */}
         <div className="mb-10">
-          <Card className="border-2 border-green-300 shadow-lg overflow-hidden">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-6 text-center">
-              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-2">Nossas Opções</h3>
-              <p className="text-green-600 font-medium">Escolha o plano ideal para você</p>
+          <div className="text-center mb-10">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Por Que Escolher o Música Perfeita?
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
+              Um serviço completo de música personalizada com preço justo e transparente
+            </p>
+            <div className="bg-amber-100 border-l-4 border-amber-500 p-4 rounded-r-lg max-w-3xl mx-auto text-left mb-8">
+              <p className="text-amber-800">
+                <strong>Você sabia?</strong> A média de preço para músicas personalizadas no mercado varia de <strong>R$ 700</strong> a <strong>R$ 3.500</strong>, 
+                com valores raramente divulgados nas páginas dos serviços. No <strong>Música Perfeita</strong>, 
+                você conhece todos os detalhes e preços antes mesmo de contratar, e só paga depois de se 
+                emocionar com o resultado!
+              </p>
+            </div>
+          </div>
+
+          <Card className="border-2 border-red-300 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-red-50 to-amber-100 p-6 text-center">
+              <div className="flex items-center justify-center">
+                <Badge className="h-6 w-6 text-red-600 mr-2" />
+                <h3 className="text-xl sm:text-2xl font-bold text-red-700 mb-2">OFERTA ESPECIAL</h3>
+              </div>
+              <div className="flex items-center justify-center mt-1 mb-2">
+                <Clock className="h-5 w-5 text-red-600 mr-2" />
+                <p className="text-red-600 font-bold">PROMOÇÃO POR TEMPO LIMITADO!</p>
+              </div>
+              <p className="text-red-600 font-medium">Não perca esta oportunidade! Peça já sua música antes que a promoção termine.</p>
             </div>
             
             <div className="grid md:grid-cols-2 gap-4 p-6">
@@ -67,7 +110,12 @@ const PriceComparisonSection = () => {
                 </div>
                 <div className="text-center mb-4">
                   <p className="text-sm text-gray-600 mb-2">Entrega da Música Digital (Arquivo)</p>
-                  <p className="text-3xl font-bold text-blue-600">R$ 79,90</p>
+                  <div className="flex items-center justify-center">
+                    <p className="text-lg font-medium text-gray-500 line-through mr-2">R$ 149,90</p>
+                    <ArrowDown className="h-4 w-4 text-red-500 mx-1" />
+                    <p className="text-3xl font-bold text-blue-600">R$ 79,90</p>
+                  </div>
+                  <span className="inline-block mt-1 bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full">Economize R$ 70,00</span>
                 </div>
                 <Button 
                   onClick={() => window.location.href = "/cadastro"} 
@@ -111,8 +159,13 @@ const PriceComparisonSection = () => {
                 </div>
                 <div className="text-center mb-4">
                   <p className="text-sm text-gray-600 mb-2">Quadro Player Físico com QR Code</p>
-                  <p className="text-3xl font-bold text-green-600">R$ 169,90</p>
-                  <span className="inline-block mt-1 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Frete Grátis</span>
+                  <div className="flex items-center justify-center">
+                    <p className="text-lg font-medium text-gray-500 line-through mr-2">R$ 219,90</p>
+                    <ArrowDown className="h-4 w-4 text-red-500 mx-1" />
+                    <p className="text-3xl font-bold text-green-600">R$ 169,90</p>
+                  </div>
+                  <span className="inline-block mt-1 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Economize R$ 50,00</span>
+                  <span className="inline-block mt-1 ml-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Frete Grátis</span>
                 </div>
                 <Button 
                   onClick={() => window.location.href = "/cadastro"} 
@@ -125,87 +178,13 @@ const PriceComparisonSection = () => {
           </Card>
         </div>
 
-        {/* Versão desktop (ou tablet grande) para os recursos */}
-        <div className="hidden lg:block">
-          <div className="bg-white rounded-xl overflow-hidden border border-green-200 shadow-xl">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-6 text-center">
-              <div className="flex items-center justify-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <Music className="h-6 w-6 text-green-600" />
-                </div>
-                <h3 className="text-2xl font-bold text-green-700">Música Perfeita</h3>
-              </div>
-              <p className="text-lg font-medium text-green-600">Todos os recursos inclusos em cada produção</p>
-            </div>
-            
-            <div className="p-6">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {features.map((feature) => (
-                  <div key={feature.id} className="flex p-4 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all">
-                    <div className="mr-4 flex-shrink-0">
-                      <div className="rounded-full p-2 bg-green-100">
-                        <Check className="h-5 w-5 text-green-600" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        {feature.icon}
-                        <h4 className="font-semibold text-gray-800">{feature.name}</h4>
-                      </div>
-                      <p className="text-sm text-gray-600">{feature.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-8 text-center">
-                <Button 
-                  onClick={() => window.location.href = "/cadastro"}
-                  className="bg-green-600 hover:bg-green-700 text-white font-medium px-10 py-6 h-auto shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-lg"
-                >
-                  Criar Minha Música Personalizada
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Versão mobile e tablet pequeno para os recursos */}
-        <div className="lg:hidden">
-          <Card className="relative overflow-hidden border-2 border-green-300 shadow-lg">
-            <CardContent className="pt-8 px-4 pb-6 flex flex-col items-center">
-              <div className="w-16 h-16 flex items-center justify-center rounded-full mb-4 bg-green-100 text-green-600">
-                <Music className="w-8 h-8" />
-              </div>
-              <h3 className="text-xl font-semibold mb-4 text-green-700">Recursos Inclusos</h3>
-              
-              <div className="w-full space-y-3 mb-6">
-                {features.map(feature => (
-                  <div key={feature.id} className="flex p-3 bg-white rounded-lg border border-gray-100 shadow-sm">
-                    <div className="mr-3 flex-shrink-0">
-                      <div className="rounded-full p-1 bg-green-100">
-                        <Check className="h-4 w-4 text-green-600" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        {feature.icon}
-                        <span className="font-medium text-gray-800">{feature.name}</span>
-                      </div>
-                      <p className="text-xs text-gray-600">{feature.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <Button 
-                onClick={() => window.location.href = "/cadastro"}
-                className="mt-auto w-full bg-green-600 hover:bg-green-700 text-white font-medium shadow-md hover:shadow-lg transition-all py-5"
-              >
-                Comece Agora
-              </Button>
-            </CardContent>
-          </Card>
+        <div className="mt-8 text-center">
+          <Button 
+            onClick={() => window.location.href = "/cadastro"}
+            className="bg-green-600 hover:bg-green-700 text-white font-medium px-10 py-6 h-auto shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-lg"
+          >
+            Criar Minha Música Personalizada
+          </Button>
         </div>
       </div>
     </section>

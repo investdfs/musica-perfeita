@@ -1,5 +1,5 @@
 
-import { Home, UserPlus, Info, LogIn, LogOut, User, Music, MessageSquareHeart } from "lucide-react";
+import { Home, UserPlus, Info, LogIn, LogOut, User, Music, MessageSquareHeart, HelpCircle } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -53,6 +53,16 @@ const Navigation = ({ className }: { className?: string }) => {
         <span>Home</span>
       </Link>
       
+      {isLoggedIn ? (
+        <Link
+          to="/dashboard"
+          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+        >
+          <User className="h-4 w-4 text-teal-500" />
+          <span>Minha Conta</span>
+        </Link>
+      ) : null}
+      
       <Link 
         to="/nossas-musicas" 
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
@@ -70,10 +80,18 @@ const Navigation = ({ className }: { className?: string }) => {
       </Link>
       
       <Link 
+        to="/faq" 
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+      >
+        <HelpCircle className="h-4 w-4 text-amber-500" />
+        <span>Dúvidas</span>
+      </Link>
+      
+      <Link 
         to="/sobre" 
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
-        <Info className="h-4 w-4 text-amber-500" />
+        <Info className="h-4 w-4 text-emerald-500" />
         <span>Sobre</span>
       </Link>
       
@@ -87,15 +105,7 @@ const Navigation = ({ className }: { className?: string }) => {
         </Link>
       )}
       
-      {isLoggedIn ? (
-        <Link
-          to="/dashboard"
-          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
-        >
-          <User className="h-4 w-4 text-teal-500" />
-          <span>Minha Conta</span>
-        </Link>
-      ) : (
+      {!isLoggedIn ? (
         <Link 
           to="/login" 
           className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
@@ -103,9 +113,7 @@ const Navigation = ({ className }: { className?: string }) => {
           <LogIn className="h-4 w-4 text-indigo-500" />
           <span>Login</span>
         </Link>
-      )}
-      
-      {isLoggedIn && (
+      ) : (
         <a
           href="/"
           onClick={handleLogout}

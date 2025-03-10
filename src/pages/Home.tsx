@@ -44,9 +44,9 @@ const Home = () => {
       <main>
         <WelcomeSection />
         <StepByStepSection />
-        <PossibilitiesSection />
         <DifferentialsSection />
         <PriceComparisonSection />
+        <PossibilitiesSection />
         <CallToAction />
       </main>
       <Footer />

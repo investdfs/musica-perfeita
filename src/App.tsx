@@ -18,6 +18,9 @@ import MusicPlayer from "./pages/MusicPlayer";
 import MusicPlayerFull from "./pages/MusicPlayerFull";
 import NossasMusicas from "./pages/NossasMusicas";
 import Depoimentos from "./pages/Depoimentos";
+import FAQ from "./pages/FAQ";
+import TermosCondicoes from "./pages/TermosCondicoes";
+import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import AuthGuard from "./components/auth/AuthGuard";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 
@@ -45,6 +48,9 @@ const App = () => (
               <Route path="/music-player-full" element={<MusicPlayerFull />} />
               <Route path="/nossas-musicas" element={<NossasMusicas />} />
               <Route path="/depoimentos" element={<Depoimentos />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/termos-condicoes" element={<TermosCondicoes />} />
+              <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

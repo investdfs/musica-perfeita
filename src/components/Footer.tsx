@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Phone, ArrowRight, Globe, Lock } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, Mail, MapPin, Phone, ArrowRight, Globe, Lock, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -167,7 +167,9 @@ const Footer = () => {
           <div className="flex flex-wrap justify-center gap-4 mt-2 text-sm">
             <Link to="/termos-condicoes" className="text-blue-600 hover:text-blue-800">Termos de Uso</Link>
             <Link to="/politica-privacidade" className="text-blue-600 hover:text-blue-800">Política de Privacidade</Link>
-            <Link to="#" className="text-blue-600 hover:text-blue-800">FAQ</Link>
+            <Link to="/faq" className="text-blue-600 hover:text-blue-800 flex items-center">
+              <HelpCircle className="h-3.5 w-3.5 mr-1" /> FAQ
+            </Link>
           </div>
           <div className="mt-3 flex flex-col items-center">
             <a 

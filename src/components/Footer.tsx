@@ -105,6 +105,11 @@ const Footer = () => {
                   Nossas Músicas
                 </Link>
               </li>
+              <li>
+                <Link to="/depoimentos" className="text-blue-600 hover:text-blue-800 transition-colors">
+                  Depoimentos
+                </Link>
+              </li>
             </ul>
           </div>
           
@@ -160,8 +165,8 @@ const Footer = () => {
         <div className="pt-8 mt-8 border-t border-gray-200 text-center text-gray-600">
           <p>&copy; {currentYear} Musicaperfeita. Todos os direitos reservados.</p>
           <div className="flex flex-wrap justify-center gap-4 mt-2 text-sm">
-            <Link to="#" className="text-blue-600 hover:text-blue-800">Termos de Uso</Link>
-            <Link to="#" className="text-blue-600 hover:text-blue-800">Política de Privacidade</Link>
+            <Link to="/termos-condicoes" className="text-blue-600 hover:text-blue-800">Termos de Uso</Link>
+            <Link to="/politica-privacidade" className="text-blue-600 hover:text-blue-800">Política de Privacidade</Link>
             <Link to="#" className="text-blue-600 hover:text-blue-800">FAQ</Link>
           </div>
           <div className="mt-3 flex flex-col items-center">

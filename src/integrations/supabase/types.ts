@@ -107,6 +107,27 @@ export type Database = {
           },
         ]
       }
+      site_stats: {
+        Row: {
+          created_at: string | null
+          id: string
+          updated_at: string | null
+          visitor_count: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          visitor_count?: number
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          updated_at?: string | null
+          visitor_count?: number
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           created_at: string | null
@@ -145,7 +166,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_visitor_count: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

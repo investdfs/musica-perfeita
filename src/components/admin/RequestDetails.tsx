@@ -28,19 +28,31 @@ const RequestDetails = ({
   handleSaveSoundCloudId, 
   isUploading 
 }: RequestDetailsProps) => {
-  const [soundCloudId, setSoundCloudId] = useState<string>("");
+  const [musicLink, setMusicLink] = useState<string>("");
   
   const handleSaveClicked = () => {
-    if (!soundCloudId.trim()) {
+    if (!musicLink.trim()) {
       toast({
         title: "Erro",
-        description: "Digite um ID do SoundCloud válido.",
+        description: "Digite um link de música válido.",
         variant: "destructive",
       });
       return;
     }
 
-    handleSaveSoundCloudId(soundCloudId);
+    // Verificação básica para garantir que o link seja um arquivo de áudio
+    const isValidAudioLink = musicLink.match(/\.(mp3|wav|ogg|m4a|flac)($|\?)/i) || 
+                            musicLink.includes('wp.novaenergiamg.com.br') ||
+                            musicLink.includes('drive.google.com');
+
+    if (!isValidAudioLink) {
+      const confirmUpload = window.confirm(
+        "O link fornecido não parece ser um arquivo de áudio. Deseja continuar mesmo assim?"
+      );
+      if (!confirmUpload) return;
+    }
+
+    handleSaveSoundCloudId(musicLink);
   };
 
   return (
@@ -86,28 +98,28 @@ const RequestDetails = ({
             </div>
             
             <div className="border-t pt-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-2">ID do SoundCloud</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Link da Música</h3>
               <div className="flex gap-2">
                 <Input 
                   type="text" 
-                  placeholder="Digite o ID do SoundCloud"
-                  value={soundCloudId}
-                  onChange={(e) => setSoundCloudId(e.target.value)}
+                  placeholder="https://exemplo.com/musica.mp3"
+                  value={musicLink}
+                  onChange={(e) => setMusicLink(e.target.value)}
                 />
                 <Button 
                   onClick={handleSaveClicked}
-                  disabled={isUploading || !soundCloudId.trim()}
+                  disabled={isUploading || !musicLink.trim()}
                 >
                   {isUploading ? "Salvando..." : "Salvar"}
                 </Button>
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Digite o ID da faixa do SoundCloud para disponibilizar a música para o cliente.
+                Insira o link direto do arquivo de música (mp3, wav, etc.) para disponibilizá-la para o cliente.
               </p>
-              {selectedRequest.soundcloud_id && (
+              {selectedRequest.full_song_url && (
                 <div className="mt-3 p-3 bg-green-50 rounded">
                   <p className="text-sm text-green-700">
-                    ID do SoundCloud atual: <span className="font-medium">{selectedRequest.soundcloud_id}</span>
+                    Link atual da música: <a href={selectedRequest.full_song_url} target="_blank" rel="noopener noreferrer" className="font-medium underline">{selectedRequest.full_song_url}</a>
                   </p>
                 </div>
               )}

@@ -16,15 +16,21 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [isSoundCloud, setIsSoundCloud] = useState(false);
   const navigate = useNavigate();
+  
+  const isDirectFileLink = previewUrl && (
+    previewUrl.match(/\.(mp3|wav|ogg|m4a|flac)($|\?)/i) ||
+    previewUrl.includes('wp.novaenergiamg.com.br') ||
+    previewUrl.includes('drive.google.com')
+  );
 
   useEffect(() => {
-    // Check if it's a SoundCloud URL
+    // Verifica se é um link do SoundCloud
     if (previewUrl && (previewUrl.includes('soundcloud.com') || previewUrl.includes('api.soundcloud.com'))) {
       setIsSoundCloud(true);
     } else {
       setIsSoundCloud(false);
-      // If not SoundCloud, create audio element for regular audio files
-      if (previewUrl && !previewUrl.startsWith('temp:')) {
+      // Se não for SoundCloud, cria elemento de áudio para arquivos regulares
+      if (previewUrl && !previewUrl.startsWith('temp:') && isDirectFileLink) {
         const audio = new Audio(previewUrl);
         audio.addEventListener('ended', () => setIsPlaying(false));
         setAudioElement(audio);
@@ -36,14 +42,23 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
         };
       }
     }
-  }, [previewUrl]);
+  }, [previewUrl, isDirectFileLink]);
 
   const togglePlay = () => {
-    if (!audioElement && !isSoundCloud) return;
+    if (!audioElement && !isSoundCloud && !isDirectFileLink) return;
     
     if (isSoundCloud) {
       // Se for SoundCloud, abrir no player dedicado
       navigate("/music-player", { state: { musicUrl: previewUrl } });
+    } else if (isDirectFileLink) {
+      // Se for link direto, abrir no player completo
+      const playerUrl = isCompleted ? "/music-player-full" : "/music-player";
+      navigate(playerUrl, { 
+        state: { 
+          musicUrl: previewUrl,
+          downloadUrl: isCompleted ? fullSongUrl : undefined
+        } 
+      });
     } else if (audioElement) {
       if (isPlaying) {
         audioElement.pause();
@@ -64,6 +79,8 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
   const handleAccessFullSong = () => {
     if (fullSongUrl) {
       if (isSoundCloud) {
+        navigate("/music-player-full", { state: { musicUrl: fullSongUrl, downloadUrl: fullSongUrl } });
+      } else if (isDirectFileLink) {
         navigate("/music-player-full", { state: { musicUrl: fullSongUrl, downloadUrl: fullSongUrl } });
       } else {
         window.open(fullSongUrl, '_blank');
@@ -121,6 +138,42 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
                 >
                   <ExternalLink className="h-4 w-4" />
                   Ouvir Completa
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : isDirectFileLink ? (
+        // Para links diretos de arquivo
+        <div className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Music className="h-8 w-8 text-indigo-600 mr-3" />
+              <div>
+                <p className="font-medium">Sua Música Personalizada</p>
+                <p className="text-sm text-gray-500">
+                  {isCompleted ? 'Música completa disponível' : 'Prévia disponível'}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-2">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-1"
+                onClick={togglePlay}
+              >
+                <PlayCircle className="h-4 w-4" />
+                Ouvir no Player
+              </Button>
+              
+              {isCompleted && (
+                <Button 
+                  className="flex items-center gap-1 bg-pink-500 hover:bg-pink-600"
+                  onClick={handleAccessFullSong}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Versão Completa
                 </Button>
               )}
             </div>

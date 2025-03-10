@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -6,24 +7,29 @@ import SoundCloudPlayer from "@/components/music/SoundCloudPlayer";
 import { Music, ChevronRight, Clock, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+
 const MusicPlayer = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [musicUrl, setMusicUrl] = useState<string>("");
+  
   useEffect(() => {
     // Obter a URL da música dos parâmetros da URL ou do estado da rota
     const params = new URLSearchParams(location.search);
     const urlFromParams = params.get("url");
+    
     if (urlFromParams) {
       setMusicUrl(urlFromParams);
     } else if (location.state?.musicUrl) {
       setMusicUrl(location.state.musicUrl);
     } else {
-      // URL padrão atualizada para o arquivo .wav fornecido
+      // URL padrão para caso não haja nenhuma música especificada
       setMusicUrl("https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Rivers-End-1.wav");
     }
   }, [location]);
-  return <div className="min-h-screen bg-background flex flex-col">
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
       <main className="flex-grow py-12 px-6 bg-gradient-to-b from-gray-900 to-indigo-950">
         <div className="max-w-4xl mx-auto">
@@ -51,7 +57,7 @@ const MusicPlayer = () => {
             <SoundCloudPlayer musicUrl={musicUrl} limitPlayTime={true} playTimeLimit={60000} />
           </div>
           
-          {/* Novo Card de Detalhes da Música */}
+          {/* Card de Detalhes da Música */}
           <Card className="bg-gray-800/95 shadow-lg rounded-xl border border-gray-700 mb-8">
             <CardHeader className="pb-2">
               <div className="flex items-center">
@@ -110,6 +116,8 @@ const MusicPlayer = () => {
         </div>
       </main>
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default MusicPlayer;

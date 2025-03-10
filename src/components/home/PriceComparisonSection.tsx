@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, Music, Mic, PenTool, Sparkles, Zap, Heart, Image, Package, Badge, Clock, ArrowDown } from "lucide-react";
@@ -169,13 +168,14 @@ const PriceComparisonSection = () => {
                 </Button>
               </div>
               
-              {/* Opção 2: Música + Quadro Físico - Melhorias para mobile */}
+              {/* Opção 2: Música + Quadro Físico - Corrigir o problema de sobreposição */}
               <div className="bg-white rounded-xl border-2 border-green-500 shadow-md p-4 sm:p-6 relative hover:shadow-lg transition-shadow">
                 <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-semibold py-1 px-3 rounded-bl-lg">
                   Recomendado
                 </div>
                 <div className="flex flex-col items-center mb-4">
-                  <div className="h-32 sm:h-40 w-auto mb-4 flex items-center justify-center">
+                  {/* Reduzir ainda mais a altura para evitar sobreposição */}
+                  <div className="h-28 sm:h-36 w-auto mb-4 flex items-center justify-center">
                     <Dialog>
                       <DialogTrigger asChild>
                         <div className="cursor-pointer">
@@ -183,6 +183,7 @@ const PriceComparisonSection = () => {
                             src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/quadro-decorativo-personalizado-interativo-com-qr-code-fundo-branco-68936-removebg-preview.png" 
                             alt="Música Digital + Quadro" 
                             className="max-h-full max-w-full object-contain hover:opacity-90 transition-opacity"
+                            style={{ maxHeight: "100%" }}
                           />
                           <p className="text-xs text-gray-500 mt-1 italic">clique para ampliar</p>
                         </div>

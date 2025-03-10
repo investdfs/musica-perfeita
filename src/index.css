@@ -405,4 +405,27 @@
     max-width: 100%;
     height: auto;
   }
+  
+  /* Correção específica para o card do quadro para evitar sobreposição */
+  .card-content-compact {
+    padding: 0.75rem !important;
+  }
+  
+  .image-container-compact {
+    max-height: 120px !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  .price-text-compact {
+    margin-top: 0 !important;
+    margin-bottom: 0.25rem !important;
+  }
+  
+  /* Melhoria de visualização de células da grid em mobile */
+  .grid-cell-price {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+  }
 }

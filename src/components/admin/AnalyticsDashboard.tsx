@@ -7,9 +7,10 @@ import { MusicRequest, UserProfile } from "@/types/database.types";
 interface AnalyticsDashboardProps {
   requests: MusicRequest[];
   users: UserProfile[];
+  visitorCount: number; // Adicionado contador de visitantes
 }
 
-const AnalyticsDashboard = ({ requests, users }: AnalyticsDashboardProps) => {
+const AnalyticsDashboard = ({ requests, users, visitorCount }: AnalyticsDashboardProps) => {
   const [timeFrame, setTimeFrame] = useState<"week" | "month" | "year">("month");
   
   // Calculate dashboard metrics
@@ -78,7 +79,19 @@ const AnalyticsDashboard = ({ requests, users }: AnalyticsDashboardProps) => {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Visitantes Únicos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{visitorCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Total acumulativo
+            </p>
+          </CardContent>
+        </Card>
+        
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Pedidos Totais</CardTitle>

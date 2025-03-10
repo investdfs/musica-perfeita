@@ -20,7 +20,8 @@ const AdminDashboard = () => {
     setRequests, 
     getUserEmail,
     fetchUsers,
-    isMainAdmin
+    isMainAdmin,
+    visitorCount
   } = useAdmin();
   
   const {
@@ -54,7 +55,11 @@ const AdminDashboard = () => {
     <div className="space-y-8">
       <Card className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">Análises</h2>
-        <AnalyticsDashboard requests={requests} users={regularUsers} />
+        <AnalyticsDashboard 
+          requests={requests} 
+          users={regularUsers} 
+          visitorCount={visitorCount} 
+        />
       </Card>
       
       <Card className="bg-white rounded-lg shadow-md p-6 overflow-hidden">

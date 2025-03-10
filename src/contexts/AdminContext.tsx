@@ -15,6 +15,7 @@ type AdminContextType = {
   getUserEmail: (userId: string) => string | undefined;
   currentUserProfile: UserProfile | null;
   isMainAdmin: boolean;
+  visitorCount: number;
 };
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -29,6 +30,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   const [filterPaymentStatus, setFilterPaymentStatus] = useState<string | null>(null);
   const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile | null>(null);
   const [isMainAdmin, setIsMainAdmin] = useState(false);
+  const [visitorCount, setVisitorCount] = useState(0);
 
   const getUserEmail = (userId: string): string | undefined => {
     const user = users.find(u => u.id === userId);
@@ -55,6 +57,35 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         variant: "destructive",
       });
       throw error;
+    }
+  };
+  
+  const fetchVisitorCount = async () => {
+    try {
+      // Obter contagem de visitantes da tabela site_stats
+      const { data, error } = await supabase
+        .from('site_stats')
+        .select('visitor_count')
+        .single();
+        
+      if (error) {
+        // Se a tabela não existir, criamos um valor padrão
+        if (error.code === 'PGRST116') {
+          setVisitorCount(0);
+          console.log('Tabela site_stats não existe ou está vazia. Usando valor padrão 0.');
+          return;
+        }
+        throw error;
+      }
+      
+      if (data) {
+        setVisitorCount(data.visitor_count || 0);
+      } else {
+        setVisitorCount(0);
+      }
+    } catch (error) {
+      console.error('Error fetching visitor count:', error);
+      setVisitorCount(0);
     }
   };
   
@@ -146,6 +177,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(true);
       
       try {
+        await fetchVisitorCount();
         await fetchRequests();
         await fetchUsers();
       } catch (error) {
@@ -185,10 +217,23 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         fetchUsers();
       })
       .subscribe();
+      
+    const statsChannel = supabase
+      .channel('site_stats_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'site_stats' 
+      }, () => {
+        console.log('Site stats changed, refreshing visitor count...');
+        fetchVisitorCount();
+      })
+      .subscribe();
 
     return () => {
       supabase.removeChannel(requestsChannel);
       supabase.removeChannel(usersChannel);
+      supabase.removeChannel(statsChannel);
     };
   }, []);
 
@@ -203,6 +248,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     getUserEmail,
     currentUserProfile,
     isMainAdmin,
+    visitorCount,
   };
 
   return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -6,6 +7,7 @@ import AdminDashboard from "@/components/admin/AdminDashboard";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
+import supabase from "@/lib/supabase";
 
 const AdminPage = () => {
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ const AdminPage = () => {
   
   useEffect(() => {
     // Verify admin authentication on every page visit
-    const checkAdminAuth = () => {
+    const checkAdminAuth = async () => {
       // Skip authentication check if in Lovable editor environment
       if (window.location.href.includes("lovable.dev/projects/")) {
         console.log("Bypassing auth check - Lovable editor environment detected");
@@ -73,6 +75,36 @@ const AdminPage = () => {
           variant: "destructive",
         });
         localStorage.removeItem("musicaperfeita_admin");
+        navigate("/admin-login");
+        return;
+      }
+      
+      // Verificar se o email existe na base de dados como admin
+      try {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('is_admin')
+          .eq('email', adminEmail)
+          .single();
+          
+        if (error || !data || data.is_admin !== true) {
+          console.error("Usuário não é admin:", adminEmail);
+          localStorage.removeItem("musicaperfeita_admin");
+          localStorage.removeItem("admin_email");
+          localStorage.removeItem("admin_id");
+          localStorage.removeItem("admin_is_main");
+          
+          toast({
+            title: "Acesso negado",
+            description: "Você não possui permissões de administrador",
+            variant: "destructive",
+          });
+          
+          navigate("/");
+          return;
+        }
+      } catch (error) {
+        console.error("Erro ao verificar permissões de admin:", error);
         navigate("/admin-login");
         return;
       }

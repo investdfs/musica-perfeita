@@ -24,13 +24,13 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-r from-gray-800 to-gray-900 text-white">
+    <footer className="bg-gray-100 text-gray-800 border-t border-gray-200">
       {/* Top section with newsletter */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center mb-8 pb-8 border-b border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center mb-8 pb-8 border-b border-gray-200">
           <div>
-            <h3 className="text-xl sm:text-2xl font-bold mb-2">Fique por dentro das novidades!</h3>
-            <p className="text-white/80 text-sm sm:text-base">
+            <h3 className="text-xl sm:text-2xl font-bold mb-2 text-gray-800">Fique por dentro das novidades!</h3>
+            <p className="text-gray-600 text-sm sm:text-base">
               Receba inspirações, dicas exclusivas e promoções especiais.
             </p>
           </div>
@@ -40,10 +40,10 @@ const Footer = () => {
                 type="email" 
                 name="email"
                 placeholder="Seu melhor e-mail" 
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-white w-full"
+                className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-500 focus:border-gray-400 w-full"
                 required
               />
-              <Button type="submit" className="bg-gray-700 hover:bg-gray-600 text-white whitespace-nowrap">
+              <Button type="submit" className="bg-gray-800 hover:bg-gray-700 text-white whitespace-nowrap">
                 Inscrever <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </form>
@@ -60,16 +60,16 @@ const Footer = () => {
                 alt="Musicaperfeita Logo" 
                 className="h-10"
               />
-              <span className="text-xl font-bold">Musicaperfeita</span>
+              <span className="text-xl font-bold text-gray-800">Musicaperfeita</span>
             </div>
-            <p className="text-sm text-white/80">
+            <p className="text-sm text-gray-600">
               Transformamos histórias de amor e carinho em canções únicas e emocionantes, criadas especialmente para momentos especiais.
             </p>
             <a 
               href="https://www.musicaperfeita.com.br" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="inline-flex items-center text-gray-300 hover:text-gray-100 transition-colors font-medium mt-2"
+              className="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors font-medium mt-2"
             >
               <Globe className="h-4 w-4 mr-1" />
               www.musicaperfeita.com.br
@@ -78,30 +78,30 @@ const Footer = () => {
           
           {/* Links column */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Links Rápidos</h4>
+            <h4 className="text-lg font-semibold mb-4 text-gray-800">Links Rápidos</h4>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-white/70 hover:text-white transition-colors">
+                <Link to="/" className="text-gray-600 hover:text-gray-800 transition-colors">
                   Página Inicial
                 </Link>
               </li>
               <li>
-                <Link to="/sobre" className="text-white/70 hover:text-white transition-colors">
+                <Link to="/sobre" className="text-gray-600 hover:text-gray-800 transition-colors">
                   Quem Somos
                 </Link>
               </li>
               <li>
-                <Link to="/cadastro" className="text-white/70 hover:text-white transition-colors">
+                <Link to="/cadastro" className="text-gray-600 hover:text-gray-800 transition-colors">
                   Cadastre-se
                 </Link>
               </li>
               <li>
-                <Link to="/login" className="text-white/70 hover:text-white transition-colors">
+                <Link to="/login" className="text-gray-600 hover:text-gray-800 transition-colors">
                   Login
                 </Link>
               </li>
               <li>
-                <Link to="/nossas-musicas" className="text-white/70 hover:text-white transition-colors">
+                <Link to="/nossas-musicas" className="text-gray-600 hover:text-gray-800 transition-colors">
                   Nossas Músicas
                 </Link>
               </li>
@@ -110,50 +110,50 @@ const Footer = () => {
           
           {/* Contact column */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Contato</h4>
+            <h4 className="text-lg font-semibold mb-4 text-gray-800">Contato</h4>
             <ul className="space-y-3">
               <li className="flex items-start gap-2">
-                <Phone className="h-5 w-5 text-gray-400 mt-0.5" />
-                <span className="text-white/70">(32) 998847713 (somente WhatsApp)</span>
+                <Phone className="h-5 w-5 text-gray-500 mt-0.5" />
+                <span className="text-gray-600">(32) 998847713 (somente WhatsApp)</span>
               </li>
               <li className="flex items-start gap-2">
-                <Mail className="h-5 w-5 text-gray-400 mt-0.5" />
-                <span className="text-white/70 break-all">contato.musicaperfeita@gmail.com</span>
+                <Mail className="h-5 w-5 text-gray-500 mt-0.5" />
+                <span className="text-gray-600 break-all">contato.musicaperfeita@gmail.com</span>
               </li>
               <li className="flex items-start gap-2">
-                <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
-                <span className="text-white/70">São Paulo, SP - Brasil</span>
+                <MapPin className="h-5 w-5 text-gray-500 mt-0.5" />
+                <span className="text-gray-600">São Paulo, SP - Brasil</span>
               </li>
             </ul>
           </div>
           
           {/* Social and cards column */}
           <div>
-            <h4 className="text-lg font-semibold mb-4">Siga-nos</h4>
+            <h4 className="text-lg font-semibold mb-4 text-gray-800">Siga-nos</h4>
             <div className="flex gap-3 mb-6">
-              <a href="#" className="bg-white/5 p-2 rounded-full hover:bg-white/10 transition-colors">
-                <Instagram className="h-5 w-5" />
+              <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
+                <Instagram className="h-5 w-5 text-gray-700" />
               </a>
-              <a href="#" className="bg-white/5 p-2 rounded-full hover:bg-white/10 transition-colors">
-                <Facebook className="h-5 w-5" />
+              <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
+                <Facebook className="h-5 w-5 text-gray-700" />
               </a>
-              <a href="#" className="bg-white/5 p-2 rounded-full hover:bg-white/10 transition-colors">
-                <Twitter className="h-5 w-5" />
+              <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
+                <Twitter className="h-5 w-5 text-gray-700" />
               </a>
-              <a href="#" className="bg-white/5 p-2 rounded-full hover:bg-white/10 transition-colors">
-                <Youtube className="h-5 w-5" />
+              <a href="#" className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition-colors">
+                <Youtube className="h-5 w-5 text-gray-700" />
               </a>
             </div>
             
-            <h4 className="text-lg font-semibold mb-2">Formas de Pagamento</h4>
+            <h4 className="text-lg font-semibold mb-2 text-gray-800">Formas de Pagamento</h4>
             <div className="grid grid-cols-3 gap-1">
-              <Card className="p-1 bg-white/5 border-white/5">
+              <Card className="p-1 bg-white border-gray-200">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" alt="Mastercard" className="h-6 object-contain mx-auto" />
               </Card>
-              <Card className="p-1 bg-white/5 border-white/5">
+              <Card className="p-1 bg-white border-gray-200">
                 <img src="https://logodownload.org/wp-content/uploads/2016/10/visa-logo.png" alt="Visa" className="h-6 object-contain mx-auto" />
               </Card>
-              <Card className="p-1 bg-white/5 border-white/5">
+              <Card className="p-1 bg-white border-gray-200">
                 <img src="https://logodownload.org/wp-content/uploads/2018/09/mercado-pago-logo.png" alt="Mercado Pago" className="h-6 object-contain mx-auto" />
               </Card>
             </div>
@@ -161,25 +161,25 @@ const Footer = () => {
         </div>
         
         {/* Bottom copyright section */}
-        <div className="pt-8 mt-8 border-t border-white/10 text-center text-white/60">
+        <div className="pt-8 mt-8 border-t border-gray-200 text-center text-gray-600">
           <p>&copy; {currentYear} Musicaperfeita. Todos os direitos reservados.</p>
           <div className="flex flex-wrap justify-center gap-4 mt-2 text-sm">
-            <Link to="#" className="hover:text-white">Termos de Uso</Link>
-            <Link to="#" className="hover:text-white">Política de Privacidade</Link>
-            <Link to="#" className="hover:text-white">FAQ</Link>
+            <Link to="#" className="hover:text-gray-800">Termos de Uso</Link>
+            <Link to="#" className="hover:text-gray-800">Política de Privacidade</Link>
+            <Link to="#" className="hover:text-gray-800">FAQ</Link>
           </div>
           <div className="mt-3 flex flex-col items-center">
             <a 
               href="https://www.musicaperfeita.com.br" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-sm text-gray-400 hover:text-gray-300 transition-colors"
+              className="text-sm text-amber-600 hover:text-amber-700 transition-colors font-medium"
             >
               Visite nosso site oficial: www.musicaperfeita.com.br
             </a>
             <Link 
               to="/admin-login"
-              className="mt-2 inline-flex items-center text-gray-500 hover:text-gray-300 transition-colors"
+              className="mt-2 inline-flex items-center text-gray-500 hover:text-gray-700 transition-colors"
               aria-label="Área de administração"
             >
               <Lock className="h-3 w-3" />

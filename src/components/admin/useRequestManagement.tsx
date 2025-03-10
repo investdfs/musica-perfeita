@@ -24,31 +24,45 @@ export const useRequestManagement = (
     setShowDeliveryForm(true);
   };
 
-  const handleSaveMusicUrl = async (musicUrl: string) => {
+  const handleSaveSoundCloudId = async (soundCloudId: string) => {
     if (!selectedRequest) return;
     
     setIsUploading(true);
     
     try {
-      // Validar o URL da música
-      if (!musicUrl.match(/\.(mp3|wav|m4a|ogg|flac)$/i) && !musicUrl.includes('wp.novaenergiamg.com.br')) {
-        const isConfirmed = window.confirm("O URL fornecido não parece ser um arquivo de áudio válido. Deseja continuar mesmo assim?");
-        if (!isConfirmed) {
-          setIsUploading(false);
-          return;
-        }
-      }
+      let previewUrl: string;
+      let fullSongUrl: string;
       
-      const updateData = { 
-        status: 'completed' as MusicRequest['status'],
-        full_song_url: musicUrl,
-        preview_url: musicUrl
-      };
+      if (soundCloudId.includes('<iframe')) {
+        previewUrl = soundCloudId;
+        
+        const urlMatch = soundCloudId.match(/src="([^"]+)"/);
+        if (urlMatch && urlMatch[1]) {
+          const src = urlMatch[1];
+          const trackIdMatch = src.match(/tracks\/(\d+)/);
+          if (trackIdMatch && trackIdMatch[1]) {
+            fullSongUrl = `https://soundcloud.com/tracks/${trackIdMatch[1]}`;
+          } else {
+            fullSongUrl = src;
+          }
+        } else {
+          fullSongUrl = "https://soundcloud.com";
+        }
+      } else {
+        previewUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${soundCloudId}`;
+        fullSongUrl = `https://soundcloud.com/tracks/${soundCloudId}`;
+      }
       
       if (isDevelopmentOrPreview()) {
         const updatedRequests = requests.map(req => 
           req.id === selectedRequest.id 
-            ? { ...req, ...updateData } 
+            ? { 
+                ...req, 
+                status: 'completed' as MusicRequest['status'], 
+                soundcloud_id: soundCloudId,
+                full_song_url: fullSongUrl, 
+                preview_url: previewUrl 
+              } 
             : req
         );
         
@@ -56,14 +70,25 @@ export const useRequestManagement = (
       } else {
         const { error } = await supabase
           .from('music_requests')
-          .update(updateData)
+          .update({ 
+            status: 'completed' as MusicRequest['status'], 
+            soundcloud_id: soundCloudId,
+            full_song_url: fullSongUrl,
+            preview_url: previewUrl
+          })
           .eq('id', selectedRequest.id);
           
         if (error) throw error;
         
         const updatedRequests = requests.map(req => 
           req.id === selectedRequest.id 
-            ? { ...req, ...updateData } 
+            ? { 
+                ...req, 
+                status: 'completed' as MusicRequest['status'], 
+                soundcloud_id: soundCloudId,
+                full_song_url: fullSongUrl, 
+                preview_url: previewUrl 
+              } 
             : req
         );
         
@@ -74,7 +99,7 @@ export const useRequestManagement = (
       
       toast({
         title: "Música Disponibilizada",
-        description: "O link da música foi salvo e o status do pedido foi atualizado para Concluído.",
+        description: "O iframe do SoundCloud foi salvo e o status do pedido foi atualizado para Concluído.",
       });
     } catch (error: any) {
       console.error('Error updating request:', error);
@@ -305,7 +330,7 @@ export const useRequestManagement = (
     setShowDeliveryForm,
     handleViewDetails,
     handleDeliverMusic,
-    handleSaveMusicUrl,
+    handleSaveSoundCloudId,
     handleSendEmail,
     handleFileUpload,
     handleUpdateStatus,

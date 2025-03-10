@@ -66,8 +66,7 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
       if (isSoundCloud) {
         navigate("/music-player-full", { state: { musicUrl: fullSongUrl, downloadUrl: fullSongUrl } });
       } else {
-        // Para arquivos diretos, também usamos o player dedicado
-        navigate("/music-player-full", { state: { musicUrl: fullSongUrl, downloadUrl: fullSongUrl } });
+        window.open(fullSongUrl, '_blank');
       }
     } else {
       toast({
@@ -76,13 +75,6 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
         variant: "destructive",
       });
     }
-  };
-
-  // Função para determinar se é um arquivo de áudio direto
-  const isDirectAudioFile = (url: string): boolean => {
-    if (!url) return false;
-    return url.match(/\.(mp3|wav|ogg|m4a|flac)$/i) !== null || 
-           url.includes('wp.novaenergiamg.com.br');
   };
 
   if (!previewUrl) {
@@ -134,41 +126,8 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
             </div>
           </div>
         </div>
-      ) : isDirectAudioFile(previewUrl) ? (
-        // Player para arquivos de áudio diretos
-        <div className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <button
-                onClick={togglePlay}
-                className="p-2 rounded-full bg-indigo-100 text-indigo-600 hover:bg-indigo-200 transition-colors"
-              >
-                {isPlaying ? 
-                  <PauseCircle className="h-8 w-8" /> : 
-                  <PlayCircle className="h-8 w-8" />
-                }
-              </button>
-              <div className="ml-3">
-                <p className="font-medium">Sua Música Personalizada</p>
-                <p className="text-sm text-gray-500">
-                  {isCompleted ? 'Música completa disponível' : 'Aguardando pagamento para liberar música completa'}
-                </p>
-              </div>
-            </div>
-            
-            {isCompleted && (
-              <Button 
-                className="flex items-center gap-1 bg-pink-500 hover:bg-pink-600"
-                onClick={handleAccessFullSong}
-              >
-                <ExternalLink className="h-4 w-4" />
-                Ouvir Completa
-              </Button>
-            )}
-          </div>
-        </div>
       ) : (
-        // Player customizado para outros tipos de arquivos
+        // Player customizado para arquivos de áudio regulares
         <div className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">

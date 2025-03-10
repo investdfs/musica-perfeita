@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -19,18 +18,16 @@ const AdminPage = () => {
       if (window.location.href.includes("lovable.dev/projects/")) {
         console.log("Bypassing auth check - Lovable editor environment detected");
         
-        // Set admin info for editor environment
-        if (!localStorage.getItem("musicaperfeita_admin")) {
-          localStorage.setItem("musicaperfeita_admin", "true");
-          localStorage.setItem("admin_email", "editor@musicaperfeita.com");
-          localStorage.setItem("admin_id", "editor-session");
-          localStorage.setItem("admin_is_main", "true");
-          
-          toast({
-            title: "Acesso de edição",
-            description: "Modo de edição ativado automaticamente",
-          });
-        }
+        // Set admin info for editor environment with proper admin permissions
+        localStorage.setItem("musicaperfeita_admin", "true");
+        localStorage.setItem("admin_email", "editor@musicaperfeita.com");
+        localStorage.setItem("admin_id", "editor-session");
+        localStorage.setItem("admin_is_main", "true");
+        
+        toast({
+          title: "Acesso de edição",
+          description: "Modo de edição ativado automaticamente",
+        });
         
         setIsLoading(false);
         return;
@@ -40,18 +37,16 @@ const AdminPage = () => {
       if (isDevelopmentOrPreview()) {
         console.log("Bypassing auth check - Development or preview environment detected");
         
-        // Set admin info for development
-        if (!localStorage.getItem("musicaperfeita_admin")) {
-          localStorage.setItem("musicaperfeita_admin", "true");
-          localStorage.setItem("admin_email", "dev@musicaperfeita.com");
-          localStorage.setItem("admin_id", "dev-session");
-          localStorage.setItem("admin_is_main", "true");
-          
-          toast({
-            title: "Acesso de desenvolvimento",
-            description: "Modo de desenvolvimento ativado automaticamente",
-          });
-        }
+        // Set admin info for development with proper admin permissions
+        localStorage.setItem("musicaperfeita_admin", "true");
+        localStorage.setItem("admin_email", "contato@musicaperfeita.com");
+        localStorage.setItem("admin_id", "dev-session");
+        localStorage.setItem("admin_is_main", "true");
+        
+        toast({
+          title: "Acesso de desenvolvimento",
+          description: "Modo de desenvolvimento ativado automaticamente",
+        });
         
         setIsLoading(false);
         return;

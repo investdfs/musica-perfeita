@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import MusicPlayer from "./pages/MusicPlayer";
 import MusicPlayerFull from "./pages/MusicPlayerFull";
 import NossasMusicas from "./pages/NossasMusicas";
+import Depoimentos from "./pages/Depoimentos";
 import AuthGuard from "./components/auth/AuthGuard";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/music-player" element={<MusicPlayer />} />
               <Route path="/music-player-full" element={<MusicPlayerFull />} />
               <Route path="/nossas-musicas" element={<NossasMusicas />} />
+              <Route path="/depoimentos" element={<Depoimentos />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

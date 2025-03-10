@@ -55,6 +55,8 @@ export async function submitMusicRequest(
       relationship_type: values.relationship_type,
       custom_relationship: values.relationship_type === 'other' ? values.custom_relationship : null,
       music_genre: values.music_genre,
+      music_tone: values.music_tone,
+      voice_type: values.voice_type,
       include_names: values.include_names,
       names_to_include: values.include_names ? values.names_to_include : null,
       story: values.story,

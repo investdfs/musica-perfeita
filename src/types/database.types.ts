@@ -18,6 +18,8 @@ export type MusicRequest = {
   relationship_type: 'esposa' | 'noiva' | 'namorada' | 'amigo_especial' | 'partner' | 'friend' | 'family' | 'colleague' | 'mentor' | 'child' | 'sibling' | 'parent' | 'other';
   custom_relationship: string | null;
   music_genre: 'romantic' | 'mpb' | 'classical' | 'jazz' | 'hiphop' | 'rock' | 'country' | 'reggae' | 'electronic' | 'samba' | 'folk' | 'pop';
+  music_tone?: 'happy' | 'romantic' | 'nostalgic' | 'fun';
+  voice_type?: 'male' | 'female' | 'male_romantic' | 'female_romantic' | 'male_folk' | 'female_folk';
   include_names: boolean;
   names_to_include: string | null;
   story: string;

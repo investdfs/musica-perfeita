@@ -16,6 +16,16 @@ export const musicRequestSchema = z.object({
   ], {
     required_error: "Selecione o gênero musical",
   }),
+  music_tone: z.enum([
+    "happy", "romantic", "nostalgic", "fun"
+  ], {
+    required_error: "Selecione o tom da música",
+  }),
+  voice_type: z.enum([
+    "male", "female", "male_romantic", "female_romantic", "male_folk", "female_folk"
+  ], {
+    required_error: "Selecione o tipo de voz",
+  }),
   include_names: z.boolean().default(false),
   names_to_include: z.string().nullable().optional(),
   story: z.string().min(50, { message: "Conte sua história com pelo menos 50 caracteres" }),

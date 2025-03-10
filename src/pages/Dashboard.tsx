@@ -10,8 +10,7 @@ import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
 import OrderControlPanel from "@/components/dashboard/OrderControlPanel";
 import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
-import { Button } from "@/components/ui/button";
-import { Eye, LogOut, Music } from "lucide-react";
+import { Eye, LogOut } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 
 const Dashboard = () => {
@@ -240,40 +239,17 @@ const Dashboard = () => {
             />
           )}
           
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 mt-4 text-center border border-blue-100 transition-all hover:shadow-xl">
-            <h2 className="text-xl font-semibold mb-4 text-purple-700">Acesso à sua música</h2>
-            
-            <Button 
-              disabled={!(hasCompletedRequest && hasPaidRequest)}
-              onClick={() => navigate("/minha-musica", { state: { musicRequest: userRequests[0] } })}
-              className={`px-6 py-3 rounded-lg shadow-md transition-all text-lg w-full max-w-md ${
-                hasCompletedRequest && hasPaidRequest 
-                  ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white" 
-                  : "bg-gray-300 text-gray-600 cursor-not-allowed"
-              }`}
-            >
-              <Music className="mr-2 h-5 w-5" />
-              ACESSAR MINHA MÚSICA PERSONALIZADA
-            </Button>
-            
-            <p className="mt-3 text-gray-500 text-sm">
-              {hasCompletedRequest && hasPaidRequest 
-                ? "Sua música está pronta para acesso." 
-                : "Este botão será liberado quando sua música estiver pronta."}
-            </p>
-          </div>
-          
           {hasCompletedRequest && !hasPaidRequest && !showNewRequestForm && (
             <div className="text-center mb-8">
-              <Button 
+              <button 
                 onClick={() => navigate("/music-preview", { 
                   state: { musicRequest: userRequests[0] } 
                 })}
                 className="bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
               >
-                <Eye className="mr-2 h-5 w-5" />
+                <Eye className="mr-2 h-5 w-5 inline-block" />
                 Ver meu Pedido
-              </Button>
+              </button>
             </div>
           )}
           

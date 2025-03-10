@@ -8,6 +8,7 @@ import ImageUpload from "./ImageUpload";
 import FormIntroduction from "./FormIntroduction";
 import PersonInfoFields from "./PersonInfoFields";
 import GenreSelector from "./GenreSelector";
+import ToneAndVoiceFields from "./ToneAndVoiceFields";
 import StoryField from "./StoryField";
 import IncludeNamesFields from "./IncludeNamesFields";
 import SubmitButton from "./SubmitButton";
@@ -36,6 +37,8 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
       relationship_type: undefined,
       custom_relationship: null,
       music_genre: undefined,
+      music_tone: undefined,
+      voice_type: undefined,
       include_names: false,
       names_to_include: "",
       story: "",
@@ -112,6 +115,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <PersonInfoFields form={form} />
               <GenreSelector form={form} />
+              <ToneAndVoiceFields form={form} />
               <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
               <IncludeNamesFields form={form} />
               <SubmitButton isSubmitting={isSubmitting} />

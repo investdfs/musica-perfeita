@@ -44,13 +44,13 @@ const Navigation = ({ className }: { className?: string }) => {
   };
 
   return (
-    <nav className={cn("flex items-center gap-3", className)}>
+    <nav className={cn("flex items-center gap-2", className)}>
       <Link 
         to="/" 
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
         <Home className="h-4 w-4 text-blue-500" />
-        <span className="text-sm">Home</span>
+        <span className="text-xs">Home</span>
       </Link>
       
       {isLoggedIn ? (
@@ -59,7 +59,7 @@ const Navigation = ({ className }: { className?: string }) => {
           className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
           <User className="h-4 w-4 text-teal-500" />
-          <span className="text-sm">Minha Conta</span>
+          <span className="text-xs">Minha Conta</span>
         </Link>
       ) : null}
       
@@ -68,7 +68,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
         <Music className="h-4 w-4 text-purple-500" />
-        <span className="text-sm">Músicas</span>
+        <span className="text-xs">Músicas</span>
       </Link>
       
       <Link 
@@ -76,7 +76,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
         <MessageSquareHeart className="h-4 w-4 text-pink-500" />
-        <span className="text-sm">Depoimentos</span>
+        <span className="text-xs">Depoimentos</span>
       </Link>
       
       <Link 
@@ -84,7 +84,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
         <HelpCircle className="h-4 w-4 text-amber-500" />
-        <span className="text-sm">Dúvidas</span>
+        <span className="text-xs">Dúvidas</span>
       </Link>
       
       <Link 
@@ -92,7 +92,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
         <Info className="h-4 w-4 text-emerald-500" />
-        <span className="text-sm">Sobre</span>
+        <span className="text-xs">Sobre</span>
       </Link>
       
       {!isLoggedIn && (
@@ -101,7 +101,7 @@ const Navigation = ({ className }: { className?: string }) => {
           className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
           <UserPlus className="h-4 w-4 text-green-500" />
-          <span className="text-sm">Cadastro</span>
+          <span className="text-xs">Cadastro</span>
         </Link>
       )}
       
@@ -111,7 +111,7 @@ const Navigation = ({ className }: { className?: string }) => {
           className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
           <LogIn className="h-4 w-4 text-indigo-500" />
-          <span className="text-sm">Login</span>
+          <span className="text-xs">Login</span>
         </Link>
       ) : (
         <a
@@ -120,7 +120,7 @@ const Navigation = ({ className }: { className?: string }) => {
           className="flex items-center gap-1 transition-colors text-red-600 hover:text-red-800"
         >
           <LogOut className="h-4 w-4" />
-          <span className="text-sm">Sair</span>
+          <span className="text-xs">Sair</span>
         </a>
       )}
     </nav>

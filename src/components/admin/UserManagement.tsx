@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { UserProfile } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
@@ -18,9 +19,19 @@ import {
   DialogDescription,
   DialogFooter
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
-import { PlusCircle, Trash, Edit } from "lucide-react";
+import { PlusCircle, Trash, Edit, AlertTriangle } from "lucide-react";
 
 interface UserManagementProps {
   users: UserProfile[];
@@ -30,6 +41,8 @@ interface UserManagementProps {
 const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) => {
   const [showUserForm, setShowUserForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
@@ -100,12 +113,19 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) =>
     setShowUserForm(true);
   };
 
-  const handleDeleteUser = async (userId: string) => {
+  const confirmDeleteUser = (userId: string) => {
+    setUserToDelete(userId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    
     try {
       const { data } = await supabase
         .from('music_requests')
         .select('id')
-        .eq('user_id', userId);
+        .eq('user_id', userToDelete);
         
       if (data && data.length > 0) {
         toast({
@@ -113,13 +133,15 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) =>
           description: "Este cliente possui pedidos de música associados",
           variant: "destructive",
         });
+        setShowDeleteConfirm(false);
+        setUserToDelete(null);
         return;
       }
       
       const { error } = await supabase
         .from('user_profiles')
         .delete()
-        .eq('id', userId);
+        .eq('id', userToDelete);
         
       if (error) throw error;
       
@@ -128,6 +150,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) =>
         description: "Cliente excluído com sucesso",
       });
       
+      setShowDeleteConfirm(false);
+      setUserToDelete(null);
       await fetchUsers();
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -136,6 +160,8 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) =>
         description: "Não foi possível excluir o cliente",
         variant: "destructive",
       });
+      setShowDeleteConfirm(false);
+      setUserToDelete(null);
     }
   };
 
@@ -198,7 +224,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) =>
                       <Button 
                         variant="destructive" 
                         size="sm"
-                        onClick={() => handleDeleteUser(user.id)}
+                        onClick={() => confirmDeleteUser(user.id)}
                       >
                         <Trash className="w-4 h-4" />
                       </Button>
@@ -211,6 +237,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) =>
         </div>
       )}
 
+      {/* Formulário para adicionar/editar clientes */}
       <Dialog open={showUserForm} onOpenChange={setShowUserForm}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -270,6 +297,29 @@ const UserManagement: React.FC<UserManagementProps> = ({ users, fetchUsers }) =>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Diálogo de confirmação de exclusão */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent className="bg-white border-red-200 border-2">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center text-red-600">
+              <AlertTriangle className="w-5 h-5 mr-2" /> Confirmar exclusão
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. O cliente será permanentemente removido do sistema.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteUser}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              <Trash className="w-4 h-4 mr-2" /> Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

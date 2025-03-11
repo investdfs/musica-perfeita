@@ -17,7 +17,7 @@ const Header = () => {
   };
 
   return (
-    <header className="w-full py-2 px-4 flex items-center justify-between bg-white text-gray-900 shadow-sm sticky top-0 z-50">
+    <header className="w-full py-3 px-5 flex items-center justify-between bg-white text-gray-900 shadow-sm sticky top-0 z-50">
       <div 
         onClick={handleLogoClick}
         className="flex items-center cursor-pointer"
@@ -25,7 +25,7 @@ const Header = () => {
         <img 
           src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-circular-logo-with-the-text-musica-per_lTHz7DfkRDyfkfvtzn6fig_aeKfBaktQAqReJjqARN5jQ-removebg-preview-1.png" 
           alt="Musicaperfeita Logo" 
-          className="h-6 sm:h-7 mr-2"
+          className="h-7 sm:h-8 mr-2"
         />
         <span className="text-base sm:text-lg font-bold bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">
           Música Perfeita

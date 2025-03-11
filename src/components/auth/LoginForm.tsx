@@ -54,6 +54,23 @@ const LoginForm = () => {
         const userProfile: UserProfile = data;
         localStorage.setItem("musicaperfeita_user", JSON.stringify(userProfile));
         
+        // Verificar se o usuário é admin
+        if (userProfile.is_admin) {
+          console.log('Usuário é admin, redirecionando para o painel admin');
+          localStorage.setItem("musicaperfeita_admin", "true");
+          localStorage.setItem("admin_email", userProfile.email);
+          localStorage.setItem("admin_id", userProfile.id);
+          localStorage.setItem("admin_is_main", userProfile.is_main_admin ? "true" : "false");
+          
+          toast({
+            title: "Login administrador realizado com sucesso!",
+            description: "Bem-vindo ao painel administrativo do Musicaperfeita!",
+          });
+          
+          navigate("/admin");
+          return;
+        }
+        
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo de volta ao Musicaperfeita!",

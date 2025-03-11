@@ -27,8 +27,8 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       // Verificar se está logado como admin
       const isAdmin = localStorage.getItem("musicaperfeita_admin") === "true";
       
-      // Se for admin e estiver na home, redirecionar para o dashboard admin
-      if (isAdmin && location.pathname === "/") {
+      // Se for admin e estiver na home ou dashboard, redirecionar para o dashboard admin
+      if (isAdmin && (location.pathname === "/" || location.pathname === "/dashboard")) {
         navigate("/admin");
         return false;
       }
@@ -90,7 +90,8 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
           location.pathname !== "/sobre" &&
           location.pathname !== "/nossas-musicas" &&
           location.pathname !== "/depoimentos" &&
-          location.pathname !== "/admin-login"
+          location.pathname !== "/admin-login" &&
+          location.pathname !== "/faq"
         ) {
           // Salvar a rota atual para redirecionamento após login
           localStorage.setItem("redirect_after_login", location.pathname + location.search);
@@ -124,7 +125,8 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       location.pathname !== "/sobre" &&
       location.pathname !== "/nossas-musicas" &&
       location.pathname !== "/depoimentos" &&
-      location.pathname !== "/admin-login") {
+      location.pathname !== "/admin-login" &&
+      location.pathname !== "/faq") {
     return null;
   }
 

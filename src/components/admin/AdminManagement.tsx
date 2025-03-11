@@ -19,11 +19,21 @@ import {
   DialogDescription,
   DialogFooter
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
-import { Shield, Trash, Edit, PlusCircle, UserPlus } from "lucide-react";
+import { Shield, Trash, Edit, PlusCircle, UserPlus, AlertTriangle } from "lucide-react";
 
 interface AdminManagementProps {
   users: UserProfile[];
@@ -40,6 +50,8 @@ const AdminManagement: React.FC<AdminManagementProps> = ({
 }) => {
   const [showAdminForm, setShowAdminForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [adminToRemove, setAdminToRemove] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -145,7 +157,14 @@ const AdminManagement: React.FC<AdminManagementProps> = ({
     setShowAdminForm(true);
   };
 
-  const handleRemoveAdmin = async (userId: string) => {
+  const confirmRemoveAdmin = (userId: string) => {
+    setAdminToRemove(userId);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleRemoveAdmin = async () => {
+    if (!adminToRemove) return;
+    
     try {
       if (!isMainAdmin) {
         toast({
@@ -153,23 +172,27 @@ const AdminManagement: React.FC<AdminManagementProps> = ({
           description: "Apenas o administrador principal pode remover administradores",
           variant: "destructive",
         });
+        setShowDeleteConfirm(false);
+        setAdminToRemove(null);
         return;
       }
 
-      const adminToRemove = users.find(user => user.id === userId);
-      if (adminToRemove?.is_main_admin) {
+      const adminToRemoveData = users.find(user => user.id === adminToRemove);
+      if (adminToRemoveData?.is_main_admin) {
         toast({
           title: "Operação não permitida",
           description: "Não é possível remover o administrador principal",
           variant: "destructive",
         });
+        setShowDeleteConfirm(false);
+        setAdminToRemove(null);
         return;
       }
       
       const { error } = await supabase
         .from('user_profiles')
         .update({ is_admin: false })
-        .eq('id', userId);
+        .eq('id', adminToRemove);
         
       if (error) throw error;
       
@@ -178,6 +201,8 @@ const AdminManagement: React.FC<AdminManagementProps> = ({
         description: "Permissões de administrador revogadas com sucesso",
       });
       
+      setShowDeleteConfirm(false);
+      setAdminToRemove(null);
       await fetchUsers();
     } catch (error) {
       console.error('Error removing admin:', error);
@@ -186,6 +211,8 @@ const AdminManagement: React.FC<AdminManagementProps> = ({
         description: "Não foi possível remover o administrador",
         variant: "destructive",
       });
+      setShowDeleteConfirm(false);
+      setAdminToRemove(null);
     }
   };
 
@@ -268,7 +295,7 @@ const AdminManagement: React.FC<AdminManagementProps> = ({
                           <Button 
                             variant="destructive" 
                             size="sm"
-                            onClick={() => handleRemoveAdmin(admin.id)}
+                            onClick={() => confirmRemoveAdmin(admin.id)}
                           >
                             <Trash className="w-4 h-4" />
                           </Button>
@@ -283,6 +310,7 @@ const AdminManagement: React.FC<AdminManagementProps> = ({
         </div>
       )}
 
+      {/* Formulário para adicionar/editar administradores */}
       <Dialog open={showAdminForm} onOpenChange={setShowAdminForm}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -353,6 +381,29 @@ const AdminManagement: React.FC<AdminManagementProps> = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Diálogo de confirmação de exclusão */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent className="bg-white border-red-200 border-2">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center text-red-600">
+              <AlertTriangle className="w-5 h-5 mr-2" /> Confirmar remoção de administrador
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação irá remover as permissões de administrador deste usuário. O usuário continuará existindo como cliente regular.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleRemoveAdmin}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              <Trash className="w-4 h-4 mr-2" /> Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

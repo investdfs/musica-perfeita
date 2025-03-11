@@ -24,6 +24,74 @@ export const useRequestManagement = (
     setShowDeliveryForm(true);
   };
 
+  const handleSaveMusicLink = async (requestId: string, musicLink: string) => {
+    if (!musicLink.trim()) {
+      throw new Error("Link da música não pode estar vazio");
+    }
+    
+    setIsUploading(true);
+    
+    try {
+      const targetRequest = requests.find(req => req.id === requestId);
+      if (!targetRequest) {
+        throw new Error("Pedido não encontrado");
+      }
+      
+      const isValidAudioLink = musicLink.match(/\.(mp3|wav|ogg|m4a|flac)($|\?)/i) || 
+                              musicLink.includes('wp.novaenergiamg.com.br') ||
+                              musicLink.includes('drive.google.com');
+
+      if (!isValidAudioLink) {
+        const confirmUpload = window.confirm(
+          "O link fornecido não parece ser um arquivo de áudio. Deseja continuar mesmo assim?"
+        );
+        if (!confirmUpload) {
+          setIsUploading(false);
+          return;
+        }
+      }
+      
+      const updateData = { 
+        status: 'completed' as MusicRequest['status'], 
+        soundcloud_id: null,
+        full_song_url: musicLink, 
+        preview_url: musicLink 
+      };
+      
+      if (isDevelopmentOrPreview()) {
+        const updatedRequests = requests.map(req => 
+          req.id === requestId 
+            ? { ...req, ...updateData } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      } else {
+        const { error } = await supabase
+          .from('music_requests')
+          .update(updateData)
+          .eq('id', requestId);
+          
+        if (error) throw error;
+        
+        const updatedRequests = requests.map(req => 
+          req.id === requestId 
+            ? { ...req, ...updateData } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      }
+      
+      return Promise.resolve();
+    } catch (error) {
+      console.error('Error updating request with music link:', error);
+      throw error;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSaveSoundCloudId = async (musicLink: string) => {
     if (!selectedRequest) return;
     
@@ -301,6 +369,7 @@ export const useRequestManagement = (
     handleSendEmail,
     handleFileUpload,
     handleUpdateStatus,
-    handleDownloadFile
+    handleDownloadFile,
+    handleSaveMusicLink
   };
 };

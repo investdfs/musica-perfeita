@@ -28,7 +28,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, CheckCircle } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 interface RequestsListProps {
   requests: MusicRequest[];
@@ -41,6 +42,7 @@ interface RequestsListProps {
   onDownloadFile?: (request: MusicRequest) => void;
   isUploading: boolean;
   selectedRequestId: string | null;
+  onSaveMusicLink: (requestId: string, musicLink: string) => Promise<void>;
 }
 
 const RequestsList = ({ 
@@ -53,9 +55,11 @@ const RequestsList = ({
   onDeliverMusic,
   onDownloadFile,
   isUploading,
-  selectedRequestId
+  selectedRequestId,
+  onSaveMusicLink
 }: RequestsListProps) => {
   const [soundcloudIds, setSoundcloudIds] = useState<{[key: string]: string}>({});
+  const [savingLinks, setSavingLinks] = useState<{[key: string]: boolean}>({});
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -67,6 +71,40 @@ const RequestsList = ({
       ...prev,
       [requestId]: value
     }));
+  };
+
+  const handleSaveMusicLink = async (requestId: string) => {
+    const musicLink = soundcloudIds[requestId];
+    if (!musicLink?.trim()) {
+      toast({
+        title: "Link vazio",
+        description: "Por favor, insira um link para a música",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setSavingLinks(prev => ({ ...prev, [requestId]: true }));
+      await onSaveMusicLink(requestId, musicLink);
+      
+      // Limpa o campo após salvar com sucesso
+      setSoundcloudIds(prev => ({ ...prev, [requestId]: '' }));
+      
+      toast({
+        title: "Link salvo com sucesso",
+        description: "O link da música foi salvo e o pedido foi atualizado.",
+      });
+    } catch (error) {
+      console.error("Erro ao salvar link:", error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível salvar o link. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setSavingLinks(prev => ({ ...prev, [requestId]: false }));
+    }
   };
 
   return (
@@ -122,21 +160,34 @@ const RequestsList = ({
                       <Input
                         type="text"
                         className="h-8 text-xs"
-                        placeholder="Link Música"
+                        placeholder={request.full_song_url ? "Link atual: " + request.full_song_url.substring(0, 30) + "..." : "Cole o link da música aqui"}
                         value={soundcloudIds[request.id] || ''}
                         onChange={(e) => handleSoundCloudIdChange(request.id, e.target.value)}
                       />
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onViewDetails(request)}
-                        disabled={!soundcloudIds[request.id]?.trim()}
-                        className="h-8 w-8 ml-1"
-                        title="Salvar Link"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSaveMusicLink(request.id)}
+                        disabled={!soundcloudIds[request.id]?.trim() || savingLinks[request.id]}
+                        className="h-8 ml-1 whitespace-nowrap"
+                        title="Enviar Música"
                       >
-                        <Save className="w-4 h-4" />
+                        {savingLinks[request.id] ? (
+                          <span className="flex items-center">
+                            <span className="animate-spin mr-1">⏳</span> Enviando...
+                          </span>
+                        ) : (
+                          <span className="flex items-center">
+                            <CheckCircle className="w-4 h-4 mr-1" /> Enviar
+                          </span>
+                        )}
                       </Button>
                     </div>
+                    {request.full_song_url && (
+                      <div className="mt-1 text-xs text-green-600 truncate">
+                        ✓ Música disponível: {request.full_song_url.substring(0, 40)}...
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-1">
@@ -147,7 +198,7 @@ const RequestsList = ({
                             size="icon"
                             onClick={() => onDeliverMusic(request)}
                             className="h-8 w-8"
-                            title="Entregar Música"
+                            title="Entregar Música por Email"
                           >
                             <Send className="w-4 h-4" />
                           </Button>

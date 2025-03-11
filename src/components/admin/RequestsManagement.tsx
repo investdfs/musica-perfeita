@@ -36,7 +36,8 @@ const RequestsManagement = ({
     handleSendEmail,
     handleFileUpload,
     handleUpdateStatus,
-    handleDownloadFile
+    handleDownloadFile,
+    handleSaveMusicLink
   } = useRequestManagement(requests, setRequests);
 
   const getUserName = (userId: string): string => {
@@ -57,6 +58,7 @@ const RequestsManagement = ({
         onDownloadFile={handleDownloadFile}
         isUploading={isUploading}
         selectedRequestId={selectedRequest?.id || null}
+        onSaveMusicLink={handleSaveMusicLink}
       />
 
       <RequestDetails 

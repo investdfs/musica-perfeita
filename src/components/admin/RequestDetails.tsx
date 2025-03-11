@@ -53,6 +53,7 @@ const RequestDetails = ({
     }
 
     handleSaveSoundCloudId(musicLink);
+    setMusicLink("");
   };
 
   return (
@@ -98,28 +99,23 @@ const RequestDetails = ({
             </div>
             
             <div className="border-t pt-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Link da Música</h3>
-              <div className="flex gap-2">
-                <Input 
-                  type="text" 
-                  placeholder="https://exemplo.com/musica.mp3"
-                  value={musicLink}
-                  onChange={(e) => setMusicLink(e.target.value)}
-                />
-                <Button 
-                  onClick={handleSaveClicked}
-                  disabled={isUploading || !musicLink.trim()}
-                >
-                  {isUploading ? "Salvando..." : "Salvar"}
-                </Button>
-              </div>
-              <p className="text-xs text-gray-500 mt-1">
-                Insira o link direto do arquivo de música (mp3, wav, etc.) para disponibilizá-la para o cliente.
-              </p>
-              {selectedRequest.full_song_url && (
-                <div className="mt-3 p-3 bg-green-50 rounded">
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Link atual da música</h3>
+              {selectedRequest.full_song_url ? (
+                <div className="p-3 bg-green-50 rounded">
                   <p className="text-sm text-green-700">
-                    Link atual da música: <a href={selectedRequest.full_song_url} target="_blank" rel="noopener noreferrer" className="font-medium underline">{selectedRequest.full_song_url}</a>
+                    Link atual: <a href={selectedRequest.full_song_url} target="_blank" rel="noopener noreferrer" className="font-medium underline">{selectedRequest.full_song_url}</a>
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Para alterar o link da música, use a opção "Enviar" na lista de pedidos.
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3 bg-gray-50 rounded">
+                  <p className="text-sm text-gray-700">
+                    Nenhum link de música foi adicionado a este pedido ainda.
+                  </p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Use a opção "Enviar" na lista de pedidos para adicionar um link de música.
                   </p>
                 </div>
               )}

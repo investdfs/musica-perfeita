@@ -3,18 +3,20 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserProfile } from "@/types/database.types";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 
 export const useUserAuth = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const checkUserAuth = useCallback(() => {
     const storedUser = localStorage.getItem("musicaperfeita_user");
     
     if (!storedUser) {
       toast({
-        title: "Acesso restrito",
-        description: "Você precisa fazer login para acessar esta página",
+        title: t("messages.restricted_access"),
+        description: t("messages.login_required"),
         variant: "destructive",
       });
       navigate("/login");
@@ -23,14 +25,14 @@ export const useUserAuth = () => {
     
     const userInfo = storedUser ? JSON.parse(storedUser) : null;
     setUserProfile(userInfo);
-  }, [navigate]);
+  }, [navigate, t]);
 
   const handleUserLogout = () => {
     localStorage.removeItem("musicaperfeita_user");
     
     toast({
-      title: "Logout realizado",
-      description: "Você saiu da sua conta com sucesso"
+      title: t("messages.logout_success"),
+      description: t("messages.logout_success")
     });
     
     navigate("/login");

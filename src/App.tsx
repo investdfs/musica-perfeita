@@ -23,6 +23,7 @@ import TermosCondicoes from "./pages/TermosCondicoes";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import AuthGuard from "./components/auth/AuthGuard";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
+import FakeNotifications from "./components/home/FakeNotifications";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter basename="/">
+          <FakeNotifications />
           <AuthGuard>
             <Routes>
               <Route path="/" element={<Home />} />

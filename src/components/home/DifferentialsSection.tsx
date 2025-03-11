@@ -18,7 +18,7 @@ const DifferentialsSection = () => {
                 <img 
                   src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-colorful-image-of-a-playlist-with-vari__XCmGShzQkS-Iq7yoemBqw_VSsFHl0uRn2g15SpD0M6Pg.webp" 
                   alt="Playlist de músicas personalizadas" 
-                  className="w-full object-cover transition-transform duration-500 group-hover:scale-105 h-48 md:h-64"
+                  className="w-1/2 mx-auto object-cover transition-transform duration-500 group-hover:scale-105 h-48 md:h-64"
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-purple-900/70 flex flex-col items-center justify-end p-4 transition-opacity duration-300">
                   <HeadphonesIcon className="h-10 w-10 text-white mb-2" />

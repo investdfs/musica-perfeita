@@ -99,7 +99,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
         title: "Sucesso!",
         description: "Seu pedido foi enviado com sucesso. Aguarde enquanto processamos sua solicitação.",
       });
-    } catch (error) {
+    } catch (error: any) { // Anotamos o tipo como 'any' para poder acessar propriedades customizadas
       console.error("Erro na submissão do formulário:", error);
       
       // Se não for o mesmo erro, mostrar toast diferente

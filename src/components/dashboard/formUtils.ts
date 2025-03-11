@@ -5,6 +5,12 @@ import { MusicRequestFormValues } from "./formSchema";
 import { UserProfile } from "@/types/database.types";
 import { v4 as uuidv4 } from "uuid";
 
+// Interface para erros customizados
+interface EnhancedError extends Error {
+  type?: string;
+  code?: string;
+}
+
 export async function submitMusicRequest(
   values: MusicRequestFormValues, 
   userProfile: UserProfile, 
@@ -85,19 +91,22 @@ export async function submitMusicRequest(
       throw new Error("Você está offline. Por favor, conecte-se à internet e tente novamente.");
     }
     
-    // Tentativa de inserção com tempo limite
+    // Adicionando timeout para evitar espera indefinida
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("O tempo de conexão expirou. Tente novamente.")), 30000);
+    });
+    
+    // Corrigimos aqui: não usamos Promise.race diretamente, mas fazemos duas promessas separadas
     const insertPromise = supabase
       .from('music_requests')
       .insert([newRequest])
       .select();
-      
-    // Adicionando timeout para evitar espera indefinida
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("O tempo de conexão expirou. Tente novamente.")), 30000);
-    });
+
+    // Criamos uma corrida entre as promessas usando Promise.race
+    const raceResult = await Promise.race([insertPromise, timeoutPromise]);
     
-    const { data, error } = await Promise.race([insertPromise, timeoutPromise])
-      .then(result => result as Awaited<ReturnType<typeof insertPromise>>);
+    // Se chegamos aqui, a promessa do insertPromise ganhou a corrida
+    const { data, error } = await insertPromise;
       
     if (error) {
       console.error("Erro no banco de dados durante a inserção:", error);
@@ -110,39 +119,42 @@ export async function submitMusicRequest(
   } catch (error) {
     console.error('Erro ao enviar pedido de música:', error);
     
+    // Convertemos o erro para o tipo EnhancedError
+    const err = error as EnhancedError;
+    
     // Melhoria no tratamento e detalhamento de erros
     let errorMessage = "Ocorreu um erro ao enviar seu pedido.";
     let errorType = "unknown";
     
-    if (error.message) {
-      console.log("Mensagem de erro:", error.message);
+    if (err.message) {
+      console.log("Mensagem de erro:", err.message);
       
-      if (error.message.includes("network") || 
-          error.message.includes("Failed to fetch") || 
-          error.message.includes("NetworkError") || 
-          error.message.includes("offline") ||
-          error.message.includes("connection") ||
+      if (err.message.includes("network") || 
+          err.message.includes("Failed to fetch") || 
+          err.message.includes("NetworkError") || 
+          err.message.includes("offline") ||
+          err.message.includes("connection") ||
           !navigator.onLine) {
         errorMessage = "Problema de conexão detectado. Verifique sua internet e tente novamente.";
         errorType = "network";
-      } else if (error.message.includes("timeout") || error.message.includes("expirou")) {
+      } else if (err.message.includes("timeout") || err.message.includes("expirou")) {
         errorMessage = "A conexão com o servidor demorou muito. Tente novamente.";
         errorType = "timeout";
-      } else if (error.code) {
-        errorMessage += ` (Código: ${error.code})`;
-        errorType = error.code;
+      } else if (err.code) {
+        errorMessage += ` (Código: ${err.code})`;
+        errorType = err.code;
       }
     }
     
     console.error("Erro detalhado:", {
-      message: error.message,
-      code: error.code,
-      stack: error.stack,
+      message: err.message,
+      code: err.code,
+      stack: err.stack,
       type: errorType
     });
     
     // Incluir o tipo de erro no objeto de erro para tratamento específico na interface
-    const enhancedError = new Error(errorMessage);
+    const enhancedError = new Error(errorMessage) as EnhancedError;
     enhancedError.type = errorType;
     
     // Relançar para ser tratado pelo componente

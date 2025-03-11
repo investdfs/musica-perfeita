@@ -85,6 +85,9 @@ export const useRequestManagement = (
         setRequests(updatedRequests);
       }
       
+      // Verificar se o status foi atualizado corretamente
+      console.log(`Pedido atualizado com sucesso. Novo status: completed, Link: ${musicLink}`);
+      
       return Promise.resolve();
     } catch (error) {
       console.error('Error updating request with music link:', error);
@@ -297,13 +300,20 @@ export const useRequestManagement = (
       if (status) updates.status = status;
       if (paymentStatus) updates.payment_status = paymentStatus;
       
+      console.log(`Atualizando pedido ${requestId} com:`, updates);
+      
       if (!isDevelopmentOrPreview()) {
         const { error } = await supabase
           .from('music_requests')
           .update(updates)
           .eq('id', requestId);
           
-        if (error) throw error;
+        if (error) {
+          console.error('Erro ao atualizar no Supabase:', error);
+          throw error;
+        }
+        
+        console.log('Atualização no Supabase bem-sucedida');
       }
       
       const updatedRequests = requests.map(req => 
@@ -313,6 +323,9 @@ export const useRequestManagement = (
       );
       
       setRequests(updatedRequests);
+      
+      const requestAfterUpdate = updatedRequests.find(req => req.id === requestId);
+      console.log(`Pedido após atualização:`, requestAfterUpdate);
       
       toast({
         title: "Status atualizado",

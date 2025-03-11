@@ -44,83 +44,83 @@ const Navigation = ({ className }: { className?: string }) => {
   };
 
   return (
-    <nav className={cn("flex items-center gap-2", className)}>
+    <nav className={cn("flex items-center gap-3", className)}>
       <Link 
         to="/" 
-        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+        className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
       >
-        <Home className="h-4 w-4 text-blue-500" />
-        <span className="text-xs">Home</span>
+        <Home className="h-5 w-5 text-blue-500" />
+        <span className="text-sm">Home</span>
       </Link>
       
       {isLoggedIn ? (
         <Link
           to="/dashboard"
-          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+          className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
         >
-          <User className="h-4 w-4 text-teal-500" />
-          <span className="text-xs">Minha Conta</span>
+          <User className="h-5 w-5 text-teal-500" />
+          <span className="text-sm">Minha Conta</span>
         </Link>
       ) : null}
       
       <Link 
         to="/nossas-musicas" 
-        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+        className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
       >
-        <Music className="h-4 w-4 text-purple-500" />
-        <span className="text-xs">Músicas</span>
+        <Music className="h-5 w-5 text-purple-500" />
+        <span className="text-sm">Músicas</span>
       </Link>
       
       <Link 
         to="/depoimentos" 
-        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+        className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
       >
-        <MessageSquareHeart className="h-4 w-4 text-pink-500" />
-        <span className="text-xs">Depoimentos</span>
+        <MessageSquareHeart className="h-5 w-5 text-pink-500" />
+        <span className="text-sm">Depoimentos</span>
       </Link>
       
       <Link 
         to="/faq" 
-        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+        className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
       >
-        <HelpCircle className="h-4 w-4 text-amber-500" />
-        <span className="text-xs">Dúvidas</span>
+        <HelpCircle className="h-5 w-5 text-amber-500" />
+        <span className="text-sm">Dúvidas</span>
       </Link>
       
       <Link 
         to="/sobre" 
-        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+        className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
       >
-        <Info className="h-4 w-4 text-emerald-500" />
-        <span className="text-xs">Sobre</span>
+        <Info className="h-5 w-5 text-emerald-500" />
+        <span className="text-sm">Sobre</span>
       </Link>
       
       {!isLoggedIn && (
         <Link 
           to="/cadastro" 
-          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+          className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
         >
-          <UserPlus className="h-4 w-4 text-green-500" />
-          <span className="text-xs">Cadastro</span>
+          <UserPlus className="h-5 w-5 text-green-500" />
+          <span className="text-sm">Cadastro</span>
         </Link>
       )}
       
       {!isLoggedIn ? (
         <Link 
           to="/login" 
-          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
+          className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
         >
-          <LogIn className="h-4 w-4 text-indigo-500" />
-          <span className="text-xs">Login</span>
+          <LogIn className="h-5 w-5 text-indigo-500" />
+          <span className="text-sm">Login</span>
         </Link>
       ) : (
         <a
           href="/"
           onClick={handleLogout}
-          className="flex items-center gap-1 transition-colors text-red-600 hover:text-red-800"
+          className="flex items-center gap-1.5 transition-colors text-red-600 hover:text-red-800"
         >
-          <LogOut className="h-4 w-4" />
-          <span className="text-xs">Sair</span>
+          <LogOut className="h-5 w-5" />
+          <span className="text-sm">Sair</span>
         </a>
       )}
     </nav>

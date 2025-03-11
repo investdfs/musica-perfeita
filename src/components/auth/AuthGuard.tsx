@@ -24,11 +24,18 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       // Verificar se é uma rota de admin
       const isAdminRoute = location.pathname.startsWith("/admin") && location.pathname !== "/admin-login";
       
+      // Verificar se está logado como admin
+      const isAdmin = localStorage.getItem("musicaperfeita_admin") === "true";
+      
+      // Se for admin e estiver na home, redirecionar para o dashboard admin
+      if (isAdmin && location.pathname === "/") {
+        navigate("/admin");
+        return false;
+      }
+      
       if (isAdminRoute) {
         // Verificar se o usuário tem permissões de admin
-        const adminLoggedIn = localStorage.getItem("musicaperfeita_admin") === "true";
-        
-        if (!adminLoggedIn) {
+        if (!isAdmin) {
           toast({
             title: "Acesso negado",
             description: "Você não tem permissões para acessar a área administrativa",

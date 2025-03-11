@@ -7,14 +7,12 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Check, Music, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useTranslation } from "react-i18next";
 
 const Pagamento = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const musicRequest = location.state?.musicRequest as MusicRequest | undefined;
-  const { t } = useTranslation();
 
   const handlePayment = () => {
     setIsProcessing(true);
@@ -38,32 +36,32 @@ const Pagamento = () => {
       <main className="py-16 px-6">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl md:text-4xl font-bold text-center mb-10 bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">
-            {t("payment.title")}
+            Finalize o Pagamento para sua Música!
           </h1>
           
           <div className="grid md:grid-cols-2 gap-8">
             <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-semibold mb-6">{t("payment.summary")}</h2>
+              <h2 className="text-2xl font-semibold mb-6">Resumo do Pedido</h2>
               
               {musicRequest ? (
                 <div className="space-y-4 mb-6">
                   <div className="flex items-center border-b pb-4">
                     <Music className="text-indigo-500 h-8 w-8 mr-4" />
                     <div>
-                      <p className="font-medium">{t("payment.item")}</p>
-                      <p className="text-gray-600">{t("payment.for")}: {musicRequest.honoree_name}</p>
+                      <p className="font-medium">Música Personalizada</p>
+                      <p className="text-gray-600">Para: {musicRequest.honoree_name}</p>
                     </div>
                   </div>
                   
                   <div className="text-sm">
                     <div className="flex justify-between py-2">
-                      <span className="text-gray-600">{t("payment.genre")}</span>
+                      <span className="text-gray-600">Gênero</span>
                       <span>{musicRequest.music_genre}</span>
                     </div>
                     <div className="flex justify-between py-2">
-                      <span className="text-gray-600">{t("payment.status")}</span>
+                      <span className="text-gray-600">Status</span>
                       <span className={musicRequest.status === 'completed' ? 'text-green-600' : 'text-yellow-600'}>
-                        {musicRequest.status === 'completed' ? t("payment.completed") : t("payment.in_production")}
+                        {musicRequest.status === 'completed' ? 'Concluída' : 'Em produção'}
                       </span>
                     </div>
                   </div>
@@ -74,15 +72,15 @@ const Pagamento = () => {
               
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center text-xl font-bold mb-2">
-                  <span>{t("payment.total")}</span>
-                  <span>{t("payment.price")}</span>
+                  <span>Total</span>
+                  <span>R$ 79,90</span>
                 </div>
-                <p className="text-sm text-gray-500">{t("payment.one_time")}</p>
+                <p className="text-sm text-gray-500">Pagamento único, sem assinaturas</p>
               </div>
             </div>
             
             <div className="bg-white rounded-lg shadow-md p-8">
-              <h2 className="text-2xl font-semibold mb-6">{t("payment.method")}</h2>
+              <h2 className="text-2xl font-semibold mb-6">Método de Pagamento</h2>
               
               <div className="space-y-6">
                 <div className="mb-6">
@@ -99,7 +97,7 @@ const Pagamento = () => {
                   className="w-full bg-blue-500 hover:bg-blue-600 mb-6 h-14 text-lg"
                   disabled={isProcessing}
                 >
-                  {isProcessing ? t("payment.processing") : t("payment.button")}
+                  {isProcessing ? "Processando..." : "Pagar com Mercado Pago"}
                 </Button>
                 
                 <div className="space-y-3">
@@ -108,7 +106,7 @@ const Pagamento = () => {
                       <Check className="h-4 w-4 text-green-600" />
                     </div>
                     <p className="text-sm text-gray-600">
-                      {t("payment.benefit1")}
+                      Ao finalizar o pagamento, você terá acesso imediato à versão completa.
                     </p>
                   </div>
                   
@@ -117,14 +115,14 @@ const Pagamento = () => {
                       <Check className="h-4 w-4 text-green-600" />
                     </div>
                     <p className="text-sm text-gray-600">
-                      {t("payment.benefit2")}
+                      Você poderá baixar e compartilhar sua música após a confirmação do pagamento.
                     </p>
                   </div>
                   
                   <div className="flex items-start">
                     <ShieldCheck className="h-5 w-5 text-indigo-500 mr-3 mt-0.5" />
                     <p className="text-sm text-gray-600">
-                      {t("payment.secure")}
+                      Pagamento 100% seguro. Se não gostar, devolvemos seu dinheiro.
                     </p>
                   </div>
                 </div>

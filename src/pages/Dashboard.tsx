@@ -56,6 +56,7 @@ const Dashboard = () => {
               previewUrl={userRequests[0].preview_url || ''} 
               fullSongUrl={userRequests[0].full_song_url}
               isCompleted={hasCompletedRequest}
+              paymentStatus={userRequests[0].payment_status || 'pending'}
             />
           )}
           

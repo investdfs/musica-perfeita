@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Music, PlayCircle, PauseCircle, ExternalLink } from "lucide-react";
+import { Download, Music, PlayCircle, PauseCircle, ExternalLink, Lock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -9,13 +9,21 @@ interface MusicPreviewPlayerProps {
   previewUrl: string;
   fullSongUrl: string | null;
   isCompleted: boolean;
+  paymentStatus?: string;
 }
 
-const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPreviewPlayerProps) => {
+const MusicPreviewPlayer = ({ 
+  previewUrl, 
+  fullSongUrl, 
+  isCompleted,
+  paymentStatus = 'pending'
+}: MusicPreviewPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [isSoundCloud, setIsSoundCloud] = useState(false);
   const navigate = useNavigate();
+  
+  const isPaid = paymentStatus === 'completed';
   
   const isDirectFileLink = previewUrl && (
     previewUrl.match(/\.(mp3|wav|ogg|m4a|flac)($|\?)/i) ||
@@ -56,7 +64,8 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
       navigate(playerUrl, { 
         state: { 
           musicUrl: previewUrl,
-          downloadUrl: isCompleted ? fullSongUrl : undefined
+          downloadUrl: isCompleted && isPaid ? fullSongUrl : undefined,
+          paymentStatus: paymentStatus
         } 
       });
     } else if (audioElement) {
@@ -78,10 +87,14 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
 
   const handleAccessFullSong = () => {
     if (fullSongUrl) {
-      if (isSoundCloud) {
-        navigate("/music-player-full", { state: { musicUrl: fullSongUrl, downloadUrl: fullSongUrl } });
-      } else if (isDirectFileLink) {
-        navigate("/music-player-full", { state: { musicUrl: fullSongUrl, downloadUrl: fullSongUrl } });
+      if (isSoundCloud || isDirectFileLink) {
+        navigate("/music-player-full", { 
+          state: { 
+            musicUrl: fullSongUrl, 
+            downloadUrl: isPaid ? fullSongUrl : undefined,
+            paymentStatus: paymentStatus
+          } 
+        });
       } else {
         window.open(fullSongUrl, '_blank');
       }
@@ -116,7 +129,11 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
               <div>
                 <p className="font-medium">Música no SoundCloud</p>
                 <p className="text-sm text-gray-500">
-                  {isCompleted ? 'Música completa disponível' : 'Prévia de 30 segundos disponível'}
+                  {isCompleted 
+                    ? isPaid 
+                      ? 'Música completa disponível' 
+                      : 'Música pronta - Aguardando pagamento'
+                    : 'Prévia de 30 segundos disponível'}
                 </p>
               </div>
             </div>
@@ -133,10 +150,14 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
               
               {isCompleted && (
                 <Button 
-                  className="flex items-center gap-1 bg-pink-500 hover:bg-pink-600"
+                  className={`flex items-center gap-1 ${isPaid ? 'bg-pink-500 hover:bg-pink-600' : 'bg-gray-400'}`}
                   onClick={handleAccessFullSong}
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  {isPaid ? (
+                    <ExternalLink className="h-4 w-4" />
+                  ) : (
+                    <Lock className="h-4 w-4" />
+                  )}
                   Ouvir Completa
                 </Button>
               )}
@@ -152,7 +173,11 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
               <div>
                 <p className="font-medium">Sua Música Personalizada</p>
                 <p className="text-sm text-gray-500">
-                  {isCompleted ? 'Música completa disponível' : 'Prévia disponível'}
+                  {isCompleted 
+                    ? isPaid 
+                      ? 'Música completa disponível' 
+                      : 'Música pronta - Aguardando pagamento'
+                    : 'Prévia disponível'}
                 </p>
               </div>
             </div>
@@ -169,10 +194,15 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
               
               {isCompleted && (
                 <Button 
-                  className="flex items-center gap-1 bg-pink-500 hover:bg-pink-600"
+                  className={`flex items-center gap-1 ${isPaid ? 'bg-pink-500 hover:bg-pink-600' : 'bg-gray-400'}`}
                   onClick={handleAccessFullSong}
+                  title={isPaid ? 'Ouvir versão completa' : 'Aguardando pagamento para liberar'}
                 >
-                  <ExternalLink className="h-4 w-4" />
+                  {isPaid ? (
+                    <ExternalLink className="h-4 w-4" />
+                  ) : (
+                    <Lock className="h-4 w-4" />
+                  )}
                   Versão Completa
                 </Button>
               )}
@@ -196,7 +226,11 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
               <div className="ml-3">
                 <p className="font-medium">Prévia da Música</p>
                 <p className="text-sm text-gray-500">
-                  {isCompleted ? 'Música completa disponível' : 'Aguardando pagamento para liberar música completa'}
+                  {isCompleted 
+                    ? isPaid 
+                      ? 'Música completa disponível' 
+                      : 'Música pronta - Aguardando pagamento para liberar música completa'
+                    : 'Aguardando produção da música'}
                 </p>
               </div>
             </div>
@@ -207,7 +241,11 @@ const MusicPreviewPlayer = ({ previewUrl, fullSongUrl, isCompleted }: MusicPrevi
                 className="flex items-center gap-1"
                 onClick={handleAccessFullSong}
               >
-                <Download className="h-4 w-4" />
+                {isPaid ? (
+                  <Download className="h-4 w-4" />
+                ) : (
+                  <Lock className="h-4 w-4" />
+                )}
                 Acessar
               </Button>
             )}

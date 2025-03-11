@@ -1,7 +1,6 @@
 
-import { useState } from "react";
+import { MusicRequest } from "@/types/database.types";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { 
   Dialog, 
   DialogContent, 
@@ -10,8 +9,6 @@ import {
   DialogDescription,
   DialogFooter
 } from "@/components/ui/dialog";
-import { toast } from "@/hooks/use-toast";
-import { MusicRequest } from "@/types/database.types";
 
 interface RequestDetailsProps {
   showDetails: boolean;
@@ -24,38 +21,8 @@ interface RequestDetailsProps {
 const RequestDetails = ({ 
   showDetails, 
   setShowDetails, 
-  selectedRequest, 
-  handleSaveSoundCloudId, 
-  isUploading 
+  selectedRequest
 }: RequestDetailsProps) => {
-  const [musicLink, setMusicLink] = useState<string>("");
-  
-  const handleSaveClicked = () => {
-    if (!musicLink.trim()) {
-      toast({
-        title: "Erro",
-        description: "Digite um link de música válido.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Verificação básica para garantir que o link seja um arquivo de áudio
-    const isValidAudioLink = musicLink.match(/\.(mp3|wav|ogg|m4a|flac)($|\?)/i) || 
-                            musicLink.includes('wp.novaenergiamg.com.br') ||
-                            musicLink.includes('drive.google.com');
-
-    if (!isValidAudioLink) {
-      const confirmUpload = window.confirm(
-        "O link fornecido não parece ser um arquivo de áudio. Deseja continuar mesmo assim?"
-      );
-      if (!confirmUpload) return;
-    }
-
-    handleSaveSoundCloudId(musicLink);
-    setMusicLink("");
-  };
-
   return (
     <Dialog open={showDetails} onOpenChange={setShowDetails}>
       <DialogContent className="max-w-3xl">

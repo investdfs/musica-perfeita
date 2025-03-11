@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MusicRequest } from "@/types/database.types";
 import { isDevelopmentOrPreview } from "@/lib/environment";
@@ -51,6 +52,7 @@ export const useRequestManagement = (
         }
       }
       
+      // Não alteramos o status de pagamento, apenas o status do pedido e links
       const updateData = { 
         status: 'completed' as MusicRequest['status'], 
         soundcloud_id: null,

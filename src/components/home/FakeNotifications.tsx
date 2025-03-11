@@ -72,11 +72,13 @@ const FakeNotifications = () => {
         <div className="space-y-1">
           <p className="text-xs text-muted-foreground">{randomCity}</p>
           <p>{randomAction}</p>
+          <div className="mt-2">
+            <Bell className="h-5 w-5 text-blue-500 inline-block mr-2" />
+          </div>
         </div>
       ),
       duration: 5000, // 5 segundos
-      className: "fake-notification-toast",
-      icon: <Bell className="h-5 w-5 text-blue-500" />
+      className: "fake-notification-toast"
     });
   };
   

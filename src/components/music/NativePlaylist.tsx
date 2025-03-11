@@ -21,60 +21,72 @@ interface NativePlaylistProps {
 const songs: Song[] = [
   {
     id: "1",
+    title: "Na Beira do Rio-Saudades-Soul",
+    artist: "Música Perfeita",
+    url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Na-Beira-do-Rio-Saudades-Soul.wav"
+  },
+  {
+    id: "2",
+    title: "Transformação Dueto",
+    artist: "Música Perfeita",
+    url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Transformacao-Dueto.wav"
+  },
+  {
+    id: "3",
+    title: "Vibração Irresistível (Dance Music)",
+    artist: "Música Perfeita",
+    url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Vibracao-Irresistivel-Dance-Music.mp3"
+  },
+  {
+    id: "4",
     title: "Eternidade Sagrada",
     artist: "Música Perfeita",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Eternidade-Sagrada.mp3"
   },
   {
-    id: "2",
-    title: "Na Beira do Rio: Saudades",
-    artist: "Música Perfeita",
-    url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Na-Beira-do-Rio-Saudades.mp3"
-  },
-  {
-    id: "3",
+    id: "5",
     title: "Entrada da Noiva: Juliana e Rafael",
     artist: "Música Perfeita",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Entrada-da-Noiva-Juliana-e-Rafael.mp3"
   },
   {
-    id: "4",
+    id: "6",
     title: "Rap Lover",
     artist: "João Gabriel SP",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Joao-Gabriel-SP-Rap-Lover.mp3"
   },
   {
-    id: "5",
+    id: "7",
     title: "Juntos há muitos anos",
     artist: "Música Perfeita",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Juntos-ha-muitos-anos-1.mp3"
   },
   {
-    id: "6",
+    id: "8",
     title: "Meu anjo se foi",
     artist: "Música Perfeita",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Meu-anjo-se-foi.mp3"
   },
   {
-    id: "7",
+    id: "9",
     title: "Entre Mundos",
     artist: "Música Perfeita",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Entre-Mundos.mp3"
   },
   {
-    id: "8",
+    id: "10",
     title: "Emerald Eyes",
     artist: "Música Instrumental",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Emerald-Eyes.mp3"
   },
   {
-    id: "9",
+    id: "11",
     title: "Meu filho meu anjo",
     artist: "Música Perfeita",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Meu-filho-meu-anjo.mp3"
   },
   {
-    id: "10",
+    id: "12",
     title: "Homem Leão: Selva Feroz",
     artist: "Música Perfeita",
     url: "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Homem-leao-Selva-feroz.mp3"

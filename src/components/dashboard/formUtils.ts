@@ -32,18 +32,22 @@ export async function submitMusicRequest(
           
         if (imageError) {
           console.error("Error uploading image:", imageError);
-          throw imageError;
+          toast({
+            title: "Alerta",
+            description: "Não foi possível fazer upload da imagem, mas seu pedido será enviado mesmo assim.",
+            variant: "destructive",
+          });
+        } else {
+          coverUrl = imageData?.path;
+          console.log("Cover image uploaded successfully:", coverUrl);
         }
-        
-        coverUrl = imageData?.path;
-        console.log("Cover image uploaded successfully:", coverUrl);
       } catch (imageUploadError) {
         console.error("Image upload failed:", imageUploadError);
         // Continue with request even if image upload fails
         toast({
           title: "Alerta",
           description: "Não foi possível fazer upload da imagem, mas seu pedido será enviado mesmo assim.",
-          variant: "destructive", // Changed from "warning" to "destructive" as it's an allowed variant
+          variant: "destructive",
         });
       }
     }
@@ -75,35 +79,28 @@ export async function submitMusicRequest(
       
     if (error) {
       console.error("Database error during insertion:", error);
-      throw error;
+      throw new Error(`Erro ao salvar no banco de dados: ${error.message}`);
     }
     
     console.log("Request submitted successfully:", data);
-    toast({
-      title: "Pedido enviado com sucesso!",
-      description: "Seu pedido foi recebido e está sendo analisado.",
-    });
-    
     return data || [];
     
   } catch (error) {
     console.error('Error submitting music request:', error);
-    // More detailed error reporting
-    let errorMessage = "Ocorreu um erro ao enviar seu pedido. Tente novamente.";
     
-    if (error.message) {
-      errorMessage += ` Erro: ${error.message}`;
-      console.error(`Error message: ${error.message}`);
+    // Melhoria no tratamento e detalhamento de erros
+    let errorMessage = "Ocorreu um erro ao enviar seu pedido.";
+    
+    if (error.message?.includes("network") || error.message?.includes("Failed to fetch")) {
+      errorMessage = "Problema de conexão detectado. Verifique sua internet e tente novamente.";
+    } else if (error.code) {
+      errorMessage += ` (Código: ${error.code})`;
     }
     
-    if (error.code) {
-      console.error(`Error code: ${error.code}`);
-    }
-    
-    toast({
-      title: "Erro ao enviar pedido",
-      description: errorMessage,
-      variant: "destructive",
+    console.error("Erro detalhado:", {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
     });
     
     // Rethrow to be handled by the component

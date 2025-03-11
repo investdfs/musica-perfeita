@@ -28,7 +28,6 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [showForm, setShowForm] = useState(!hasExistingRequest);
-  const [submitAttempts, setSubmitAttempts] = useState(0);
 
   const form = useForm<MusicRequestFormValues>({
     resolver: zodResolver(musicRequestSchema),
@@ -57,7 +56,6 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     }
     
     setIsSubmitting(true);
-    setSubmitAttempts(prev => prev + 1);
     console.log("Iniciando processo de submissão");
     
     try {
@@ -81,31 +79,20 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     } catch (error) {
       console.error("Form submission error:", error);
       
-      // Special handling for network errors
-      if (error.message?.includes("Failed to fetch")) {
-        toast({
-          title: "Erro de conexão",
-          description: "Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente.",
-          variant: "destructive",
-        });
-      } else {
-        // Generic error message for other types of errors
-        toast({
-          title: "Erro ao enviar pedido",
-          description: error.message || "Ocorreu um erro ao processar seu pedido. Tente novamente.",
-          variant: "destructive",
-        });
+      // Tratamento adequado do erro para evitar mensagens de persistência repetidas
+      let errorMessage = "Ocorreu um erro ao processar seu pedido. Tente novamente mais tarde.";
+      
+      if (error.message?.includes("Failed to fetch") || error.message?.includes("network")) {
+        errorMessage = "Problema de conexão detectado. Verifique sua internet e tente novamente.";
       }
       
-      // If this is the third attempt, give more detailed help
-      if (submitAttempts >= 2) {
-        toast({
-          title: "Persistência de erro",
-          description: "Estamos tendo dificuldades para processar seu pedido. Tente novamente mais tarde ou entre em contato com o suporte.",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Erro ao enviar pedido",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
+      // Importante: sempre garantir que o estado de submissão seja resetado
       setIsSubmitting(false);
     }
   };

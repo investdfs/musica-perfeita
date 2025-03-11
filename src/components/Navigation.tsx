@@ -4,11 +4,13 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "./language/LanguageProvider";
 
 const Navigation = ({ className }: { className?: string }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { t } = useLanguage();
   
   // Helper function to determine if a link is active
   const isActive = (path: string) => location.pathname === path;
@@ -44,13 +46,13 @@ const Navigation = ({ className }: { className?: string }) => {
   };
 
   return (
-    <nav className={cn("flex items-center space-x-6", className)}>
+    <nav className={cn("flex items-center space-x-4 text-sm", className)}>
       <Link 
         to="/" 
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
         <Home className="h-4 w-4 text-blue-500" />
-        <span>Home</span>
+        <span>{t("navigation.home")}</span>
       </Link>
       
       {isLoggedIn ? (
@@ -59,7 +61,7 @@ const Navigation = ({ className }: { className?: string }) => {
           className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
           <User className="h-4 w-4 text-teal-500" />
-          <span>Minha Conta</span>
+          <span>{t("navigation.account")}</span>
         </Link>
       ) : null}
       
@@ -68,7 +70,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
         <Music className="h-4 w-4 text-purple-500" />
-        <span>Nossas Músicas</span>
+        <span>{t("navigation.ourMusic")}</span>
       </Link>
       
       <Link 
@@ -76,7 +78,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
         <MessageSquareHeart className="h-4 w-4 text-pink-500" />
-        <span>Depoimentos</span>
+        <span>{t("navigation.testimonials")}</span>
       </Link>
       
       <Link 
@@ -84,7 +86,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
         <HelpCircle className="h-4 w-4 text-amber-500" />
-        <span>Dúvidas</span>
+        <span>{t("navigation.faq")}</span>
       </Link>
       
       <Link 
@@ -92,7 +94,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
         <Info className="h-4 w-4 text-emerald-500" />
-        <span>Sobre</span>
+        <span>{t("navigation.about")}</span>
       </Link>
       
       {!isLoggedIn && (
@@ -101,7 +103,7 @@ const Navigation = ({ className }: { className?: string }) => {
           className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
           <UserPlus className="h-4 w-4 text-green-500" />
-          <span>Cadastro</span>
+          <span>{t("navigation.register")}</span>
         </Link>
       )}
       
@@ -111,7 +113,7 @@ const Navigation = ({ className }: { className?: string }) => {
           className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
           <LogIn className="h-4 w-4 text-indigo-500" />
-          <span>Login</span>
+          <span>{t("navigation.login")}</span>
         </Link>
       ) : (
         <a
@@ -120,7 +122,7 @@ const Navigation = ({ className }: { className?: string }) => {
           className="flex items-center gap-1 transition-colors text-red-600 hover:text-red-800"
         >
           <LogOut className="h-4 w-4" />
-          <span>Sair</span>
+          <span>{t("navigation.logout")}</span>
         </a>
       )}
     </nav>

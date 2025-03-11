@@ -2,15 +2,18 @@
 import { Check, Music, HeadphonesIcon, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/language/LanguageProvider";
 
 const DifferentialsSection = () => {
+  const { t } = useLanguage();
+  
   return (
     <section className="py-16 px-6 bg-gradient-to-br from-pink-50 to-purple-50">
       <div className="max-w-5xl mx-auto">
         {/* Seção de exemplos de músicas - Simplificada com imagem arredondada */}
         <div className="mb-12">
           <h3 className="text-2xl font-semibold mb-6 text-center text-gray-800">
-            Ouça exemplos de nossas criações
+            {t("differentials.listenExamples")}
           </h3>
           <div className="max-w-2xl mx-auto text-center">
             <Link to="/nossas-musicas">
@@ -23,7 +26,7 @@ const DifferentialsSection = () => {
             <div className="mt-4">
               <Link to="/nossas-musicas">
                 <Button className="bg-pink-500 hover:bg-pink-600 text-white">
-                  Ouvir Exemplos <Music className="ml-1 h-4 w-4" />
+                  {t("differentials.listenButton")} <Music className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -31,7 +34,7 @@ const DifferentialsSection = () => {
         </div>
         
         <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-          Por que escolher a Musicaperfeita?
+          {t("differentials.whyChoose")}
         </h2>
         
         <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -41,8 +44,8 @@ const DifferentialsSection = () => {
                 <Check className="h-4 w-4 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-1">Baixo custo, alta qualidade</h3>
-                <p className="text-gray-700">Pague só após aprovar sua música!</p>
+                <h3 className="text-xl font-semibold mb-1">{t("differentials.lowCost")}</h3>
+                <p className="text-gray-700">{t("differentials.payAfter")}</p>
               </div>
             </div>
             
@@ -51,8 +54,8 @@ const DifferentialsSection = () => {
                 <Check className="h-4 w-4 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-1">Sem pagamento antecipado</h3>
-                <p className="text-gray-700">Nem dados de cartão de crédito no cadastro ou produção.</p>
+                <h3 className="text-xl font-semibold mb-1">{t("differentials.noAdvancePayment")}</h3>
+                <p className="text-gray-700">{t("differentials.noCredit")}</p>
               </div>
             </div>
             
@@ -61,8 +64,8 @@ const DifferentialsSection = () => {
                 <Check className="h-4 w-4 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-semibold mb-1">Música pronta em poucos dias</h3>
-                <p className="text-gray-700">Direto no seu WhatsApp!</p>
+                <h3 className="text-xl font-semibold mb-1">{t("differentials.fastDelivery")}</h3>
+                <p className="text-gray-700">{t("differentials.whatsapp")}</p>
               </div>
             </div>
           </div>
@@ -73,8 +76,8 @@ const DifferentialsSection = () => {
             <div className="absolute bottom-4 left-8 text-7xl">🎵</div>
             <div className="absolute bottom-20 right-6 text-5xl">🎵</div>
             <div className="relative z-10 text-center py-12">
-              <h3 className="text-2xl font-bold mb-2 text-pink-500">Sua emoção em melodia</h3>
-              <p className="text-gray-600">Transformamos histórias de amor em canções inesquecíveis</p>
+              <h3 className="text-2xl font-bold mb-2 text-pink-500">{t("differentials.emotion")}</h3>
+              <p className="text-gray-600">{t("differentials.transform")}</p>
             </div>
           </div>
         </div>

@@ -23,7 +23,7 @@ export async function submitMusicRequest(
     let coverUrl = null;
     
     if (coverImage) {
-      console.log("Uploading cover image");
+      console.log("Uploading cover image", coverImage);
       try {
         const fileName = `covers/${userId}/${Date.now()}-${coverImage.name}`;
         const { data: imageData, error: imageError } = await supabase.storage
@@ -93,6 +93,7 @@ export async function submitMusicRequest(
     
     if (error.message) {
       errorMessage += ` Erro: ${error.message}`;
+      console.error(`Error message: ${error.message}`);
     }
     
     if (error.code) {

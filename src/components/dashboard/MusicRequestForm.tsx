@@ -50,10 +50,15 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
   };
 
   const onSubmit = async (values: MusicRequestFormValues) => {
-    if (isSubmitting) return; // Prevent multiple submissions
+    console.log("Formulário enviado, valores:", values);
+    if (isSubmitting) {
+      console.log("Já está submetendo, retornando");
+      return; // Prevent multiple submissions
+    }
     
     setIsSubmitting(true);
     setSubmitAttempts(prev => prev + 1);
+    console.log("Iniciando processo de submissão");
     
     try {
       console.log("Form submission started", { values, userProfile });
@@ -81,6 +86,13 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
         toast({
           title: "Erro de conexão",
           description: "Não foi possível conectar ao servidor. Verifique sua conexão com a internet e tente novamente.",
+          variant: "destructive",
+        });
+      } else {
+        // Generic error message for other types of errors
+        toast({
+          title: "Erro ao enviar pedido",
+          description: error.message || "Ocorreu um erro ao processar seu pedido. Tente novamente.",
           variant: "destructive",
         });
       }

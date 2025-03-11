@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -28,7 +28,9 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [showForm, setShowForm] = useState(!hasExistingRequest);
-
+  const submitAttemptRef = useRef(0);
+  const hasSubmittedSuccessfully = useRef(false);
+  
   const form = useForm<MusicRequestFormValues>({
     resolver: zodResolver(musicRequestSchema),
     defaultValues: {
@@ -44,46 +46,69 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     },
   });
 
+  // Limpar estado de submissão ao desmontar componente
+  useEffect(() => {
+    return () => {
+      setIsSubmitting(false);
+    };
+  }, []);
+
   const handleImageSelected = (file: File) => {
     setCoverImage(file);
   };
 
   const onSubmit = async (values: MusicRequestFormValues) => {
     console.log("Formulário enviado, valores:", values);
+    
     if (isSubmitting) {
       console.log("Já está submetendo, retornando");
-      return; // Prevent multiple submissions
+      return; // Evitar múltiplos envios
     }
     
+    if (hasSubmittedSuccessfully.current) {
+      console.log("Já submetido com sucesso anteriormente, ignorando novo envio");
+      toast({
+        title: "Atenção",
+        description: "Seu pedido já foi enviado com sucesso. Aguarde enquanto processamos.",
+      });
+      return;
+    }
+    
+    submitAttemptRef.current += 1;
+    const currentAttempt = submitAttemptRef.current;
+    console.log(`Iniciando processo de submissão (tentativa ${currentAttempt})`);
+    
     setIsSubmitting(true);
-    console.log("Iniciando processo de submissão");
     
     try {
-      console.log("Form submission started", { values, userProfile });
+      console.log("Iniciando submissão do formulário", { values, userProfile });
       
-      // Validate that user profile has required fields
+      // Validar que o perfil do usuário tem os campos necessários
       if (!userProfile?.id) {
         throw new Error("Perfil de usuário inválido. Tente fazer login novamente.");
       }
       
       const data = await submitMusicRequest(values, userProfile, coverImage);
-      console.log("Form submission completed successfully", data);
+      console.log("Submissão do formulário concluída com sucesso", data);
       
+      hasSubmittedSuccessfully.current = true;
       onRequestSubmitted(data);
-      setShowForm(false); // Hide form after successful submission
+      setShowForm(false); // Esconder formulário após envio bem-sucedido
       
       toast({
         title: "Sucesso!",
         description: "Seu pedido foi enviado com sucesso. Aguarde enquanto processamos sua solicitação.",
       });
     } catch (error) {
-      console.error("Form submission error:", error);
+      console.error("Erro na submissão do formulário:", error);
       
-      // Tratamento adequado do erro para evitar mensagens de persistência repetidas
+      // Se não for o mesmo erro, mostrar toast diferente
       let errorMessage = "Ocorreu um erro ao processar seu pedido. Tente novamente mais tarde.";
       
-      if (error.message?.includes("Failed to fetch") || error.message?.includes("network")) {
+      if (error.type === "network") {
         errorMessage = "Problema de conexão detectado. Verifique sua internet e tente novamente.";
+      } else if (error.type === "timeout") {
+        errorMessage = "A conexão com o servidor demorou muito. Tente novamente.";
       }
       
       toast({
@@ -93,11 +118,15 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
       });
     } finally {
       // Importante: sempre garantir que o estado de submissão seja resetado
-      setIsSubmitting(false);
+      // Apenas se esta ainda for a tentativa atual (evita race conditions)
+      if (currentAttempt === submitAttemptRef.current) {
+        console.log(`Finalizando tentativa de submissão ${currentAttempt}`);
+        setIsSubmitting(false);
+      }
     }
   };
 
-  // Don't show the form at all if there's an existing request
+  // Não mostrar o formulário se já existe um pedido
   if (hasExistingRequest) {
     return null;
   }

@@ -4,22 +4,37 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "react-router-dom";
 import { Bell } from "lucide-react";
 
-// Lista de nomes fictícios
+// Lista ampliada de nomes fictícios
 const fakeNames = [
   "Ana Luíza", "Carlos Eduardo", "Mariana", "João Pedro", "Camila", 
   "Rafael", "Bianca", "Gabriel", "Juliana", "Thiago", "Fernanda", 
-  "Lucas", "Amanda", "Felipe", "Larissa", "Bruno", "Natália"
+  "Lucas", "Amanda", "Felipe", "Larissa", "Bruno", "Natália",
+  "Ricardo", "Patrícia", "Alexandre", "Isabela", "Gustavo", "Daniela",
+  "Leonardo", "Marcela", "Henrique", "Beatriz", "Rodrigo", "Aline",
+  "Fernando", "Júlia", "Renato", "Carla", "André", "Viviane", "Diego",
+  "Priscila", "Paulo", "Sandra", "Eduardo", "Vanessa", "Luciano", 
+  "Tatiana", "Roberto", "Cristina", "Marcos", "Fabiana", "Sérgio",
+  "Adriana", "Fábio", "Letícia", "Vitor", "Carolina", "José", "Regina"
 ];
 
-// Lista de cidades
+// Lista ampliada de cidades
 const fakeCities = [
   "São Paulo - SP", "Rio de Janeiro - RJ", "Belo Horizonte - MG",
   "Salvador - BA", "Fortaleza - CE", "Brasília - DF", "Curitiba - PR",
   "Recife - PE", "Porto Alegre - RS", "Manaus - AM", "Florianópolis - SC",
-  "Goiânia - GO", "Natal - RN", "Campinas - SP", "Vitória - ES"
+  "Goiânia - GO", "Natal - RN", "Campinas - SP", "Vitória - ES",
+  "Belém - PA", "São Luís - MA", "João Pessoa - PB", "Campo Grande - MS",
+  "Teresina - PI", "Aracaju - SE", "Ribeirão Preto - SP", "Uberlândia - MG",
+  "Sorocaba - SP", "Londrina - PR", "Joinville - SC", "Niterói - RJ",
+  "Santos - SP", "Juiz de Fora - MG", "Maringá - PR", "Caxias do Sul - RS",
+  "Maceió - AL", "Bauru - SP", "São José dos Campos - SP", "Pelotas - RS",
+  "Foz do Iguaçu - PR", "Blumenau - SC", "Jundiaí - SP", "Franca - SP",
+  "Palmas - TO", "Petrópolis - RJ", "Uberaba - MG", "Caruaru - PE",
+  "Divinópolis - MG", "Governador Valadares - MG", "Volta Redonda - RJ",
+  "Ipatinga - MG", "Santa Maria - RS", "Mossoró - RN", "Anápolis - GO"
 ];
 
-// Lista de ações
+// Lista ampliada de ações
 const fakeActions = [
   "acabou de encomendar uma música personalizada.",
   "enviou uma música para produção. :-)",
@@ -28,7 +43,28 @@ const fakeActions = [
   "adorou a música que recebeu!",
   "presenteou alguém com uma música.",
   "está criando sua primeira música.",
-  "fez um pedido de música romântica."
+  "fez um pedido de música romântica.",
+  "escolheu uma música no estilo sertanejo.",
+  "está escrevendo uma história emocionante para sua música.",
+  "selecionou a voz feminina para sua composição.",
+  "optou por um tom alegre para sua música.",
+  "comemorou aniversário de casamento com uma música personalizada.",
+  "surpreendeu os pais com uma canção especial.",
+  "está aguardando a finalização de sua música com ansiedade.",
+  "compartilhou sua música nas redes sociais.",
+  "escolheu o gênero MPB para sua composição.",
+  "adicionou fotos especiais na capa de sua música.",
+  "presenteou o(a) filho(a) com uma música de aniversário.",
+  "fez um pedido para comemorar bodas de prata.",
+  "está feliz com a composição recebida!",
+  "está escolhendo entre voz masculina ou feminina.",
+  "recomendou nosso serviço para amigos.",
+  "declarou seu amor através de uma música personalizada.",
+  "pediu uma música para seu casamento.",
+  "emocionou-se ao ouvir sua composição pela primeira vez.",
+  "acaba de finalizar seu pagamento.",
+  "está decidindo qual história contar em sua música.",
+  "fez uma homenagem musical para sua mãe."
 ];
 
 const FakeNotifications = () => {
@@ -95,20 +131,20 @@ const FakeNotifications = () => {
       setIsActive(true);
     }
     
-    // Tempo inicial antes da primeira notificação (3-7 segundos)
-    const initialDelay = Math.floor(Math.random() * 4000) + 3000;
+    // Tempo inicial antes da primeira notificação (5-15 segundos)
+    const initialDelay = Math.floor(Math.random() * 10000) + 5000;
     
     const initialTimer = setTimeout(() => {
       showNotification();
       
-      // Configurar o intervalo recorrente (5-15 segundos)
+      // Configurar o intervalo recorrente com mais tempo entre notificações (15-30 segundos)
       const intervalId = setInterval(() => {
-        const randomDelay = Math.floor(Math.random() * 10000) + 5000; // 5-15 segundos
+        const randomDelay = Math.floor(Math.random() * 15000) + 15000; // 15-30 segundos
         
         setTimeout(() => {
           showNotification();
         }, randomDelay);
-      }, 15000); // Base interval
+      }, 30000); // Base interval aumentado para 30 segundos
       
       return () => clearInterval(intervalId);
     }, initialDelay);

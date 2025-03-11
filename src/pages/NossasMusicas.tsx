@@ -47,6 +47,13 @@ const NossasMusicas = () => {
               Ouça nossa seleção de músicas personalizadas criadas especialmente para diversas ocasiões.
               Cada música conta uma história única e emocionante, criada com nossa tecnologia de inteligência artificial.
             </p>
+            <div className="flex justify-center mb-6">
+              <img 
+                src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-colorful-image-of-a-playlist-with-vari__XCmGShzQkS-Iq7yoemBqw_VSsFHl0uRn2g15SpD0M6Pg.webp" 
+                alt="Playlist de músicas personalizadas" 
+                className="w-1/2 rounded-lg shadow-md"
+              />
+            </div>
             <NativePlaylist className="mb-4" />
           </div>
         </section>

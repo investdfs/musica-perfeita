@@ -18,27 +18,8 @@ export const useDashboard = () => {
   const checkUserAuth = useCallback(() => {
     const storedUser = localStorage.getItem("musicaperfeita_user");
     
-    if (!storedUser && isDevelopmentOrPreview()) {
-      const testUser = {
-        id: uuidv4(),
-        name: 'Usuário de Desenvolvimento',
-        email: 'dev@example.com',
-        created_at: new Date().toISOString(),
-        whatsapp: '+5511999999999'
-      } as UserProfile;
-      
-      localStorage.setItem("musicaperfeita_user", JSON.stringify(testUser));
-      setUserProfile(testUser);
-      
-      toast({
-        title: "Modo de desenvolvimento/preview",
-        description: "Usuário de teste criado automaticamente",
-      });
-      
-      return;
-    }
-    
-    if (!storedUser && !isDevelopmentOrPreview()) {
+    if (!storedUser) {
+      // Remover o modo de desenvolvimento automático e redirecionar para o login
       toast({
         title: "Acesso restrito",
         description: "Você precisa fazer login para acessar esta página",
@@ -55,14 +36,6 @@ export const useDashboard = () => {
   const fetchUserRequests = useCallback(async () => {
     try {
       if (!userProfile?.id) return;
-      
-      if (userProfile.id === 'dev-user-id') {
-        setUserRequests([]);
-        setCurrentProgress(10);
-        setShowNewRequestForm(true);
-        setIsLoading(false);
-        return;
-      }
       
       const { data, error } = await supabase
         .from('music_requests')
@@ -106,10 +79,6 @@ export const useDashboard = () => {
   const checkForStatusUpdates = useCallback(async () => {
     try {
       if (!userProfile?.id) return;
-      
-      if (userProfile.id === 'dev-user-id') {
-        return;
-      }
       
       const { data, error } = await supabase
         .from('music_requests')

@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
-import { UserProfile, MusicRequest } from "@/types/database.types";
+import { UserProfile } from "@/types/database.types";
 
 interface Testimonial {
   id: number;
@@ -28,7 +28,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
     content: "Foi incrível! Meu marido ficou emocionado com a música, as palavras descreveram perfeitamente nossa história. Ele até chorou! Valeu cada centavo e a música ficará para sempre em nossas memórias.",
     date: "12/05/2024",
-    imageUrl: "https://randomuser.me/api/portraits/women/44.jpg",
+    imageUrl: "https://randomuser.me/api/portraits/women/38.jpg",
     relationship: "Para o marido",
   },
   {
@@ -37,7 +37,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
     content: "Fiz uma surpresa para minha esposa em nosso aniversário de casamento. A música ficou perfeita e superou todas as minhas expectativas. Ver a expressão no rosto dela quando a música começou a tocar foi impagável.",
     date: "23/04/2024",
-    imageUrl: "https://randomuser.me/api/portraits/men/32.jpg",
+    imageUrl: "https://randomuser.me/api/portraits/men/45.jpg",
     relationship: "Para a esposa",
   },
   {
@@ -46,7 +46,7 @@ const testimonials: Testimonial[] = [
     rating: 4,
     content: "A composição ficou linda! Presenteei minha mãe no dia das mães e ela adorou. A música capturou perfeitamente nossa relação e as memórias que compartilhamos juntas.",
     date: "10/05/2024",
-    imageUrl: "https://randomuser.me/api/portraits/women/66.jpg",
+    imageUrl: "https://randomuser.me/api/portraits/women/43.jpg",
     relationship: "Para a mãe",
   },
   {
@@ -55,7 +55,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
     content: "Inacreditável como transformaram minha história em uma música tão especial. Minha noiva ficou sem palavras quando ouviu. Já estamos usando a música para o nosso casamento!",
     date: "17/03/2024",
-    imageUrl: "https://randomuser.me/api/portraits/men/78.jpg",
+    imageUrl: "https://randomuser.me/api/portraits/men/36.jpg",
     relationship: "Para a noiva",
   },
   {
@@ -64,7 +64,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
     content: "Fiz como presente para meu filho que está morando longe. A música expressou todo o amor e saudade que sinto. Ele me ligou chorando após ouvir. Um presente que aproxima mesmo à distância.",
     date: "05/04/2024",
-    imageUrl: "https://randomuser.me/api/portraits/women/90.jpg",
+    imageUrl: "https://randomuser.me/api/portraits/women/41.jpg",
     relationship: "Para o filho",
   },
   {
@@ -73,7 +73,7 @@ const testimonials: Testimonial[] = [
     rating: 4,
     content: "Surpreendi minha namorada em nosso aniversário de namoro. Ela não esperava algo tão pessoal e único. A música conseguiu transmitir todos os sentimentos que às vezes tenho dificuldade de expressar.",
     date: "28/02/2024",
-    imageUrl: "https://randomuser.me/api/portraits/men/62.jpg",
+    imageUrl: "https://randomuser.me/api/portraits/men/53.jpg",
     relationship: "Para a namorada",
   },
   {
@@ -82,7 +82,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
     content: "Dei de presente para meu pai no aniversário dele. Ele é um homem de poucas palavras, mas percebi o quanto ficou emocionado. Ver meu pai se emocionar assim foi um momento que jamais esquecerei.",
     date: "14/04/2024",
-    imageUrl: "https://randomuser.me/api/portraits/women/29.jpg",
+    imageUrl: "https://randomuser.me/api/portraits/women/48.jpg",
     relationship: "Para o pai",
   },
   {
@@ -91,7 +91,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
     content: "Fiz uma música para comemorar 25 anos de casamento. Minha esposa não conseguiu conter as lágrimas. A qualidade da produção é impressionante, parece uma música profissional de rádio.",
     date: "03/05/2024",
-    imageUrl: "https://randomuser.me/api/portraits/men/42.jpg",
+    imageUrl: "https://randomuser.me/api/portraits/men/35.jpg",
     relationship: "Para a esposa",
   },
   {
@@ -100,7 +100,7 @@ const testimonials: Testimonial[] = [
     rating: 5,
     content: "Encomendei uma música para minha melhor amiga que está passando por um momento difícil. Ela me disse que ouve a música todos os dias e que a ajuda a seguir em frente. O poder da música é incrível!",
     date: "19/03/2024",
-    imageUrl: "https://randomuser.me/api/portraits/women/56.jpg",
+    imageUrl: "https://randomuser.me/api/portraits/women/37.jpg",
     relationship: "Para uma amiga",
   }
 ];
@@ -230,17 +230,47 @@ const Depoimentos = () => {
     
     setIsSubmitting(true);
     
-    // Here you would normally save the testimonial to the database
-    // For now, we'll just simulate a successful submission
-    
-    setTimeout(() => {
+    try {
+      // Salvar o depoimento no banco de dados
+      const { error } = await supabase
+        .from('testimonials')
+        .insert([
+          {
+            user_id: userProfile.id,
+            name: newTestimonial.name || userProfile.name,
+            content: newTestimonial.content,
+            rating: newTestimonial.rating,
+            approved: false // Depoimentos precisam ser aprovados pelo admin
+          }
+        ]);
+        
+      if (error) throw error;
+      
       toast({
         title: "Depoimento enviado!",
-        description: "Obrigado por compartilhar sua experiência.",
+        description: "Obrigado por compartilhar sua experiência. Seu depoimento será revisado em breve.",
       });
+      
       setNewTestimonial({ content: "", name: "", rating: 5 });
+    } catch (error) {
+      console.error("Erro ao enviar depoimento:", error);
+      toast({
+        title: "Erro ao enviar",
+        description: "Não foi possível enviar seu depoimento. Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
+  };
+
+  const handleRedirectToLogin = () => {
+    toast({
+      title: "Acesso restrito",
+      description: "Você precisa estar logado para enviar um depoimento ou fazer um pedido.",
+      variant: "destructive",
+    });
+    navigate("/login");
   };
 
   return (
@@ -267,7 +297,7 @@ const Depoimentos = () => {
             </p>
           </div>
           
-          {hasCompletedMusic ? (
+          {userProfile && hasCompletedMusic ? (
             <form onSubmit={handleSubmitTestimonial} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -338,10 +368,10 @@ const Depoimentos = () => {
                 Para enviar um depoimento, você precisa ter recebido e pago por uma música personalizada.
               </p>
               <Button
-                onClick={() => navigate("/dashboard")}
+                onClick={userProfile ? () => navigate("/dashboard") : handleRedirectToLogin}
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
-                Fazer meu pedido
+                {userProfile ? "Fazer meu pedido" : "Fazer login"}
               </Button>
             </div>
           )}

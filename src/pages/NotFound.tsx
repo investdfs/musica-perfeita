@@ -5,9 +5,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const NotFound = () => {
   const location = useLocation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     console.error(
@@ -22,15 +24,15 @@ const NotFound = () => {
       
       <div className="flex-grow flex items-center justify-center">
         <div className="text-center max-w-md px-4 py-12">
-          <h1 className="text-6xl font-bold mb-6 text-purple-600">404</h1>
-          <p className="text-2xl text-gray-700 mb-6">Página não encontrada</p>
+          <h1 className="text-6xl font-bold mb-6 text-purple-600">{t("notfound.title")}</h1>
+          <p className="text-2xl text-gray-700 mb-6">{t("notfound.message")}</p>
           <p className="text-gray-600 mb-8">
-            A página que você está procurando não existe ou foi removida.
+            {t("notfound.description")}
           </p>
           <Link to="/">
             <Button size="lg" className="gap-2">
               <ArrowLeft className="h-4 w-4" />
-              Voltar para a página inicial
+              {t("notfound.button")}
             </Button>
           </Link>
         </div>

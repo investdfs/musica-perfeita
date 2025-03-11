@@ -6,12 +6,14 @@ import Footer from "@/components/Footer";
 import SoundCloudPlayer from "@/components/music/SoundCloudPlayer";
 import { CheckCircle, Clock, Music, Heart } from "lucide-react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 const MusicPlayerFull = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [musicUrl, setMusicUrl] = useState<string>("");
   const [downloadUrl, setDownloadUrl] = useState<string>("");
+  const { t } = useTranslation();
   
   useEffect(() => {
     // Obter as URLs da música e do download dos parâmetros da URL ou do estado da rota
@@ -51,15 +53,15 @@ const MusicPlayerFull = () => {
             </div>
             
             <h1 className="text-4xl font-bold text-center text-gray-100 mb-4 tracking-tight">
-              Sua Música Completa
+              {t("player_full.title")}
             </h1>
             
             <p className="text-center text-gray-300 max-w-xl mx-auto mb-2">
-              Parabéns! Você agora tem acesso à versão completa da sua música personalizada.
+              {t("player_full.congrats")}
             </p>
             
             <p className="text-center text-green-400 text-sm max-w-xl mx-auto">
-              Ouça quantas vezes quiser e faça o download para guardar com você.
+              {t("player_full.info")}
             </p>
           </div>
           
@@ -76,7 +78,7 @@ const MusicPlayerFull = () => {
             <CardHeader className="pb-2">
               <div className="flex items-center">
                 <Music className="h-5 w-5 text-indigo-400 mr-2" />
-                <CardTitle className="text-xl font-semibold text-gray-200">Detalhes da Música</CardTitle>
+                <CardTitle className="text-xl font-semibold text-gray-200">{t("player_full.details")}</CardTitle>
               </div>
             </CardHeader>
             <CardContent>
@@ -84,35 +86,35 @@ const MusicPlayerFull = () => {
                 <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
                   <div className="flex items-center mb-2">
                     <Clock className="h-4 w-4 text-indigo-400 mr-2" />
-                    <p className="text-sm text-gray-400">Duração</p>
+                    <p className="text-sm text-gray-400">{t("player_full.duration")}</p>
                   </div>
-                  <p className="text-gray-200 font-medium">Versão Completa</p>
+                  <p className="text-gray-200 font-medium">{t("player_full.duration_value")}</p>
                 </div>
                 
                 <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
                   <div className="flex items-center mb-2">
                     <Heart className="h-4 w-4 text-indigo-400 mr-2" />
-                    <p className="text-sm text-gray-400">Criada para</p>
+                    <p className="text-sm text-gray-400">{t("player.created_for")}</p>
                   </div>
-                  <p className="text-gray-200 font-medium">Você</p>
+                  <p className="text-gray-200 font-medium">{t("player.you")}</p>
                 </div>
                 
                 <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
                   <div className="flex items-center mb-2">
                     <Music className="h-4 w-4 text-indigo-400 mr-2" />
-                    <p className="text-sm text-gray-400">Formato</p>
+                    <p className="text-sm text-gray-400">{t("player.format")}</p>
                   </div>
-                  <p className="text-gray-200 font-medium">Alta Qualidade</p>
+                  <p className="text-gray-200 font-medium">{t("player_full.format")}</p>
                 </div>
               </div>
               
               <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
-                <h3 className="text-lg font-medium text-gray-200 mb-3">Instruções</h3>
+                <h3 className="text-lg font-medium text-gray-200 mb-3">{t("player_full.instructions")}</h3>
                 <ul className="list-disc pl-5 space-y-2 text-gray-300">
-                  <li>Você pode ouvir esta música quantas vezes quiser.</li>
-                  <li>Clique no botão "Baixar" verde para salvar a música em seu dispositivo.</li>
-                  <li>A música foi criada exclusivamente para você, com base nas informações que você forneceu.</li>
-                  <li>Se precisar de ajuda ou tiver dúvidas, entre em contato conosco.</li>
+                  <li>{t("player_full.instruction1")}</li>
+                  <li>{t("player_full.instruction2")}</li>
+                  <li>{t("player_full.instruction3")}</li>
+                  <li>{t("player_full.instruction4")}</li>
                 </ul>
               </div>
             </CardContent>

@@ -64,7 +64,28 @@ const fakeActions = [
   "emocionou-se ao ouvir sua composição pela primeira vez.",
   "acaba de finalizar seu pagamento.",
   "está decidindo qual história contar em sua música.",
-  "fez uma homenagem musical para sua mãe."
+  "fez uma homenagem musical para sua mãe.",
+  "solicitou uma música para celebrar 10 anos de união.",
+  "escolheu uma melodia especial para a música.",
+  "selecionou o tema romântico para sua canção.",
+  "está aguardando ansiosamente pelo resultado final.",
+  "comemorou o nascimento do filho com uma canção personalizada.",
+  "optou pelo estilo gospel para sua música.",
+  "preparou uma surpresa musical para os avós.",
+  "pediu uma música para a formatura da filha.",
+  "está encantado(a) com a qualidade da sua música.",
+  "acabou de aprovar a letra da sua canção.",
+  "fez um pedido musical para celebrar aposentadoria.",
+  "escolheu uma música com letra divertida.",
+  "solicitou uma música sertaneja para seu aniversário.",
+  "optou por uma balada romântica para seu pedido.",
+  "fez um pedido para celebrar a chegada do bebê.",
+  "vai surpreender o(a) namorado(a) com uma música.",
+  "está escolhendo o tom perfeito para sua melodia.",
+  "aprovou a versão final de sua canção personalizada.",
+  "compartilhou sua experiência nas redes sociais.",
+  "pediu uma música para homenagear sua cidade natal.",
+  "está criando uma playlist com suas músicas personalizadas."
 ];
 
 const FakeNotifications = () => {
@@ -131,20 +152,20 @@ const FakeNotifications = () => {
       setIsActive(true);
     }
     
-    // Tempo inicial antes da primeira notificação (5-15 segundos)
-    const initialDelay = Math.floor(Math.random() * 10000) + 5000;
+    // Tempo inicial antes da primeira notificação (15-30 segundos)
+    const initialDelay = Math.floor(Math.random() * 15000) + 15000;
     
     const initialTimer = setTimeout(() => {
       showNotification();
       
-      // Configurar o intervalo recorrente com mais tempo entre notificações (15-30 segundos)
+      // Configurar o intervalo recorrente com tempo entre notificações (90-180 segundos)
       const intervalId = setInterval(() => {
-        const randomDelay = Math.floor(Math.random() * 15000) + 15000; // 15-30 segundos
+        const randomDelay = Math.floor(Math.random() * 90000) + 90000; // 90-180 segundos
         
         setTimeout(() => {
           showNotification();
         }, randomDelay);
-      }, 30000); // Base interval aumentado para 30 segundos
+      }, 180000); // Base interval aumentado para 180 segundos
       
       return () => clearInterval(intervalId);
     }, initialDelay);

@@ -72,38 +72,6 @@ const NossasMusicas = () => {
             </Button>
           </Link>
         </section>
-        
-        <section className="max-w-4xl mx-auto mt-16 bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg">
-          <h3 className="text-xl font-semibold mb-3 text-center text-purple-800">
-            Ocasiões Perfeitas para Música Personalizada
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="font-medium text-pink-700">Aniversários</p>
-            </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="font-medium text-pink-700">Casamentos</p>
-            </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="font-medium text-pink-700">Dia dos Namorados</p>
-            </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="font-medium text-pink-700">Bodas</p>
-            </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="font-medium text-pink-700">Pedidos de Casamento</p>
-            </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="font-medium text-pink-700">Homenagens</p>
-            </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="font-medium text-pink-700">Dia dos Pais/Mães</p>
-            </div>
-            <div className="bg-white p-3 rounded-lg shadow-sm">
-              <p className="font-medium text-pink-700">Declarações de Amor</p>
-            </div>
-          </div>
-        </section>
       </main>
       
       {/* Player global de áudio no rodapé da página com tema escuro */}

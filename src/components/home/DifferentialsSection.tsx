@@ -7,7 +7,7 @@ const DifferentialsSection = () => {
   return (
     <section className="py-16 px-6 bg-gradient-to-br from-pink-50 to-purple-50">
       <div className="max-w-5xl mx-auto">
-        {/* Seção de exemplos de músicas - Nova versão com imagem 50% menor */}
+        {/* Seção de exemplos de músicas - Atualizada com a imagem correta */}
         <div className="mb-12">
           <h3 className="text-2xl font-semibold mb-6 text-center text-gray-800">
             Ouça exemplos de nossas criações
@@ -16,7 +16,7 @@ const DifferentialsSection = () => {
             <Link to="/nossas-musicas" className="block">
               <div className="relative overflow-hidden">
                 <img 
-                  src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-3d-render-of-a-playlist-with-waves-of-_QHhhBN7WTKeV9ExYGhFK3g_1xdiS_4ERbOtBvueTPsITg.webp" 
+                  src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-colorful-image-of-a-playlist-with-vari__XCmGShzQkS-Iq7yoemBqw_VSsFHl0uRn2g15SpD0M6Pg.webp" 
                   alt="Playlist de músicas personalizadas" 
                   className="w-full object-cover transition-transform duration-500 group-hover:scale-105 h-48 md:h-64"
                 />

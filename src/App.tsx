@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Cadastro from "./pages/Cadastro";
 import Login from "./pages/Login";
@@ -24,8 +24,27 @@ import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import AuthGuard from "./components/auth/AuthGuard";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import FakeNotifications from "./components/home/FakeNotifications";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
+
+// Componente para lidar com redirecionamentos de 404
+const RedirectHandler = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Verifica se há um caminho armazenado no sessionStorage
+    const redirectPath = sessionStorage.getItem('redirectPath');
+    if (redirectPath) {
+      // Remove do sessionStorage para não redirecionar novamente
+      sessionStorage.removeItem('redirectPath');
+      // Navega para o caminho armazenado
+      navigate(redirectPath);
+    }
+  }, [navigate]);
+  
+  return <>{children}</>;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -34,29 +53,31 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter basename="/">
-          <FakeNotifications />
-          <AuthGuard>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/cadastro" element={<Cadastro />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/sobre" element={<Sobre />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/pagamento" element={<Pagamento />} />
-              <Route path="/confirmacao" element={<Confirmacao />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin-login" element={<AdminLogin />} />
-              <Route path="/music-player" element={<MusicPlayer />} />
-              <Route path="/music-player-full" element={<MusicPlayerFull />} />
-              <Route path="/nossas-musicas" element={<NossasMusicas />} />
-              <Route path="/depoimentos" element={<Depoimentos />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/termos-condicoes" element={<TermosCondicoes />} />
-              <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AuthGuard>
+          <RedirectHandler>
+            <FakeNotifications />
+            <AuthGuard>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/cadastro" element={<Cadastro />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/sobre" element={<Sobre />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/pagamento" element={<Pagamento />} />
+                <Route path="/confirmacao" element={<Confirmacao />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/admin-login" element={<AdminLogin />} />
+                <Route path="/music-player" element={<MusicPlayer />} />
+                <Route path="/music-player-full" element={<MusicPlayerFull />} />
+                <Route path="/nossas-musicas" element={<NossasMusicas />} />
+                <Route path="/depoimentos" element={<Depoimentos />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/termos-condicoes" element={<TermosCondicoes />} />
+                <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AuthGuard>
+          </RedirectHandler>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

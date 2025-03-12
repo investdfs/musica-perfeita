@@ -30,9 +30,18 @@ CREATE TABLE public.music_requests (
       'folk', 'pop'
     )
   ),
+  music_tone TEXT CHECK (
+    music_tone IN ('happy', 'romantic', 'nostalgic', 'fun')
+  ),
+  voice_type TEXT CHECK (
+    voice_type IN ('male', 'female', 'male_romantic', 'female_romantic', 'male_folk', 'female_folk')
+  ),
   include_names BOOLEAN NOT NULL DEFAULT false,
   names_to_include TEXT,
   story TEXT NOT NULL,
+  music_focus TEXT,
+  happy_memory TEXT,
+  sad_memory TEXT,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (
     status IN ('pending', 'in_production', 'completed')
   ),

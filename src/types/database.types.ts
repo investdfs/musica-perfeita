@@ -29,4 +29,7 @@ export type MusicRequest = {
   payment_status: 'pending' | 'completed' | null;
   cover_image_url?: string | null;
   soundcloud_id?: string | null; // Mantemos para compatibilidade com dados existentes
+  music_focus?: string | null;
+  happy_memory?: string | null;
+  sad_memory?: string | null;
 };

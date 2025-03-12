@@ -12,6 +12,9 @@ import ToneAndVoiceFields from "./ToneAndVoiceFields";
 import StoryField from "./StoryField";
 import IncludeNamesFields from "./IncludeNamesFields";
 import SubmitButton from "./SubmitButton";
+import MusicFocusField from "./MusicFocusField";
+import HappyMemoryField from "./HappyMemoryField";
+import SadMemoryField from "./SadMemoryField";
 import { musicRequestSchema, MusicRequestFormValues } from "./formSchema";
 import { submitMusicRequest } from "./formUtils";
 import { toast } from "@/hooks/use-toast";
@@ -43,6 +46,9 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
       include_names: false,
       names_to_include: "",
       story: "",
+      music_focus: "",
+      happy_memory: "",
+      sad_memory: ""
     },
   });
 
@@ -99,7 +105,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
         title: "Sucesso!",
         description: "Seu pedido foi enviado com sucesso. Aguarde enquanto processamos sua solicitação.",
       });
-    } catch (error: any) { // Anotamos o tipo como 'any' para poder acessar propriedades customizadas
+    } catch (error: any) {
       console.error("Erro na submissão do formulário:", error);
       
       // Se não for o mesmo erro, mostrar toast diferente
@@ -145,6 +151,9 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
               <GenreSelector form={form} />
               <ToneAndVoiceFields form={form} />
               <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
+              <MusicFocusField form={form} />
+              <HappyMemoryField form={form} />
+              <SadMemoryField form={form} />
               <IncludeNamesFields form={form} />
               <SubmitButton isSubmitting={isSubmitting} />
             </form>

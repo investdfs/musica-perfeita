@@ -22,6 +22,10 @@ export async function submitMusicRequest(
     console.log("Perfil do usuário:", userProfile);
     console.log("Valores do formulário:", values);
     
+    if (!userProfile?.id) {
+      throw new Error("Perfil de usuário inválido. Tente fazer login novamente.");
+    }
+    
     // Tratamento para modo de desenvolvimento
     const userId = userProfile.id === 'dev-user-id' ? uuidv4() : userProfile.id;
     console.log("Usando ID de usuário:", userId);
@@ -50,8 +54,8 @@ export async function submitMusicRequest(
             description: "Não foi possível fazer upload da imagem, mas seu pedido será enviado mesmo assim.",
             variant: "destructive",
           });
-        } else {
-          coverUrl = imageData?.path;
+        } else if (imageData) {
+          coverUrl = imageData.path;
           console.log("Upload da imagem bem-sucedido:", coverUrl);
         }
       } catch (imageUploadError) {
@@ -81,40 +85,53 @@ export async function submitMusicRequest(
       status: 'pending',
       preview_url: null,
       full_song_url: null,
-      payment_status: 'pending'
+      payment_status: 'pending',
+      music_focus: values.music_focus || null,
+      happy_memory: values.happy_memory || null,
+      sad_memory: values.sad_memory || null
     };
     
     console.log("Enviando pedido para o banco de dados:", newRequest);
     
     // Verificação de conectividade antes de enviar
     if (!navigator.onLine) {
-      throw new Error("Você está offline. Por favor, conecte-se à internet e tente novamente.");
+      throw Object.assign(new Error("Você está offline. Por favor, conecte-se à internet e tente novamente."), {
+        type: "network"
+      });
     }
     
-    // Adicionando timeout para evitar espera indefinida
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error("O tempo de conexão expirou. Tente novamente.")), 30000);
-    });
+    // Enviando a requisição com timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
     
-    // Corrigimos aqui: não usamos Promise.race diretamente, mas fazemos duas promessas separadas
-    const insertPromise = supabase
-      .from('music_requests')
-      .insert([newRequest])
-      .select();
-
-    // Criamos uma corrida entre as promessas usando Promise.race
-    const raceResult = await Promise.race([insertPromise, timeoutPromise]);
-    
-    // Se chegamos aqui, a promessa do insertPromise ganhou a corrida
-    const { data, error } = await insertPromise;
+    try {
+      const { data, error } = await supabase
+        .from('music_requests')
+        .insert([newRequest])
+        .select();
       
-    if (error) {
-      console.error("Erro no banco de dados durante a inserção:", error);
-      throw new Error(`Erro ao salvar no banco de dados: ${error.message}`);
+      clearTimeout(timeoutId);
+      
+      if (error) {
+        console.error("Erro no banco de dados durante a inserção:", error);
+        throw Object.assign(new Error(`Erro ao salvar no banco de dados: ${error.message}`), {
+          code: error.code
+        });
+      }
+      
+      console.log("Pedido enviado com sucesso:", data);
+      return data || [];
+    } catch (fetchError: any) {
+      clearTimeout(timeoutId);
+      
+      if (fetchError.name === 'AbortError') {
+        throw Object.assign(new Error("A conexão com o servidor demorou muito. Tente novamente."), {
+          type: "timeout"
+        });
+      }
+      
+      throw fetchError;
     }
-    
-    console.log("Pedido enviado com sucesso:", data);
-    return data || [];
     
   } catch (error) {
     console.error('Erro ao enviar pedido de música:', error);

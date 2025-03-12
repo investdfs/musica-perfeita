@@ -24,11 +24,13 @@ export const useDashboard = () => {
     hasPaidRequest
   } = useRequestStatus(userRequests);
 
-  // Atualizar os dados quando o dashboard é carregado
+  // Atualizar os dados quando o dashboard é carregado e periodicamente
   useEffect(() => {
+    // Buscar dados imediatamente
     fetchUserRequests();
-    // Atualizar a cada 5 segundos para garantir que as alterações feitas pelo admin sejam refletidas
-    const intervalId = setInterval(fetchUserRequests, 5000);
+    
+    // Atualizar a cada 2 segundos para garantir sincronização
+    const intervalId = setInterval(fetchUserRequests, 2000);
     
     return () => clearInterval(intervalId);
   }, [fetchUserRequests]);

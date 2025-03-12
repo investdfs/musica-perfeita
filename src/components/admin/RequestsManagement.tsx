@@ -5,6 +5,7 @@ import RequestsList from "./RequestsList";
 import RequestDetails from "./RequestDetails";
 import DeliveryForm from "./DeliveryForm";
 import { useRequestManagement } from "./useRequestManagement";
+import { toast } from "@/hooks/use-toast";
 
 interface RequestsManagementProps {
   requests: MusicRequest[];
@@ -52,7 +53,15 @@ const RequestsManagement = ({
         isLoading={isLoading}
         getUserName={getUserName}
         onViewDetails={handleViewDetails}
-        onUpdateStatus={handleUpdateStatus}
+        onUpdateStatus={(requestId, status, paymentStatus) => {
+          handleUpdateStatus(requestId, status, paymentStatus);
+          toast({
+            title: "Status atualizado",
+            description: status 
+              ? `Status do pedido alterado para: ${status}` 
+              : `Status do pagamento alterado para: ${paymentStatus}`,
+          });
+        }}
         onFileUpload={handleFileUpload}
         onDeliverMusic={handleDeliverMusic}
         onDownloadFile={handleDownloadFile}

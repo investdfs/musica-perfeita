@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +15,7 @@ import MusicFocusField from "./MusicFocusField";
 import HappyMemoryField from "./HappyMemoryField";
 import SadMemoryField from "./SadMemoryField";
 import { musicRequestSchema, MusicRequestFormValues } from "./formSchema";
-import { submitMusicRequest } from "./formUtils";
+import { submitMusicRequest, EnhancedError } from "./formUtils";
 import { toast } from "@/hooks/use-toast";
 
 interface MusicRequestFormProps {
@@ -52,7 +51,6 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     },
   });
 
-  // Limpar estado de submissão ao desmontar componente
   useEffect(() => {
     return () => {
       setIsSubmitting(false);
@@ -89,21 +87,18 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     try {
       console.log("Iniciando submissão do formulário", { values, userProfile });
       
-      // Validar que o perfil do usuário tem os campos necessários
       if (!userProfile?.id) {
         throw new Error("Perfil de usuário inválido. Tente fazer login novamente.");
       }
       
-      // Usar uma abordagem simplificada para testar
       const data = await submitMusicRequest(values, userProfile, coverImage);
       console.log("Submissão do formulário concluída com sucesso", data);
       
       hasSubmittedSuccessfully.current = true;
       
-      // Garantir que temos dados válidos para retornar
       if (Array.isArray(data) && data.length > 0) {
         onRequestSubmitted(data);
-        setShowForm(false); // Esconder formulário após envio bem-sucedido
+        setShowForm(false);
         
         toast({
           title: "Sucesso!",
@@ -116,7 +111,6 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     } catch (error: any) {
       console.error("Erro na submissão do formulário:", error);
       
-      // Se não for o mesmo erro, mostrar toast diferente
       let errorMessage = "Ocorreu um erro ao processar seu pedido. Tente novamente mais tarde.";
       
       if (error.type === "network") {
@@ -133,16 +127,12 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
         variant: "destructive",
       });
     } finally {
-      // Importante: sempre garantir que o estado de submissão seja resetado
-      // Apenas se esta ainda for a tentativa atual (evita race conditions)
       if (currentAttempt === submitAttemptRef.current) {
-        console.log(`Finalizando tentativa de submissão ${currentAttempt}`);
         setIsSubmitting(false);
       }
     }
   };
 
-  // Não mostrar o formulário se já existe um pedido
   if (hasExistingRequest) {
     return null;
   }
@@ -161,7 +151,6 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
               <GenreSelector form={form} />
               <ToneAndVoiceFields form={form} />
               
-              {/* ORDEM CORRIGIDA: Citar nomes -> História -> Foco da música */}
               <IncludeNamesFields form={form} />
               <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
               <MusicFocusField form={form} />

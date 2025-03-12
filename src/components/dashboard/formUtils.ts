@@ -1,6 +1,8 @@
 
 import { submitMusicRequest } from "./utils/requestSubmission";
-import { EnhancedError } from "./utils/errorHandling";
+import type { EnhancedError } from "./utils/errorHandling";
 
 // Re-exportar as funções e tipos necessários
-export { submitMusicRequest, EnhancedError };
+export { submitMusicRequest };
+export type { EnhancedError };
+

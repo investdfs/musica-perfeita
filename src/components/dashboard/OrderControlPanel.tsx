@@ -1,17 +1,9 @@
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MusicRequest } from "@/types/database.types";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { 
-  MusicIcon, 
-  PlusCircleIcon, 
-  Clock, 
-  CheckCircle2, 
-  CircleDollarSign, 
-  Loader2 
-} from "lucide-react";
+import { PlusCircleIcon, MusicIcon, Loader2 } from "lucide-react";
+import NextStepIndicator from "./NextStepIndicator";
+import OrderCard from "./OrderCard";
 
 interface OrderControlPanelProps {
   userRequests: MusicRequest[];
@@ -24,74 +16,6 @@ const OrderControlPanel = ({
   onCreateNewRequest, 
   isLoading = false 
 }: OrderControlPanelProps) => {
-  const [loadingRequestId, setLoadingRequestId] = useState<string | null>(null);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "Aguardando produção";
-      case "in_production":
-        return "Em produção";
-      case "completed":
-        return "Concluído";
-      default:
-        return "Status desconhecido";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Clock className="h-5 w-5 text-yellow-500" />;
-      case "in_production":
-        return <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />;
-      case "completed":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      default:
-        return <Clock className="h-5 w-5 text-gray-500" />;
-    }
-  };
-
-  const getPaymentStatusIcon = (paymentStatus: string) => {
-    switch (paymentStatus) {
-      case "pending":
-        return <CircleDollarSign className="h-5 w-5 text-yellow-500" />;
-      case "processing":
-        return <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />;
-      case "completed":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      default:
-        return <CircleDollarSign className="h-5 w-5 text-gray-500" />;
-    }
-  };
-
-  const getPaymentStatusLabel = (paymentStatus: string) => {
-    switch (paymentStatus) {
-      case "pending":
-        return "Aguardando pagamento";
-      case "processing":
-        return "Processando pagamento";
-      case "completed":
-        return "Pagamento concluído";
-      default:
-        return "Status de pagamento desconhecido";
-    }
-  };
-
-  const handleRequestItemClick = (requestId: string) => {
-    setLoadingRequestId(requestId);
-    // Simula um tempo de carregamento para melhorar a experiência do usuário
-    setTimeout(() => {
-      setLoadingRequestId(null);
-      // Implementar navegação para detalhes do pedido quando disponível
-    }, 1000);
-  };
-
   if (isLoading) {
     return (
       <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100 flex justify-center items-center h-40">
@@ -101,9 +25,14 @@ const OrderControlPanel = ({
     );
   }
 
+  const hasSubmittedForm = userRequests.length > 0;
+  const currentRequest = userRequests.length > 0 ? userRequests[0] : null;
+
   if (userRequests.length === 0) {
     return (
       <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100">
+        <NextStepIndicator currentRequest={null} hasSubmittedForm={false} />
+        
         <div className="text-center mb-6">
           <MusicIcon className="h-12 w-12 text-purple-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Nenhum pedido encontrado</h2>
@@ -124,7 +53,7 @@ const OrderControlPanel = ({
 
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-gray-800">Seus pedidos</h2>
         <Button 
           onClick={onCreateNewRequest}
@@ -135,53 +64,11 @@ const OrderControlPanel = ({
         </Button>
       </div>
 
-      <div className="space-y-4">
-        {userRequests.map((request) => (
-          <div 
-            key={request.id} 
-            className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer bg-white"
-            onClick={() => handleRequestItemClick(request.id)}
-          >
-            <div className="flex flex-col sm:flex-row sm:justify-between">
-              <div className="mb-2 sm:mb-0">
-                <p className="font-semibold text-gray-800">
-                  Para: {request.honoree_name}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Criado em: {formatDate(request.created_at)}
-                </p>
-              </div>
+      <NextStepIndicator currentRequest={currentRequest} hasSubmittedForm={hasSubmittedForm} />
 
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center">
-                  {loadingRequestId === request.id ? (
-                    <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
-                  ) : (
-                    getStatusIcon(request.status)
-                  )}
-                  <span className="ml-1 text-sm">
-                    {getStatusLabel(request.status)}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  {getPaymentStatusIcon(request.payment_status)}
-                  <span className="ml-1 text-sm">
-                    {getPaymentStatusLabel(request.payment_status)}
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-2">
-              <p className="text-sm text-gray-700">
-                <span className="font-medium">Gênero:</span> {request.music_genre}
-              </p>
-              <p className="text-sm text-gray-700 line-clamp-1">
-                <span className="font-medium">História:</span> {request.story.substring(0, 100)}
-                {request.story.length > 100 ? "..." : ""}
-              </p>
-            </div>
-          </div>
+      <div className="space-y-2">
+        {userRequests.map((request) => (
+          <OrderCard key={request.id} request={request} />
         ))}
       </div>
     </div>

@@ -6,7 +6,6 @@ import MusicPreviewPlayer from "@/components/dashboard/MusicPreviewPlayer";
 import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
 import OrderControlPanel from "@/components/dashboard/OrderControlPanel";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import PreviewButton from "@/components/dashboard/PreviewButton";
 import { useDashboard } from "@/hooks/useDashboard";
 
 const Dashboard = () => {
@@ -45,10 +44,6 @@ const Dashboard = () => {
               onCreateNewRequest={handleCreateNewRequest}
               isLoading={isLoading}
             />
-          )}
-          
-          {hasCompletedRequest && !hasPaidRequest && !showNewRequestForm && (
-            <PreviewButton musicRequest={userRequests[0]} />
           )}
           
           {hasPreviewUrl && !showNewRequestForm && (

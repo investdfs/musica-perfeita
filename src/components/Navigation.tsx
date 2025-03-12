@@ -1,5 +1,5 @@
 
-import { Home, UserPlus, Info, LogIn, LogOut, User, Music, MessageSquareHeart, HelpCircle } from "lucide-react";
+import { Home, UserPlus, Info, LogIn, LogOut, User, Music, MessageSquareHeart, HelpCircle, LayoutDashboard } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -9,6 +9,7 @@ const Navigation = ({ className }: { className?: string }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   
   // Helper function to determine if a link is active
   const isActive = (path: string) => location.pathname === path;
@@ -17,7 +18,10 @@ const Navigation = ({ className }: { className?: string }) => {
   useEffect(() => {
     const checkLoginStatus = () => {
       const storedUser = localStorage.getItem("musicaperfeita_user");
+      const adminStatus = localStorage.getItem("musicaperfeita_admin") === "true";
+      
       setIsLoggedIn(!!storedUser);
+      setIsAdmin(adminStatus);
     };
     
     checkLoginStatus();
@@ -40,6 +44,7 @@ const Navigation = ({ className }: { className?: string }) => {
     localStorage.removeItem("admin_is_main");
     localStorage.removeItem("redirect_after_login");
     setIsLoggedIn(false); // Atualiza o estado imediatamente
+    setIsAdmin(false);
     toast({
       title: "Logout realizado",
       description: "Você saiu da sua conta com sucesso."
@@ -57,7 +62,7 @@ const Navigation = ({ className }: { className?: string }) => {
         <span className="text-sm font-medium">Home</span>
       </Link>
       
-      {isLoggedIn ? (
+      {isLoggedIn && (
         <Link
           to="/dashboard"
           className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
@@ -65,7 +70,17 @@ const Navigation = ({ className }: { className?: string }) => {
           <User className="h-5 w-5 text-teal-500" />
           <span className="text-sm font-medium">Minha Conta</span>
         </Link>
-      ) : null}
+      )}
+      
+      {isAdmin && (
+        <Link
+          to="/admin"
+          className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
+        >
+          <LayoutDashboard className="h-5 w-5 text-red-500" />
+          <span className="text-sm font-medium">Admin</span>
+        </Link>
+      )}
       
       <Link 
         to="/nossas-musicas" 

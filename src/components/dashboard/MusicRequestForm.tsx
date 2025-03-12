@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,8 +16,10 @@ import MusicFocusField from "./MusicFocusField";
 import HappyMemoryField from "./HappyMemoryField";
 import SadMemoryField from "./SadMemoryField";
 import { musicRequestSchema, MusicRequestFormValues } from "./formSchema";
-import { submitMusicRequest, EnhancedError } from "./formUtils";
+import { submitMusicRequest } from "./formUtils";
+import type { EnhancedError } from "./formUtils";
 import { toast } from "@/hooks/use-toast";
+import { showErrorToast } from "./utils/errorHandling";
 
 interface MusicRequestFormProps {
   userProfile: UserProfile;
@@ -111,21 +114,8 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     } catch (error: any) {
       console.error("Erro na submissão do formulário:", error);
       
-      let errorMessage = "Ocorreu um erro ao processar seu pedido. Tente novamente mais tarde.";
-      
-      if (error.type === "network") {
-        errorMessage = "Problema de conexão detectado. Verifique sua internet e tente novamente.";
-      } else if (error.type === "timeout") {
-        errorMessage = "A conexão com o servidor demorou muito. Tente novamente.";
-      } else if (error.type === "permission") {
-        errorMessage = "Você não tem permissão para enviar este pedido. Por favor, faça login novamente.";
-      }
-      
-      toast({
-        title: "Erro ao enviar pedido",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      // Usar a função de exibição de toast de erro especializada
+      showErrorToast(error as EnhancedError);
     } finally {
       if (currentAttempt === submitAttemptRef.current) {
         setIsSubmitting(false);

@@ -46,6 +46,23 @@ const RequestsManagement = ({
     return user ? user.name : userId;
   };
 
+  // Função para atualizar o status e enviar uma mensagem ao usuário
+  const updateStatusWithNotification = (requestId: string, status?: MusicRequest['status'], paymentStatus?: MusicRequest['payment_status']) => {
+    // Chama a função original de atualização
+    handleUpdateStatus(requestId, status, paymentStatus);
+    
+    // Mostra uma notificação para o usuário
+    toast({
+      title: "Status atualizado",
+      description: status 
+        ? `Status do pedido alterado para: ${status}` 
+        : `Status do pagamento alterado para: ${paymentStatus}`,
+    });
+    
+    // Registra no console para debugging
+    console.log(`[Admin] Status atualizado para pedido ${requestId}: status=${status}, pagamento=${paymentStatus}`);
+  };
+
   return (
     <>
       <RequestsList
@@ -53,15 +70,7 @@ const RequestsManagement = ({
         isLoading={isLoading}
         getUserName={getUserName}
         onViewDetails={handleViewDetails}
-        onUpdateStatus={(requestId, status, paymentStatus) => {
-          handleUpdateStatus(requestId, status, paymentStatus);
-          toast({
-            title: "Status atualizado",
-            description: status 
-              ? `Status do pedido alterado para: ${status}` 
-              : `Status do pagamento alterado para: ${paymentStatus}`,
-          });
-        }}
+        onUpdateStatus={updateStatusWithNotification}
         onFileUpload={handleFileUpload}
         onDeliverMusic={handleDeliverMusic}
         onDownloadFile={handleDownloadFile}

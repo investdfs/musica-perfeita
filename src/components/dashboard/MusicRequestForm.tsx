@@ -150,11 +150,11 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
               <PersonInfoFields form={form} />
               <GenreSelector form={form} />
               <ToneAndVoiceFields form={form} />
+              <IncludeNamesFields form={form} />
+              <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
               <MusicFocusField form={form} />
               <HappyMemoryField form={form} />
               <SadMemoryField form={form} />
-              <IncludeNamesFields form={form} />
-              <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
               <SubmitButton isSubmitting={isSubmitting} />
             </form>
           </Form>

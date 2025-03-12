@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
+import { isLovableEditor } from "@/lib/environment";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -27,9 +28,13 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       // Verificar se está logado como admin
       const isAdmin = localStorage.getItem("musicaperfeita_admin") === "true";
       
-      // Removemos o redirecionamento automático para o dashboard admin
-      // Isso permite que admins naveguem por todas as páginas
+      // Se estiver no editor Lovable, permitir acesso completo para teste e desenvolvimento
+      if (isLovableEditor()) {
+        console.log("Ambiente Lovable Editor detectado - navegação livre permitida");
+        return true;
+      }
 
+      // Se for uma rota de admin, verificar permissões
       if (isAdminRoute) {
         // Verificar se o usuário tem permissões de admin
         if (!isAdmin) {
@@ -78,6 +83,13 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
         }
       }
 
+      // Se for admin, permitir acesso a qualquer página sem restrições
+      if (isAdmin) {
+        console.log("Usuário é administrador - acesso livre permitido");
+        return true;
+      }
+
+      // Para usuários não-admin, verificar se precisam estar logados para acessar a página
       if (!storedUser) {
         // Se não estiver logado e não estiver em uma rota pública, redirecionar
         if (
@@ -108,7 +120,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
         }
       }
       
-      return !!storedUser;
+      return !!storedUser || isAdmin;
     };
     
     checkAuth().then(isAuth => {
@@ -116,8 +128,11 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
     });
   }, [location.pathname, location.search, navigate]);
 
-  // Se ainda estiver verificando, não renderizar nada
+  // Se ainda estiver verificando, não renderizar nada apenas para páginas que precisam de autenticação
+  // Se for admin, sempre renderizamos o conteúdo
+  const isAdmin = localStorage.getItem("musicaperfeita_admin") === "true";
   if (isAuthenticated === null && 
+      !isAdmin &&
       location.pathname !== "/" && 
       location.pathname !== "/login" && 
       location.pathname !== "/cadastro" && 

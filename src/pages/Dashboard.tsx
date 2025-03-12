@@ -24,6 +24,13 @@ const Dashboard = () => {
     handleUserLogout
   } = useDashboard();
 
+  // Log para ajudar no diagnóstico
+  console.log('[Dashboard] Estado atual:', {
+    userRequestsCount: userRequests.length,
+    showNewRequestForm,
+    hasAnyRequest
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
       <div className="animated-shapes">
@@ -59,7 +66,7 @@ const Dashboard = () => {
             <MusicRequestForm 
               userProfile={userProfile} 
               onRequestSubmitted={handleRequestSubmitted}
-              hasExistingRequest={false}
+              hasExistingRequest={userRequests.length > 0}
             />
           )}
         </div>

@@ -94,16 +94,17 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
         throw new Error("Perfil de usuário inválido. Tente fazer login novamente.");
       }
       
+      // Marcar que o formulário está sendo ocultado antes da submissão
+      setShowForm(false);
+      
       const data = await submitMusicRequest(values, userProfile, coverImage);
       console.log("Submissão do formulário concluída com sucesso", data);
       
       hasSubmittedSuccessfully.current = true;
       
       if (Array.isArray(data) && data.length > 0) {
-        // Primeiro ocultar o formulário para evitar estado inconsistente
-        setShowForm(false);
-        
-        // Depois notificar o pai sobre o pedido submetido
+        // Já ocultamos o formulário antes da submissão
+        // Agora notificamos o pai sobre o pedido submetido
         onRequestSubmitted(data);
         
         toast({
@@ -112,10 +113,15 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
         });
       } else {
         console.error("Dados retornados inválidos:", data);
+        // Mostrar novamente o formulário em caso de erro
+        setShowForm(true);
         throw new Error("Não foi possível processar seu pedido. Resposta inválida do servidor.");
       }
     } catch (error: any) {
       console.error("Erro na submissão do formulário:", error);
+      
+      // Em caso de erro, mostrar o formulário novamente
+      setShowForm(true);
       
       // Usar a função de exibição de toast de erro especializada
       showErrorToast(error as EnhancedError);
@@ -126,7 +132,9 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     }
   };
 
+  // Se não deve mostrar o formulário ou se já existe um pedido, não renderize nada
   if (!showForm || hasExistingRequest) {
+    console.log("Formulário oculto: showForm=", showForm, "hasExistingRequest=", hasExistingRequest);
     return null;
   }
 

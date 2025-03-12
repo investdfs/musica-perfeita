@@ -12,6 +12,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
   const isFirstLoadRef = useRef(true);
   const isFetchingRef = useRef(false);
   const lastDataHashRef = useRef("");
+  const formSubmissionInProgressRef = useRef(false);
 
   // Função utilitária para criar hash dos dados para comparação
   const hashData = (data: any) => {
@@ -81,15 +82,20 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
                 setCurrentProgress(0);
             }
             
-            // Se houver um pedido e não houver prévia, não mostrar o formulário
-            if (!latestRequest.preview_url && !latestRequest.full_song_url) {
+            // Se houver um pedido, não mostrar o formulário
+            if (data.length > 0) {
+              console.log('[useMusicRequests] Pedidos encontrados, ocultando formulário');
               setShowNewRequestForm(false);
             } else {
-              setShowNewRequestForm(false);
+              console.log('[useMusicRequests] Nenhum pedido encontrado, mostrando formulário');
+              setShowNewRequestForm(true);
             }
           } else {
             setCurrentProgress(10);
-            setShowNewRequestForm(true);
+            // Apenas mostrar o formulário se não estiver em processo de submissão
+            if (!formSubmissionInProgressRef.current) {
+              setShowNewRequestForm(true);
+            }
           }
         } else {
           console.log('[useMusicRequests] Os dados são iguais, não é necessário atualizar o estado');
@@ -119,6 +125,9 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
   const handleRequestSubmitted = (data: MusicRequest[]) => {
     console.log('[useMusicRequests] Pedido enviado, atualizando estado:', data);
     
+    // Marcar que estamos em processo de submissão para evitar que o formulário reapareça
+    formSubmissionInProgressRef.current = true;
+    
     // Verificar se temos dados válidos
     if (!Array.isArray(data) || data.length === 0) {
       console.error('[useMusicRequests] Dados recebidos inválidos:', data);
@@ -134,6 +143,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       return;
     }
     
+    // Atualizar a lista de pedidos e garantir que o formulário fique oculto
     setUserRequests(prevRequests => [...data, ...prevRequests]);
     setCurrentProgress(25);
     setShowNewRequestForm(false);
@@ -143,6 +153,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
   };
 
   const handleCreateNewRequest = () => {
+    formSubmissionInProgressRef.current = false;
     setShowNewRequestForm(true);
   };
 

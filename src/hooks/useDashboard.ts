@@ -55,6 +55,25 @@ export const useDashboard = () => {
     };
   }, [userProfile, handleUserLogout]);
 
+  // Função personalizada para lidar com a submissão do pedido
+  const handleRequestSubmittedWithFeedback = (data: any) => {
+    console.log('[useDashboard] Pedido submetido, dados:', data);
+    
+    if (!Array.isArray(data) || data.length === 0) {
+      console.error('[useDashboard] Dados de pedido inválidos:', data);
+      return;
+    }
+    
+    // Garantir que o formulário fique oculto antes de processar os novos dados
+    handleRequestSubmitted(data);
+    
+    // Forçar uma nova busca de dados para sincronizar o estado
+    setTimeout(() => {
+      console.log('[useDashboard] Atualizando dados após submissão');
+      fetchUserRequests();
+    }, 1000);
+  };
+
   // Função para configurar escuta em tempo real
   const setupRealtimeListener = useCallback(() => {
     if (!userProfile?.id) return () => {};
@@ -137,7 +156,7 @@ export const useDashboard = () => {
     hasPreviewUrl,
     hasAnyRequest,
     hasPaidRequest,
-    handleRequestSubmitted,
+    handleRequestSubmitted: handleRequestSubmittedWithFeedback,
     handleCreateNewRequest,
     handleUserLogout
   };

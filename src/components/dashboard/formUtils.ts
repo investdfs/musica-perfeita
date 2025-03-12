@@ -32,6 +32,13 @@ export async function submitMusicRequest(
     
     let coverUrl = null;
     
+    // Verificação de conectividade antes de enviar
+    if (!navigator.onLine) {
+      throw Object.assign(new Error("Você está offline. Por favor, conecte-se à internet e tente novamente."), {
+        type: "network"
+      });
+    }
+    
     // Bloco de upload de imagem com tratamento de erro adequado
     if (coverImage) {
       console.log("Fazendo upload da imagem de capa", coverImage);
@@ -93,40 +100,58 @@ export async function submitMusicRequest(
     
     console.log("Enviando pedido para o banco de dados:", newRequest);
     
-    // Verificação de conectividade antes de enviar
-    if (!navigator.onLine) {
-      throw Object.assign(new Error("Você está offline. Por favor, conecte-se à internet e tente novamente."), {
-        type: "network"
-      });
-    }
-    
-    // Enviando a requisição com timeout
+    // Usando AbortController para implementar um timeout na requisição
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(() => controller.abort(), 45000); // Aumentando para 45 segundos
     
     try {
-      const { data, error } = await supabase
-        .from('music_requests')
-        .insert([newRequest])
-        .select();
+      // Tentar várias vezes com backoff exponencial
+      const maxRetries = 3;
+      let retryCount = 0;
+      let lastError = null;
       
-      clearTimeout(timeoutId);
-      
-      if (error) {
-        console.error("Erro no banco de dados durante a inserção:", error);
-        throw Object.assign(new Error(`Erro ao salvar no banco de dados: ${error.message}`), {
-          code: error.code
-        });
+      while (retryCount < maxRetries) {
+        try {
+          const { data, error } = await supabase
+            .from('music_requests')
+            .insert([newRequest])
+            .select();
+          
+          if (error) {
+            throw error;
+          }
+          
+          clearTimeout(timeoutId);
+          console.log("Pedido enviado com sucesso:", data);
+          return data || [];
+        } catch (err) {
+          lastError = err;
+          retryCount++;
+          console.log(`Tentativa ${retryCount} falhou. Tentando novamente em ${retryCount * 2}s...`);
+          
+          if (retryCount < maxRetries) {
+            // Esperar antes de tentar novamente (backoff exponencial)
+            await new Promise(resolve => setTimeout(resolve, retryCount * 2000));
+          }
+        }
       }
       
-      console.log("Pedido enviado com sucesso:", data);
-      return data || [];
+      // Se chegou aqui, todas as tentativas falharam
+      clearTimeout(timeoutId);
+      throw lastError;
     } catch (fetchError: any) {
       clearTimeout(timeoutId);
       
       if (fetchError.name === 'AbortError') {
         throw Object.assign(new Error("A conexão com o servidor demorou muito. Tente novamente."), {
           type: "timeout"
+        });
+      }
+      
+      // Verificar se é um erro de conexão
+      if (fetchError.message?.includes('fetch') || !navigator.onLine) {
+        throw Object.assign(new Error("Problema de conexão detectado. Verifique sua internet e tente novamente."), {
+          type: "network"
         });
       }
       

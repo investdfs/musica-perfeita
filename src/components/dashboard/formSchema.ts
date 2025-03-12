@@ -17,12 +17,13 @@ export const musicRequestSchema = z.object({
     required_error: "Selecione o gênero musical",
   }),
   music_tone: z.enum([
-    "happy", "romantic", "nostalgic", "fun"
+    "happy", "romantic", "nostalgic", "fun", "melancholic", "energetic", "peaceful", "inspirational"
   ], {
     required_error: "Selecione o tom da música",
   }),
   voice_type: z.enum([
-    "male", "female", "male_romantic", "female_romantic", "male_folk", "female_folk"
+    "male", "female", "male_romantic", "female_romantic", "male_folk", "female_folk",
+    "male_deep", "female_powerful", "male_soft", "female_sweet"
   ], {
     required_error: "Selecione o tipo de voz",
   }),

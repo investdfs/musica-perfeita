@@ -88,8 +88,8 @@ const StoryField = ({ form, audioExplanationUrl }: StoryFieldProps) => {
             
             <FormControl>
               <Textarea
-                placeholder={!isFocused ? "EXEMPLO: Minha mãe sempre foi meu porto seguro, mesmo quando perdemos tudo na enchente de 2015 e ela manteve a fé, cantando para mim todas as noites. Seu sorriso iluminava até os dias mais escuros." : ""}
-                className="min-h-[250px] border-pink-200 focus-visible:ring-pink-400 text-gray-900 bg-white"
+                placeholder={!isFocused ? "Conte sobre sua relação com a pessoa homenageada e momentos especiais que viveram juntos." : ""}
+                className="min-h-[120px] border-pink-200 focus-visible:ring-pink-400 text-gray-900 bg-white"
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => {
                   if (!field.value) {

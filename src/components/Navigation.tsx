@@ -87,7 +87,7 @@ const Navigation = ({ className }: { className?: string }) => {
         className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
       >
         <Music className="h-5 w-5 text-purple-500" />
-        <span className="text-sm font-medium">Músicas</span>
+        <span className="text-sm font-medium">Nossas Músicas</span>
       </Link>
       
       <Link 

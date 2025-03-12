@@ -16,14 +16,14 @@ import MusicFocusField from "./MusicFocusField";
 import HappyMemoryField from "./HappyMemoryField";
 import SadMemoryField from "./SadMemoryField";
 import { musicRequestSchema, MusicRequestFormValues } from "./formSchema";
-import { submitMusicRequest } from "./formUtils";
-import type { EnhancedError } from "./formUtils";
+import { submitMusicRequest } from "./utils/requestSubmission";
+import type { EnhancedError } from "./utils/errorHandling";
 import { toast } from "@/hooks/use-toast";
 import { showErrorToast } from "./utils/errorHandling";
 
 interface MusicRequestFormProps {
   userProfile: UserProfile;
-  onRequestSubmitted: (newRequest: any) => void;
+  onRequestSubmitted: (newRequest: MusicRequest[]) => void;
   hasExistingRequest?: boolean;
 }
 
@@ -100,8 +100,11 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
       hasSubmittedSuccessfully.current = true;
       
       if (Array.isArray(data) && data.length > 0) {
-        onRequestSubmitted(data);
+        // Primeiro ocultar o formulário para evitar estado inconsistente
         setShowForm(false);
+        
+        // Depois notificar o pai sobre o pedido submetido
+        onRequestSubmitted(data);
         
         toast({
           title: "Sucesso!",
@@ -123,7 +126,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     }
   };
 
-  if (hasExistingRequest) {
+  if (!showForm || hasExistingRequest) {
     return null;
   }
 
@@ -131,27 +134,23 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     <div className="bg-white rounded-xl shadow-md p-8">
       <FormIntroduction />
       
-      {showForm && (
-        <>
-          <ImageUpload onImageSelected={handleImageSelected} />
+      <ImageUpload onImageSelected={handleImageSelected} />
+      
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <PersonInfoFields form={form} />
+          <GenreSelector form={form} />
+          <ToneAndVoiceFields form={form} />
           
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <PersonInfoFields form={form} />
-              <GenreSelector form={form} />
-              <ToneAndVoiceFields form={form} />
-              
-              <IncludeNamesFields form={form} />
-              <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
-              <MusicFocusField form={form} />
-              
-              <HappyMemoryField form={form} />
-              <SadMemoryField form={form} />
-              <SubmitButton isSubmitting={isSubmitting} />
-            </form>
-          </Form>
-        </>
-      )}
+          <IncludeNamesFields form={form} />
+          <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
+          <MusicFocusField form={form} />
+          
+          <HappyMemoryField form={form} />
+          <SadMemoryField form={form} />
+          <SubmitButton isSubmitting={isSubmitting} />
+        </form>
+      </Form>
     </div>
   );
 };

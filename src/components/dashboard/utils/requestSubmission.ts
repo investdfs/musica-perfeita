@@ -62,7 +62,17 @@ export async function submitMusicRequest(
     
     // Inserir o pedido no banco de dados com timeout
     const dbPromise = insertMusicRequest(newRequest);
-    return await Promise.race([dbPromise, timeoutPromise]);
+    const result = await Promise.race([dbPromise, timeoutPromise]);
+    
+    console.log("Resultado da inserção do pedido:", result);
+    
+    // Garantir que o resultado é um array válido para facilitar o processamento no componente
+    if (result && !Array.isArray(result)) {
+      console.log("Convertendo resultado não-array para array:", result);
+      return [result];
+    }
+    
+    return result;
     
   } catch (error) {
     console.error('Erro ao enviar pedido de música:', error);

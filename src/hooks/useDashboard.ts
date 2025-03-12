@@ -4,6 +4,7 @@ import { useMusicRequests } from "./useMusicRequests";
 import { useRequestStatus } from "./useRequestStatus";
 import { useEffect, useCallback, useRef } from "react";
 import supabase from "@/lib/supabase";
+import { toast } from "@/hooks/use-toast";
 
 export const useDashboard = () => {
   const { userProfile, handleUserLogout } = useUserAuth();
@@ -26,11 +27,33 @@ export const useDashboard = () => {
     hasPaidRequest
   } = useRequestStatus(userRequests);
 
-  // Referência para rastrear se já configuramos o listener
-  const realtimeChannelRef = useRef(null);
-  const pollingIntervalRef = useRef(null);
+  // Referências para controle de renderização e atualizações
+  const realtimeChannelRef = useRef<any>(null);
   const lastFetchTimeRef = useRef(0);
-  const MIN_FETCH_INTERVAL = 5000; // 5 segundos entre fetchs para evitar piscar
+  const MIN_FETCH_INTERVAL = 3000; // 3 segundos entre fetchs para evitar piscar
+
+  // Verificação periódica de conexão
+  useEffect(() => {
+    if (!userProfile?.id) return;
+    
+    // Verificação de dados da sessão a cada minuto
+    const checkIntervalId = setInterval(() => {
+      const user = localStorage.getItem("musicaperfeita_user");
+      if (!user) {
+        console.log('[useDashboard] Sessão expirada, redirecionando para login');
+        handleUserLogout();
+        toast({
+          title: "Sessão expirada",
+          description: "Sua sessão expirou. Por favor, faça login novamente.",
+        });
+        clearInterval(checkIntervalId);
+      }
+    }, 60000);
+    
+    return () => {
+      clearInterval(checkIntervalId);
+    };
+  }, [userProfile, handleUserLogout]);
 
   // Função para configurar escuta em tempo real
   const setupRealtimeListener = useCallback(() => {
@@ -38,14 +61,14 @@ export const useDashboard = () => {
     
     // Evitar múltiplas inscrições
     if (realtimeChannelRef.current) {
-      return () => {};
+      supabase.removeChannel(realtimeChannelRef.current);
     }
     
     console.log('[useDashboard] Configurando escuta em tempo real para o usuário:', userProfile.id);
     
     // Inscrever-se em mudanças na tabela music_requests filtradas pelo user_id
     const channel = supabase
-      .channel(`user-requests-${userProfile.id}`)
+      .channel(`user-requests-${userProfile.id}-${Date.now()}`)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
@@ -78,7 +101,7 @@ export const useDashboard = () => {
     };
   }, [userProfile, fetchUserRequests]);
 
-  // Atualizar os dados quando o dashboard é carregado e periodicamente
+  // Atualizar os dados quando o dashboard é carregado
   useEffect(() => {
     // Buscar dados imediatamente na primeira carga
     const now = Date.now();
@@ -88,21 +111,18 @@ export const useDashboard = () => {
     // Configurar escuta em tempo real
     const cleanupRealtimeListener = setupRealtimeListener();
     
-    // Polling com intervalo maior (10 segundos) para reduzir "flickering"
-    pollingIntervalRef.current = setInterval(() => {
+    // Polling a cada 5 segundos como fallback para escuta em tempo real
+    const pollingIntervalId = setInterval(() => {
       const currentTime = Date.now();
       if (currentTime - lastFetchTimeRef.current > MIN_FETCH_INTERVAL) {
         console.log('[useDashboard] Atualizando dados via polling');
         fetchUserRequests();
         lastFetchTimeRef.current = currentTime;
       }
-    }, 10000); // 10 segundos
+    }, 5000);
     
     return () => {
-      if (pollingIntervalRef.current) {
-        clearInterval(pollingIntervalRef.current);
-        pollingIntervalRef.current = null;
-      }
+      clearInterval(pollingIntervalId);
       cleanupRealtimeListener();
     };
   }, [fetchUserRequests, setupRealtimeListener]);

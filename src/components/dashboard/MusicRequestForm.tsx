@@ -94,17 +94,25 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
         throw new Error("Perfil de usuário inválido. Tente fazer login novamente.");
       }
       
+      // Usar uma abordagem simplificada para testar
       const data = await submitMusicRequest(values, userProfile, coverImage);
       console.log("Submissão do formulário concluída com sucesso", data);
       
       hasSubmittedSuccessfully.current = true;
-      onRequestSubmitted(data);
-      setShowForm(false); // Esconder formulário após envio bem-sucedido
       
-      toast({
-        title: "Sucesso!",
-        description: "Seu pedido foi enviado com sucesso. Aguarde enquanto processamos sua solicitação.",
-      });
+      // Garantir que temos dados válidos para retornar
+      if (Array.isArray(data) && data.length > 0) {
+        onRequestSubmitted(data);
+        setShowForm(false); // Esconder formulário após envio bem-sucedido
+        
+        toast({
+          title: "Sucesso!",
+          description: "Seu pedido foi enviado com sucesso. Aguarde enquanto processamos sua solicitação.",
+        });
+      } else {
+        console.error("Dados retornados inválidos:", data);
+        throw new Error("Não foi possível processar seu pedido. Resposta inválida do servidor.");
+      }
     } catch (error: any) {
       console.error("Erro na submissão do formulário:", error);
       
@@ -153,7 +161,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
               <GenreSelector form={form} />
               <ToneAndVoiceFields form={form} />
               
-              {/* ORDEM AJUSTADA: Citar nomes -> História -> Foco da música */}
+              {/* ORDEM CORRIGIDA: Citar nomes -> História -> Foco da música */}
               <IncludeNamesFields form={form} />
               <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
               <MusicFocusField form={form} />

@@ -11,6 +11,16 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
   const [showNewRequestForm, setShowNewRequestForm] = useState(false);
   const isFirstLoadRef = useRef(true);
   const isFetchingRef = useRef(false);
+  const lastDataHashRef = useRef("");
+
+  // Função utilitária para criar hash dos dados para comparação
+  const hashData = (data: any) => {
+    try {
+      return JSON.stringify(data);
+    } catch (e) {
+      return "";
+    }
+  };
 
   const fetchUserRequests = useCallback(async () => {
     // Evitar fetchs concorrentes
@@ -45,12 +55,12 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       if (data) {
         console.log('[useMusicRequests] Dados recebidos:', data);
         
-        // Verificar se os dados são realmente diferentes antes de atualizar o estado
-        const currentDataJson = JSON.stringify(userRequests);
-        const newDataJson = JSON.stringify(data);
+        // Verificar se os dados são realmente diferentes usando hash
+        const newDataHash = hashData(data);
         
-        if (currentDataJson !== newDataJson) {
-          console.log('[useMusicRequests] Atualizando estado com novos dados');
+        if (newDataHash !== lastDataHashRef.current) {
+          console.log('[useMusicRequests] Dados diferentes detectados, atualizando estado');
+          lastDataHashRef.current = newDataHash;
           setUserRequests(data);
           
           if (data.length > 0) {
@@ -104,18 +114,74 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       setIsLoading(false);
       isFetchingRef.current = false;
     }
-  }, [userProfile, userRequests]);
+  }, [userProfile]);
 
   const handleRequestSubmitted = (data: MusicRequest[]) => {
     console.log('[useMusicRequests] Pedido enviado, atualizando estado:', data);
-    setUserRequests([...data, ...userRequests]);
+    
+    // Verificar se temos dados válidos
+    if (!Array.isArray(data) || data.length === 0) {
+      console.error('[useMusicRequests] Dados recebidos inválidos:', data);
+      return;
+    }
+    
+    // Verificar duplicações
+    const newRequestId = data[0]?.id;
+    const isDuplicate = userRequests.some(r => r.id === newRequestId);
+    
+    if (isDuplicate) {
+      console.log('[useMusicRequests] Pedido duplicado, ignorando:', newRequestId);
+      return;
+    }
+    
+    setUserRequests(prevRequests => [...data, ...prevRequests]);
     setCurrentProgress(25);
     setShowNewRequestForm(false);
+    
+    // Atualizar o hash para evitar problemas com atualizações duplicadas
+    lastDataHashRef.current = hashData([...data, ...userRequests]);
   };
 
   const handleCreateNewRequest = () => {
     setShowNewRequestForm(true);
   };
+
+  // Configurar canal em tempo real para atualizações de pedidos
+  useEffect(() => {
+    if (!userProfile?.id) return;
+    
+    console.log('[useMusicRequests] Configurando canal em tempo real para atualizações de pedidos');
+    
+    const channel = supabase
+      .channel(`user-requests-updates-${userProfile.id}`)
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'music_requests',
+        filter: `user_id=eq.${userProfile.id}`
+      }, payload => {
+        console.log('[useMusicRequests] Atualização recebida via real-time:', payload);
+        fetchUserRequests();
+      })
+      .subscribe((status) => {
+        console.log(`[useMusicRequests] Status do canal: ${status}`);
+      });
+    
+    // Fazer fetch inicial
+    fetchUserRequests();
+    
+    // Configurar intervalos menos frequentes de polling como fallback
+    const intervalId = setInterval(() => {
+      console.log('[useMusicRequests] Executando polling periódico');
+      fetchUserRequests();
+    }, 30000); // A cada 30 segundos
+    
+    return () => {
+      console.log('[useMusicRequests] Limpando assinaturas e intervalos');
+      supabase.removeChannel(channel);
+      clearInterval(intervalId);
+    };
+  }, [userProfile, fetchUserRequests]);
 
   return {
     userRequests,

@@ -1,40 +1,17 @@
-
 import { Check, Music, HeadphonesIcon, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const DifferentialsSection = () => {
   return (
-    <section className="py-16 px-6 bg-gradient-to-br from-pink-50 to-purple-50">
+    <section className="py-10 px-6 bg-gradient-to-br from-pink-50 to-purple-50">
       <div className="max-w-5xl mx-auto">
-        {/* Seção de exemplos de músicas - Simplificada com imagem arredondada */}
-        <div className="mb-12">
-          <h3 className="text-2xl font-semibold mb-6 text-center text-gray-800">
-            Ouça exemplos de nossas criações
-          </h3>
-          <div className="max-w-2xl mx-auto text-center">
-            <Link to="/nossas-musicas">
-              <img 
-                src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-colorful-image-of-a-playlist-with-vari__XCmGShzQkS-Iq7yoemBqw_VSsFHl0uRn2g15SpD0M6Pg.webp" 
-                alt="Playlist de músicas personalizadas" 
-                className="w-1/2 mx-auto rounded-xl hover:opacity-90 transition-opacity"
-              />
-            </Link>
-            <div className="mt-4">
-              <Link to="/nossas-musicas">
-                <Button className="bg-pink-500 hover:bg-pink-600 text-white">
-                  Ouvir Exemplos <Music className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
         
-        <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
+        <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
           Por que escolher a Musicaperfeita?
         </h2>
         
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-8 items-center">
           <div className="space-y-6">
             <div className="flex items-start gap-3">
               <div className="mt-1 bg-pink-500 rounded-full p-1">

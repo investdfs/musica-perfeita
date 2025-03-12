@@ -102,7 +102,7 @@ export async function submitMusicRequest(
     
     // Usando AbortController para implementar um timeout na requisição
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 45000); // Aumentando para 45 segundos
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // Aumentando para 60 segundos
     
     try {
       // Tentar várias vezes com backoff exponencial
@@ -112,12 +112,14 @@ export async function submitMusicRequest(
       
       while (retryCount < maxRetries) {
         try {
+          // Simplificando a requisição para reduzir chances de erro
           const { data, error } = await supabase
             .from('music_requests')
             .insert([newRequest])
-            .select();
+            .select('*');
           
           if (error) {
+            console.error("Erro ao inserir pedido:", error);
             throw error;
           }
           
@@ -127,7 +129,7 @@ export async function submitMusicRequest(
         } catch (err) {
           lastError = err;
           retryCount++;
-          console.log(`Tentativa ${retryCount} falhou. Tentando novamente em ${retryCount * 2}s...`);
+          console.log(`Tentativa ${retryCount} falhou. Tentando novamente em ${retryCount * 2}s...`, err);
           
           if (retryCount < maxRetries) {
             // Esperar antes de tentar novamente (backoff exponencial)
@@ -152,6 +154,14 @@ export async function submitMusicRequest(
       if (fetchError.message?.includes('fetch') || !navigator.onLine) {
         throw Object.assign(new Error("Problema de conexão detectado. Verifique sua internet e tente novamente."), {
           type: "network"
+        });
+      }
+      
+      // Tratar especificamente problemas de RLS ou permissão
+      if (fetchError.code === '42501' || fetchError.message?.includes('policy')) {
+        console.error("Erro de permissão:", fetchError);
+        throw Object.assign(new Error("Você não tem permissão para enviar este pedido. Por favor, faça login novamente."), {
+          type: "permission"
         });
       }
       
@@ -182,6 +192,9 @@ export async function submitMusicRequest(
       } else if (err.message.includes("timeout") || err.message.includes("expirou")) {
         errorMessage = "A conexão com o servidor demorou muito. Tente novamente.";
         errorType = "timeout";
+      } else if (err.message.includes("permission") || err.message.includes("policy")) {
+        errorMessage = "Problema de permissão. Por favor, faça login novamente e tente enviar seu pedido.";
+        errorType = "permission";
       } else if (err.code) {
         errorMessage += ` (Código: ${err.code})`;
         errorType = err.code;

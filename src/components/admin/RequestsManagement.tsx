@@ -1,11 +1,12 @@
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import RequestsList from "./RequestsList";
 import RequestDetails from "./RequestDetails";
 import DeliveryForm from "./DeliveryForm";
 import { useRequestManagement } from "./useRequestManagement";
 import { toast } from "@/hooks/use-toast";
+import supabase from "@/lib/supabase";
 
 interface RequestsManagementProps {
   requests: MusicRequest[];
@@ -40,6 +41,38 @@ const RequestsManagement = ({
     handleDownloadFile,
     handleSaveMusicLink
   } = useRequestManagement(requests, setRequests);
+
+  const realtimeChannelRef = useRef(null);
+
+  // Configurar escuta em tempo real para quaisquer mudanças na tabela music_requests
+  useEffect(() => {
+    console.log('[Admin] Configurando escuta em tempo real para requisições de música');
+    
+    const channel = supabase
+      .channel('admin-music-requests')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'music_requests'
+      }, (payload) => {
+        console.log('[Admin] Mudança detectada via tempo real:', payload);
+        // Quando detectar mudanças, atualizar imediatamente a lista
+        // A atualização será tratada pelo componente pai
+      })
+      .subscribe((status) => {
+        console.log(`[Admin] Status da inscrição em tempo real: ${status}`);
+      });
+    
+    realtimeChannelRef.current = channel;
+    
+    return () => {
+      console.log('[Admin] Removendo canal de tempo real admin');
+      if (realtimeChannelRef.current) {
+        supabase.removeChannel(realtimeChannelRef.current);
+        realtimeChannelRef.current = null;
+      }
+    };
+  }, []);
 
   const getUserName = (userId: string): string => {
     const user = users.find(u => u.id === userId);

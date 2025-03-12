@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import supabase from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
@@ -9,12 +9,25 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
   const [currentProgress, setCurrentProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [showNewRequestForm, setShowNewRequestForm] = useState(false);
+  const isFirstLoadRef = useRef(true);
+  const isFetchingRef = useRef(false);
 
   const fetchUserRequests = useCallback(async () => {
+    // Evitar fetchs concorrentes
+    if (isFetchingRef.current) {
+      console.log('[useMusicRequests] Já existe um fetch em andamento, ignorando...');
+      return;
+    }
+
     try {
       if (!userProfile?.id) return;
       
-      setIsLoading(true);
+      isFetchingRef.current = true;
+      
+      // Na primeira carga, mostrar loading
+      if (isFirstLoadRef.current) {
+        setIsLoading(true);
+      }
       
       console.log('[useMusicRequests] Buscando pedidos para o usuário:', userProfile.id);
       
@@ -30,7 +43,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       }
       
       if (data) {
-        console.log('[useMusicRequests] Dados atualizados:', data);
+        console.log('[useMusicRequests] Dados recebidos:', data);
         
         // Verificar se os dados são realmente diferentes antes de atualizar o estado
         const currentDataJson = JSON.stringify(userRequests);
@@ -74,14 +87,22 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       }
     } catch (error) {
       console.error('[useMusicRequests] Erro ao buscar pedidos de música:', error);
-      toast({
-        title: "Erro ao carregar pedidos",
-        description: "Não foi possível carregar seus pedidos. Tente novamente mais tarde.",
-        variant: "destructive",
-      });
+      
+      // Só mostrar erro de toast na primeira carga ou em erros persistentes
+      if (isFirstLoadRef.current) {
+        toast({
+          title: "Erro ao carregar pedidos",
+          description: "Não foi possível carregar seus pedidos. Tente novamente mais tarde.",
+          variant: "destructive",
+        });
+      }
+      
       setCurrentProgress(10);
     } finally {
+      // Atualizar referência de primeira carga
+      isFirstLoadRef.current = false;
       setIsLoading(false);
+      isFetchingRef.current = false;
     }
   }, [userProfile, userRequests]);
 

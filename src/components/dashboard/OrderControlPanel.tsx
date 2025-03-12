@@ -4,6 +4,7 @@ import { MusicRequest } from "@/types/database.types";
 import { PlusCircleIcon, MusicIcon, Loader2 } from "lucide-react";
 import NextStepIndicator from "./NextStepIndicator";
 import OrderCard from "./OrderCard";
+import { useEffect, useState } from "react";
 
 interface OrderControlPanelProps {
   userRequests: MusicRequest[];
@@ -16,7 +17,27 @@ const OrderControlPanel = ({
   onCreateNewRequest, 
   isLoading = false 
 }: OrderControlPanelProps) => {
-  if (isLoading) {
+  // Estado para controlar a exibição do spinner de carregamento para evitar flash constante
+  const [showLoading, setShowLoading] = useState(false);
+  
+  // Usar um delay para mostrar o spinner apenas se o carregamento demorar mais de 800ms
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    
+    if (isLoading) {
+      timer = setTimeout(() => {
+        setShowLoading(true);
+      }, 800);
+    } else {
+      setShowLoading(false);
+    }
+    
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isLoading]);
+
+  if (showLoading) {
     return (
       <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100 flex justify-center items-center h-40">
         <Loader2 className="h-8 w-8 text-blue-500 animate-spin mr-3" />

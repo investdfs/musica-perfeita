@@ -9,8 +9,8 @@ import FormIntroduction from "./FormIntroduction";
 import PersonInfoFields from "./PersonInfoFields";
 import GenreSelector from "./GenreSelector";
 import ToneAndVoiceFields from "./ToneAndVoiceFields";
-import StoryField from "./StoryField";
 import IncludeNamesFields from "./IncludeNamesFields";
+import StoryField from "./StoryField";
 import SubmitButton from "./SubmitButton";
 import MusicFocusField from "./MusicFocusField";
 import HappyMemoryField from "./HappyMemoryField";
@@ -115,6 +115,8 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
         errorMessage = "Problema de conexão detectado. Verifique sua internet e tente novamente.";
       } else if (error.type === "timeout") {
         errorMessage = "A conexão com o servidor demorou muito. Tente novamente.";
+      } else if (error.type === "permission") {
+        errorMessage = "Você não tem permissão para enviar este pedido. Por favor, faça login novamente.";
       }
       
       toast({
@@ -150,9 +152,12 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
               <PersonInfoFields form={form} />
               <GenreSelector form={form} />
               <ToneAndVoiceFields form={form} />
+              
+              {/* ORDEM AJUSTADA: Citar nomes -> História -> Foco da música */}
               <IncludeNamesFields form={form} />
               <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
               <MusicFocusField form={form} />
+              
               <HappyMemoryField form={form} />
               <SadMemoryField form={form} />
               <SubmitButton isSubmitting={isSubmitting} />

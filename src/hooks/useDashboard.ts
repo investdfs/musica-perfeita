@@ -2,7 +2,7 @@
 import { useUserAuth } from "./useUserAuth";
 import { useMusicRequests } from "./useMusicRequests";
 import { useRequestStatus } from "./useRequestStatus";
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import supabase from "@/lib/supabase";
 
 export const useDashboard = () => {
@@ -26,9 +26,20 @@ export const useDashboard = () => {
     hasPaidRequest
   } = useRequestStatus(userRequests);
 
+  // Referência para rastrear se já configuramos o listener
+  const realtimeChannelRef = useRef(null);
+  const pollingIntervalRef = useRef(null);
+  const lastFetchTimeRef = useRef(0);
+  const MIN_FETCH_INTERVAL = 5000; // 5 segundos entre fetchs para evitar piscar
+
   // Função para configurar escuta em tempo real
   const setupRealtimeListener = useCallback(() => {
     if (!userProfile?.id) return () => {};
+    
+    // Evitar múltiplas inscrições
+    if (realtimeChannelRef.current) {
+      return () => {};
+    }
     
     console.log('[useDashboard] Configurando escuta em tempo real para o usuário:', userProfile.id);
     
@@ -43,36 +54,55 @@ export const useDashboard = () => {
       }, (payload) => {
         console.log('[useDashboard] Mudança detectada via tempo real:', payload);
         
-        // Forçar uma atualização imediata quando ocorrer qualquer mudança
-        fetchUserRequests();
+        // Verificar se passou tempo mínimo desde o último fetch
+        const now = Date.now();
+        if (now - lastFetchTimeRef.current > MIN_FETCH_INTERVAL) {
+          fetchUserRequests();
+          lastFetchTimeRef.current = now;
+        } else {
+          console.log('[useDashboard] Ignorando fetch frequente demais');
+        }
       })
       .subscribe((status) => {
         console.log(`[useDashboard] Status da inscrição em tempo real: ${status}`);
       });
     
+    realtimeChannelRef.current = channel;
+    
     return () => {
       console.log('[useDashboard] Removendo canal de tempo real');
-      supabase.removeChannel(channel);
+      if (realtimeChannelRef.current) {
+        supabase.removeChannel(realtimeChannelRef.current);
+        realtimeChannelRef.current = null;
+      }
     };
   }, [userProfile, fetchUserRequests]);
 
   // Atualizar os dados quando o dashboard é carregado e periodicamente
   useEffect(() => {
-    // Buscar dados imediatamente
+    // Buscar dados imediatamente na primeira carga
+    const now = Date.now();
     fetchUserRequests();
+    lastFetchTimeRef.current = now;
     
     // Configurar escuta em tempo real
     const cleanupRealtimeListener = setupRealtimeListener();
     
-    // Também manter polling para garantir que os dados estejam sempre atualizados
-    // Usando um intervalo mais curto (1 segundo) para garantir atualizações rápidas
-    const intervalId = setInterval(() => {
-      console.log('[useDashboard] Atualizando dados via polling');
-      fetchUserRequests();
-    }, 1000);
+    // Polling com intervalo maior (10 segundos) para reduzir "flickering"
+    pollingIntervalRef.current = setInterval(() => {
+      const currentTime = Date.now();
+      if (currentTime - lastFetchTimeRef.current > MIN_FETCH_INTERVAL) {
+        console.log('[useDashboard] Atualizando dados via polling');
+        fetchUserRequests();
+        lastFetchTimeRef.current = currentTime;
+      }
+    }, 10000); // 10 segundos
     
     return () => {
-      clearInterval(intervalId);
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
       cleanupRealtimeListener();
     };
   }, [fetchUserRequests, setupRealtimeListener]);

@@ -13,6 +13,8 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     try {
       if (!userProfile?.id) return;
       
+      setIsLoading(true);
+      
       const { data, error } = await supabase
         .from('music_requests')
         .select('*')
@@ -22,6 +24,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       if (error) throw error;
       
       if (data) {
+        console.log('[useMusicRequests] Dados atualizados:', data);
         setUserRequests(data);
         
         if (data.length > 0) {
@@ -52,40 +55,27 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     }
   }, [userProfile]);
 
-  const checkForStatusUpdates = useCallback(async () => {
-    try {
-      if (!userProfile?.id) return;
-      
-      const { data, error } = await supabase
-        .from('music_requests')
-        .select('*')
-        .eq('user_id', userProfile.id)
-        .order('created_at', { ascending: false });
-        
-      if (error) throw error;
-      
-      if (data && data.length > 0) {
-        const latestRequest = data[0];
-        setUserRequests(data);
-        
-        switch (latestRequest.status) {
-          case 'pending':
-            setCurrentProgress(25);
-            break;
-          case 'in_production':
-            setCurrentProgress(50);
-            break;
-          case 'completed':
-            setCurrentProgress(100);
-            break;
-          default:
-            setCurrentProgress(0);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking for status updates:', error);
-    }
-  }, [userProfile]);
+  // Função para checar atualizações em tempo real
+  const setupRealtimeSubscription = useCallback(() => {
+    if (!userProfile?.id) return null;
+    
+    console.log('[useMusicRequests] Configurando assinatura em tempo real para:', userProfile.id);
+    
+    const channel = supabase
+      .channel('music_requests_changes')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'music_requests',
+        filter: `user_id=eq.${userProfile.id}`
+      }, (payload) => {
+        console.log('[useMusicRequests] Mudança detectada:', payload);
+        fetchUserRequests();
+      })
+      .subscribe();
+    
+    return channel;
+  }, [userProfile, fetchUserRequests]);
 
   const handleRequestSubmitted = (data: MusicRequest[]) => {
     setUserRequests([...data, ...userRequests]);
@@ -97,19 +87,27 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     setShowNewRequestForm(true);
   };
 
+  // Buscar dados iniciais quando o componente for montado
   useEffect(() => {
     if (userProfile) {
       fetchUserRequests();
     }
   }, [userProfile, fetchUserRequests]);
 
+  // Configurar assinatura em tempo real
   useEffect(() => {
-    if (!userProfile?.id) return;
+    const channel = setupRealtimeSubscription();
     
-    const intervalId = setInterval(checkForStatusUpdates, 30000);
+    // Também vamos manter a verificação regular para garantir
+    const intervalId = setInterval(fetchUserRequests, 10000);
     
-    return () => clearInterval(intervalId);
-  }, [userProfile, checkForStatusUpdates]);
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+      clearInterval(intervalId);
+    };
+  }, [userProfile, fetchUserRequests, setupRealtimeSubscription]);
 
   return {
     userRequests,
@@ -118,7 +116,6 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     isLoading,
     handleRequestSubmitted,
     handleCreateNewRequest,
-    checkForStatusUpdates,
     fetchUserRequests
   };
 };

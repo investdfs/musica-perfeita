@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MusicRequest } from "@/types/database.types";
 import { isDevelopmentOrPreview } from "@/lib/environment";
@@ -60,6 +59,8 @@ export const useRequestManagement = (
         preview_url: musicLink 
       };
       
+      console.log('[Admin] Atualizando pedido com link:', requestId, updateData);
+      
       if (isDevelopmentOrPreview()) {
         const updatedRequests = requests.map(req => 
           req.id === requestId 
@@ -109,6 +110,8 @@ export const useRequestManagement = (
         full_song_url: musicLink, 
         preview_url: musicLink 
       };
+      
+      console.log('[Admin] Salvando SoundCloud ID:', selectedRequest.id, updateData);
       
       if (isDevelopmentOrPreview()) {
         const updatedRequests = requests.map(req => 
@@ -300,21 +303,20 @@ export const useRequestManagement = (
       if (status) updates.status = status;
       if (paymentStatus) updates.payment_status = paymentStatus;
       
-      console.log(`Atualizando pedido ${requestId} com:`, updates);
+      console.log(`[Admin] Atualizando pedido ${requestId} com:`, updates);
       
-      if (!isDevelopmentOrPreview()) {
-        const { error } = await supabase
-          .from('music_requests')
-          .update(updates)
-          .eq('id', requestId);
-          
-        if (error) {
-          console.error('Erro ao atualizar no Supabase:', error);
-          throw error;
-        }
+      // Sempre fazemos a atualização no Supabase para garantir que o cliente receba as atualizações
+      const { error } = await supabase
+        .from('music_requests')
+        .update(updates)
+        .eq('id', requestId);
         
-        console.log('Atualização no Supabase bem-sucedida');
+      if (error) {
+        console.error('Erro ao atualizar no Supabase:', error);
+        throw error;
       }
+      
+      console.log('Atualização no Supabase bem-sucedida');
       
       const updatedRequests = requests.map(req => 
         req.id === requestId 

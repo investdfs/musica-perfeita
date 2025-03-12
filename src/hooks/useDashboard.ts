@@ -2,6 +2,7 @@
 import { useUserAuth } from "./useUserAuth";
 import { useMusicRequests } from "./useMusicRequests";
 import { useRequestStatus } from "./useRequestStatus";
+import { useEffect } from "react";
 
 export const useDashboard = () => {
   const { userProfile, handleUserLogout } = useUserAuth();
@@ -12,7 +13,8 @@ export const useDashboard = () => {
     showNewRequestForm,
     isLoading,
     handleRequestSubmitted,
-    handleCreateNewRequest
+    handleCreateNewRequest,
+    fetchUserRequests
   } = useMusicRequests(userProfile);
   
   const {
@@ -21,6 +23,15 @@ export const useDashboard = () => {
     hasAnyRequest,
     hasPaidRequest
   } = useRequestStatus(userRequests);
+
+  // Atualizar os dados quando o dashboard é carregado
+  useEffect(() => {
+    fetchUserRequests();
+    // Atualizar a cada 5 segundos para garantir que as alterações feitas pelo admin sejam refletidas
+    const intervalId = setInterval(fetchUserRequests, 5000);
+    
+    return () => clearInterval(intervalId);
+  }, [fetchUserRequests]);
 
   return {
     userProfile,

@@ -1,12 +1,11 @@
-
 import { useState, useEffect, useRef } from "react";
 import { MusicRequest, UserProfile } from "@/types/database.types";
-import RequestsList from "./RequestsList";
 import RequestDetails from "./RequestDetails";
 import DeliveryForm from "./DeliveryForm";
 import { useRequestManagement } from "./useRequestManagement";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
+import RequestsList from "./requests/RequestsList";
 
 interface RequestsManagementProps {
   requests: MusicRequest[];
@@ -48,26 +47,21 @@ const RequestsManagement = ({
   const lastFetchTimeRef = useRef(Date.now());
   const MIN_FETCH_INTERVAL = 2000; // Minimiza múltiplas chamadas em sequência
 
-  // Função para forçar atualização dos dados
   const forceRefresh = () => {
     console.log('[RequestsManagement] Forçando atualização dos dados');
     setFetchTrigger(prev => prev + 1);
   };
 
-  // Efeito para monitorar mudanças nas props de requests
   useEffect(() => {
     console.log('[RequestsManagement] Requests atualizados:', requests.length);
     setLocalRequests(requests);
   }, [requests]);
 
-  // CORREÇÃO CRÍTICA: Configurar escuta em tempo real para quaisquer mudanças na tabela music_requests
   useEffect(() => {
     console.log('[RequestsManagement] Configurando escuta em tempo real para requisições de música');
     
-    // Forçar busca inicial para garantir que todos os pedidos sejam carregados
     const fetchAllRequests = async () => {
       try {
-        // Verificar intervalo mínimo entre fetchs
         const now = Date.now();
         if (now - lastFetchTimeRef.current < MIN_FETCH_INTERVAL) {
           console.log('[RequestsManagement] Ignorando fetch frequente demais');
@@ -101,7 +95,6 @@ const RequestsManagement = ({
     
     fetchAllRequests();
     
-    // CORREÇÃO CRÍTICA: Usar um canal dedicado para o admin com um timestamp para evitar colisões
     const channelName = `admin-music-requests-${Date.now()}`;
     console.log(`[RequestsManagement] Criando canal em tempo real: ${channelName}`);
     
@@ -113,7 +106,6 @@ const RequestsManagement = ({
         table: 'music_requests'
       }, (payload) => {
         console.log('[RequestsManagement] Mudança detectada via tempo real:', payload);
-        // Quando detectar mudanças, atualizar imediatamente a lista
         fetchAllRequests();
       })
       .subscribe((status) => {
@@ -122,7 +114,6 @@ const RequestsManagement = ({
     
     realtimeChannelRef.current = channel;
     
-    // Configurar polling de backup a cada 10 segundos
     const pollingInterval = setInterval(() => {
       console.log('[RequestsManagement] Executando polling de verificação');
       fetchAllRequests();
@@ -138,12 +129,11 @@ const RequestsManagement = ({
     };
   }, [setRequests, fetchTrigger]);
 
-  // Intervalo de verificação para garantir que dados estejam atualizados
   useEffect(() => {
     const consistencyCheckInterval = setInterval(() => {
       console.log('[RequestsManagement] Verificação periódica de consistência');
       forceRefresh();
-    }, 30000); // Verificar a cada 30 segundos
+    }, 30000);
     
     return () => {
       clearInterval(consistencyCheckInterval);
@@ -155,12 +145,9 @@ const RequestsManagement = ({
     return user ? user.name : userId;
   };
 
-  // Função para atualizar o status e enviar uma mensagem ao usuário
   const updateStatusWithNotification = (requestId: string, status?: MusicRequest['status'], paymentStatus?: MusicRequest['payment_status']) => {
-    // Chama a função original de atualização
     handleUpdateStatus(requestId, status, paymentStatus);
     
-    // Mostra uma notificação para o usuário
     toast({
       title: "Status atualizado",
       description: status 
@@ -168,10 +155,8 @@ const RequestsManagement = ({
         : `Status do pagamento alterado para: ${paymentStatus}`,
     });
     
-    // Registra no console para debugging
     console.log(`[RequestsManagement] Status atualizado para pedido ${requestId}: status=${status}, pagamento=${paymentStatus}`);
     
-    // Força atualização após breve atraso
     setTimeout(() => {
       forceRefresh();
     }, 1000);

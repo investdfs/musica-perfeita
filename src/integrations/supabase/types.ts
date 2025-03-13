@@ -51,51 +51,66 @@ export type Database = {
           created_at: string | null
           custom_relationship: string | null
           full_song_url: string | null
+          happy_memory: string | null
           honoree_name: string
           id: string
           include_names: boolean
+          music_focus: string | null
           music_genre: string
+          music_tone: string | null
           names_to_include: string | null
           payment_status: string | null
           preview_url: string | null
           relationship_type: string
+          sad_memory: string | null
           status: string
           story: string
           user_id: string
+          voice_type: string | null
         }
         Insert: {
           cover_image_url?: string | null
           created_at?: string | null
           custom_relationship?: string | null
           full_song_url?: string | null
+          happy_memory?: string | null
           honoree_name: string
           id?: string
           include_names?: boolean
+          music_focus?: string | null
           music_genre: string
+          music_tone?: string | null
           names_to_include?: string | null
           payment_status?: string | null
           preview_url?: string | null
           relationship_type: string
+          sad_memory?: string | null
           status?: string
           story: string
           user_id: string
+          voice_type?: string | null
         }
         Update: {
           cover_image_url?: string | null
           created_at?: string | null
           custom_relationship?: string | null
           full_song_url?: string | null
+          happy_memory?: string | null
           honoree_name?: string
           id?: string
           include_names?: boolean
+          music_focus?: string | null
           music_genre?: string
+          music_tone?: string | null
           names_to_include?: string | null
           payment_status?: string | null
           preview_url?: string | null
           relationship_type?: string
+          sad_memory?: string | null
           status?: string
           story?: string
           user_id?: string
+          voice_type?: string | null
         }
         Relationships: [
           {

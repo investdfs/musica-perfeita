@@ -88,6 +88,7 @@ const AdminDashboard = () => {
         <UserManagement users={regularUsers} fetchUsers={fetchUsers} />
       </Card>
       
+      {/* Movida para o final da página conforme solicitado */}
       <Card className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">Administradores</h2>
         <AdminManagement 

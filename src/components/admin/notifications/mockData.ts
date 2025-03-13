@@ -19,7 +19,7 @@ export const mockNotifications = [
     title: "Pagamento confirmado",
     message: "Pagamento do pedido #1234 foi confirmado",
     read: true,
-    timestamp: new Date(Date.now() - 2.5 * 60 * 1000).toISOString(), // 2.5 minutos atrás
+    timestamp: new Date(Date.now() - 2.5 * 60 * 60 * 1000).toISOString(), // 2.5 horas atrás
     type: 'payment',
     emailSent: true,
     requestId: "1234",
@@ -46,6 +46,17 @@ export const mockNotifications = [
     emailSent: false,
     requestId: null,
     userId: "2"
+  },
+  {
+    id: 5,
+    title: "Login detectado",
+    message: "João Silva fez login em sua conta",
+    read: false,
+    timestamp: new Date(Date.now() - 2.8 * 60 * 1000).toISOString(), // 2.8 minutos atrás
+    type: 'user_login',
+    emailSent: false,
+    requestId: null,
+    userId: "1"
   }
 ] as Notification[];
 

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MusicRequest } from "@/types/database.types";
 import { isDevelopmentOrPreview } from "@/lib/environment";
@@ -51,8 +52,9 @@ export const useRequestManagement = (
         }
       }
       
-      const updateData = { 
-        status: 'completed', 
+      // Define explicitamente o status com o tipo correto
+      const updateData: Partial<MusicRequest> = { 
+        status: 'completed' as const, 
         full_song_url: musicLink, 
         preview_url: musicLink 
       };
@@ -73,7 +75,7 @@ export const useRequestManagement = (
       
       const updatedRequests = requests.map(req => 
         req.id === requestId 
-          ? { ...req, ...updateData } 
+          ? { ...req, ...updateData } as MusicRequest
           : req
       );
       
@@ -96,8 +98,9 @@ export const useRequestManagement = (
     setIsUploading(true);
     
     try {
-      const updateData = { 
-        status: 'completed', 
+      // Define explicitamente o status com o tipo correto
+      const updateData: Partial<MusicRequest> = { 
+        status: 'completed' as const, 
         soundcloud_id: null,
         full_song_url: musicLink, 
         preview_url: musicLink 
@@ -119,7 +122,7 @@ export const useRequestManagement = (
       
       const updatedRequests = requests.map(req => 
         req.id === selectedRequest.id 
-          ? { ...req, ...updateData } 
+          ? { ...req, ...updateData } as MusicRequest
           : req
       );
       
@@ -200,15 +203,16 @@ export const useRequestManagement = (
         
         const objectUrl = URL.createObjectURL(file);
         
-        const updateData = { 
-          status: 'completed',
+        // Define explicitamente o status com o tipo correto
+        const updateData: Partial<MusicRequest> = { 
+          status: 'completed' as const,
           full_song_url: `temp:${objectUrl}`,
           preview_url: `temp:${objectUrl}`
         };
         
         const updatedRequests = requests.map(req => 
           req.id === request.id 
-            ? { ...req, ...updateData } 
+            ? { ...req, ...updateData } as MusicRequest
             : req
         );
         
@@ -233,8 +237,9 @@ export const useRequestManagement = (
       
       console.log("Upload successful, URL:", urlData.publicUrl);
       
-      const updateData = { 
-        status: 'completed', 
+      // Define explicitamente o status com o tipo correto
+      const updateData: Partial<MusicRequest> = { 
+        status: 'completed' as const, 
         full_song_url: urlData.publicUrl,
         preview_url: urlData.publicUrl 
       };
@@ -242,7 +247,7 @@ export const useRequestManagement = (
       if (isDevelopmentOrPreview()) {
         const updatedRequests = requests.map(req => 
           req.id === request.id 
-            ? { ...req, ...updateData } 
+            ? { ...req, ...updateData } as MusicRequest
             : req
         );
         
@@ -260,7 +265,7 @@ export const useRequestManagement = (
         
         const updatedRequests = requests.map(req => 
           req.id === request.id 
-            ? { ...req, ...updateData } 
+            ? { ...req, ...updateData } as MusicRequest
             : req
         );
         
@@ -285,7 +290,7 @@ export const useRequestManagement = (
 
   const handleUpdateStatus = async (requestId: string, status?: MusicRequest['status'], paymentStatus?: MusicRequest['payment_status']) => {
     try {
-      const updates: { status?: MusicRequest['status'], payment_status?: MusicRequest['payment_status'] } = {};
+      const updates: Partial<MusicRequest> = {};
       
       if (status) updates.status = status;
       if (paymentStatus) updates.payment_status = paymentStatus;
@@ -306,7 +311,7 @@ export const useRequestManagement = (
       
       const updatedRequests = requests.map(req => 
         req.id === requestId 
-          ? { ...req, ...updates } 
+          ? { ...req, ...updates } as MusicRequest
           : req
       );
       

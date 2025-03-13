@@ -41,7 +41,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="space-y-0">
+      <main>
         <WelcomeSection />
         <StepByStepSection />
         <PossibilitiesSection />

@@ -6,8 +6,8 @@ import MusicPreviewPlayer from "@/components/dashboard/MusicPreviewPlayer";
 import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
 import OrderControlPanel from "@/components/dashboard/OrderControlPanel";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import PreviewButton from "@/components/dashboard/PreviewButton";
 import { useDashboard } from "@/hooks/useDashboard";
-import { useEffect } from "react";
 
 const Dashboard = () => {
   const {
@@ -25,31 +25,6 @@ const Dashboard = () => {
     handleUserLogout
   } = useDashboard();
 
-  // Log para ajudar no diagnóstico
-  console.log('[Dashboard] Estado atual:', {
-    userRequestsCount: userRequests.length,
-    showNewRequestForm,
-    hasAnyRequest,
-    shouldShowForm: userProfile && showNewRequestForm
-  });
-  
-  // Verificação adicional para logs de diagnóstico
-  useEffect(() => {
-    console.log('[Dashboard] Estado atualizado:', {
-      userRequestsLength: userRequests.length,
-      showNewRequestForm,
-      hasAnyRequest,
-      temPedido: userRequests.length > 0,
-      userProfile: !!userProfile
-    });
-  }, [userRequests, showNewRequestForm, hasAnyRequest, userProfile]);
-
-  // CORREÇÃO CRÍTICA: Remover a condição que oculta o painel de controle de pedidos
-  // Agora o painel sempre será mostrado, independentemente do estado do formulário
-  
-  // CORREÇÃO CRÍTICA: Verificar diretamente se deve mostrar o formulário
-  const shouldShowForm = userProfile && showNewRequestForm;
-
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
       <div className="animated-shapes">
@@ -64,28 +39,32 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={hasAnyRequest} />
           
-          {/* CORREÇÃO CRÍTICA: O painel de pedidos sempre é visível */}
-          <OrderControlPanel 
-            userRequests={userRequests} 
-            onCreateNewRequest={handleCreateNewRequest}
-            isLoading={isLoading}
-          />
-          
-          {hasPreviewUrl && !showNewRequestForm && (
-            <MusicPreviewPlayer 
-              previewUrl={userRequests[0]?.preview_url || ''} 
-              fullSongUrl={userRequests[0]?.full_song_url}
-              isCompleted={hasCompletedRequest}
-              paymentStatus={userRequests[0]?.payment_status || 'pending'}
+          {!showNewRequestForm && (
+            <OrderControlPanel 
+              userRequests={userRequests} 
+              onCreateNewRequest={handleCreateNewRequest}
+              isLoading={isLoading}
             />
           )}
           
-          {/* CORREÇÃO CRÍTICA: O formulário só é mostrado quando shouldShowForm é true */}
-          {shouldShowForm && (
+          {hasCompletedRequest && !hasPaidRequest && !showNewRequestForm && (
+            <PreviewButton musicRequest={userRequests[0]} />
+          )}
+          
+          {hasPreviewUrl && !showNewRequestForm && (
+            <MusicPreviewPlayer 
+              previewUrl={userRequests[0].preview_url || ''} 
+              fullSongUrl={userRequests[0].full_song_url}
+              isCompleted={hasCompletedRequest}
+              paymentStatus={userRequests[0].payment_status || 'pending'}
+            />
+          )}
+          
+          {userProfile && showNewRequestForm && (
             <MusicRequestForm 
               userProfile={userProfile} 
               onRequestSubmitted={handleRequestSubmitted}
-              hasExistingRequest={userRequests.length > 0}
+              hasExistingRequest={false}
             />
           )}
         </div>

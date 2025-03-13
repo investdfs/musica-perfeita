@@ -1,5 +1,5 @@
 
-import { Home, UserPlus, Info, LogIn, LogOut, User, Music, MessageSquareHeart, HelpCircle, LayoutDashboard } from "lucide-react";
+import { Home, UserPlus, Info, LogIn, LogOut, User, Music, MessageSquareHeart, HelpCircle } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -9,7 +9,6 @@ const Navigation = ({ className }: { className?: string }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   
   // Helper function to determine if a link is active
   const isActive = (path: string) => location.pathname === path;
@@ -18,10 +17,7 @@ const Navigation = ({ className }: { className?: string }) => {
   useEffect(() => {
     const checkLoginStatus = () => {
       const storedUser = localStorage.getItem("musicaperfeita_user");
-      const adminStatus = localStorage.getItem("musicaperfeita_admin") === "true";
-      
       setIsLoggedIn(!!storedUser);
-      setIsAdmin(adminStatus);
     };
     
     checkLoginStatus();
@@ -38,13 +34,8 @@ const Navigation = ({ className }: { className?: string }) => {
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
     localStorage.removeItem("musicaperfeita_user");
-    localStorage.removeItem("musicaperfeita_admin");
-    localStorage.removeItem("admin_email");
-    localStorage.removeItem("admin_id");
-    localStorage.removeItem("admin_is_main");
     localStorage.removeItem("redirect_after_login");
     setIsLoggedIn(false); // Atualiza o estado imediatamente
-    setIsAdmin(false);
     toast({
       title: "Logout realizado",
       description: "Você saiu da sua conta com sucesso."
@@ -53,93 +44,83 @@ const Navigation = ({ className }: { className?: string }) => {
   };
 
   return (
-    <nav className={cn("flex items-center gap-4", className)}>
+    <nav className={cn("flex items-center gap-2", className)}>
       <Link 
         to="/" 
-        className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
-        <Home className="h-5 w-5 text-blue-500" />
-        <span className="text-sm font-medium">Home</span>
+        <Home className="h-4 w-4 text-blue-500" />
+        <span className="text-xs">Home</span>
       </Link>
       
-      {isLoggedIn && (
+      {isLoggedIn ? (
         <Link
           to="/dashboard"
-          className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
+          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
-          <User className="h-5 w-5 text-teal-500" />
-          <span className="text-sm font-medium">Minha Conta</span>
+          <User className="h-4 w-4 text-teal-500" />
+          <span className="text-xs">Minha Conta</span>
         </Link>
-      )}
-      
-      {isAdmin && (
-        <Link
-          to="/admin"
-          className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
-        >
-          <LayoutDashboard className="h-5 w-5 text-red-500" />
-          <span className="text-sm font-medium">Admin</span>
-        </Link>
-      )}
+      ) : null}
       
       <Link 
         to="/nossas-musicas" 
-        className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
-        <Music className="h-5 w-5 text-purple-500" />
-        <span className="text-sm font-medium">Nossas Músicas</span>
+        <Music className="h-4 w-4 text-purple-500" />
+        <span className="text-xs">Músicas</span>
       </Link>
       
       <Link 
         to="/depoimentos" 
-        className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
-        <MessageSquareHeart className="h-5 w-5 text-pink-500" />
-        <span className="text-sm font-medium">Depoimentos</span>
+        <MessageSquareHeart className="h-4 w-4 text-pink-500" />
+        <span className="text-xs">Depoimentos</span>
       </Link>
       
       <Link 
         to="/faq" 
-        className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
-        <HelpCircle className="h-5 w-5 text-amber-500" />
-        <span className="text-sm font-medium">Dúvidas</span>
+        <HelpCircle className="h-4 w-4 text-amber-500" />
+        <span className="text-xs">Dúvidas</span>
       </Link>
       
       <Link 
         to="/sobre" 
-        className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
+        className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
       >
-        <Info className="h-5 w-5 text-emerald-500" />
-        <span className="text-sm font-medium">Sobre</span>
+        <Info className="h-4 w-4 text-emerald-500" />
+        <span className="text-xs">Sobre</span>
       </Link>
       
       {!isLoggedIn && (
         <Link 
           to="/cadastro" 
-          className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
+          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
-          <UserPlus className="h-5 w-5 text-green-500" />
-          <span className="text-sm font-medium">Cadastro</span>
+          <UserPlus className="h-4 w-4 text-green-500" />
+          <span className="text-xs">Cadastro</span>
         </Link>
       )}
       
       {!isLoggedIn ? (
         <Link 
           to="/login" 
-          className="flex items-center gap-1.5 transition-colors text-black hover:opacity-80"
+          className="flex items-center gap-1 transition-colors text-black hover:opacity-80"
         >
-          <LogIn className="h-5 w-5 text-indigo-500" />
-          <span className="text-sm font-medium">Login</span>
+          <LogIn className="h-4 w-4 text-indigo-500" />
+          <span className="text-xs">Login</span>
         </Link>
       ) : (
         <a
           href="/"
           onClick={handleLogout}
-          className="flex items-center gap-1.5 transition-colors text-red-600 hover:text-red-800"
+          className="flex items-center gap-1 transition-colors text-red-600 hover:text-red-800"
         >
-          <LogOut className="h-5 w-5" />
-          <span className="text-sm font-medium">Sair</span>
+          <LogOut className="h-4 w-4" />
+          <span className="text-xs">Sair</span>
         </a>
       )}
     </nav>

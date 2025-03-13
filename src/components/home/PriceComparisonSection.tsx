@@ -37,10 +37,10 @@ const occasionTooltips = {
 
 const PriceComparisonSection = () => {
   return (
-    <section className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-purple-50">
+    <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white to-purple-50">
       <div className="max-w-6xl mx-auto">
         {/* Primeiro, mostramos a seção "Música Perfeita" (anteriormente estava abaixo) */}
-        <div className="mb-8">
+        <div className="mb-12">
           <div className="bg-white rounded-xl overflow-hidden border border-green-200 shadow-xl">
             <div className="bg-gradient-to-r from-green-50 to-emerald-100 p-6 text-center">
               <div className="flex items-center justify-center gap-3 mb-3">
@@ -75,16 +75,16 @@ const PriceComparisonSection = () => {
           </div>
         </div>
 
-        {/* Agora vem a seção de preços com promoção */}
-        <div className="mb-8">
-          <div className="text-center mb-6">
+        {/* Agora vem a seção de preços com promoção, REMOVIDA a seção duplicada de "Ouça exemplos" */}
+        <div className="mb-10">
+          <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               Por Que Escolher o Música Perfeita?
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-4">
               Um serviço completo de música personalizada com preço justo e transparente
             </p>
-            <div className="bg-amber-100 border-l-4 border-amber-500 p-4 rounded-r-lg max-w-3xl mx-auto text-left mb-6">
+            <div className="bg-amber-100 border-l-4 border-amber-500 p-4 rounded-r-lg max-w-3xl mx-auto text-left mb-8">
               <p className="text-amber-800">
                 <strong>Você sabia?</strong> A média de preço para músicas personalizadas no mercado varia de <strong>R$ 700</strong> a <strong>R$ 3.500</strong>, 
                 com valores raramente divulgados nas páginas dos serviços. No <strong>Música Perfeita</strong>, 
@@ -140,23 +140,24 @@ const PriceComparisonSection = () => {
                 </Button>
               </div>
               
-              {/* Opção 2: Música + Quadro Físico - CORRIGINDO o problema de imagem */}
+              {/* Opção 2: Música + Quadro Físico - Corrigir o problema de sobreposição */}
               <div className="bg-white rounded-xl border-2 border-green-500 shadow-md p-4 sm:p-6 relative hover:shadow-lg transition-shadow">
                 <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-semibold py-1 px-3 rounded-bl-lg">
                   Recomendado
                 </div>
                 <div className="flex flex-col items-center mb-4">
-                  {/* CORREÇÃO: Reduzindo o tamanho da imagem */}
+                  {/* Reduzir ainda mais a altura para evitar sobreposição */}
                   <div className="h-24 sm:h-32 w-auto mb-4 flex items-center justify-center">
                     <Dialog>
                       <DialogTrigger asChild>
-                        <div className="cursor-pointer h-full flex items-center justify-center">
+                        <div className="cursor-pointer">
                           <img 
                             src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/quadro-decorativo-personalizado-interativo-com-qr-code-fundo-branco-68936-removebg-preview.png" 
                             alt="Música Digital + Quadro" 
-                            className="object-contain hover:opacity-90 transition-opacity"
+                            className="max-h-full max-w-full object-contain hover:opacity-90 transition-opacity"
                             style={{ maxHeight: "100%", maxWidth: "90%" }}
                           />
+                          <p className="text-xs text-gray-500 mt-1 italic">clique para ampliar</p>
                         </div>
                       </DialogTrigger>
                       <DialogContent className="max-w-3xl p-1 bg-white">
@@ -196,11 +197,35 @@ const PriceComparisonSection = () => {
           </Card>
         </div>
 
-        {/* REMOVENDO a seção "Ouça exemplos" conforme solicitado */}
+        {/* Agora vem a seção de "Ouça exemplos" com a imagem MUITO menor e mais discreta */}
+        <div className="mb-12">
+          <div className="text-center mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+              Ouça exemplos de nossas criações
+            </h2>
+          </div>
+          
+          <Link to="/nossas-musicas" className="block mx-auto max-w-md">
+            <div className="relative bg-blue-900 rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all">
+              {/* Imagem MUITO menor e mais discreta */}
+              <img 
+                src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-3d-render-of-a-playlist-with-waves-of-_QHhhBN7WTKeV9ExYGhFK3g_1xdiS_4ERbOtBvueTPsITg.webp" 
+                alt="Playlist de músicas personalizadas" 
+                className="w-full h-auto object-cover aspect-[16/6] opacity-75"
+              />
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-t from-blue-900/90 to-blue-900/50 p-4 text-white">
+                <h3 className="text-lg sm:text-xl font-bold mb-2 drop-shadow-md">Exemplos de músicas personalizadas</h3>
+                <Button className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-1 text-sm rounded-full shadow-lg flex items-center gap-2">
+                  <Music className="h-4 w-4" /> Ouvir Agora
+                </Button>
+              </div>
+            </div>
+          </Link>
+        </div>
 
         {/* Tooltips para "Mais ocasiões para eternizar com música" */}
         <TooltipProvider>
-          <div className="mt-6 text-center">
+          <div className="mt-8 text-center">
             <Button 
               onClick={() => window.location.href = "/cadastro"}
               className="bg-green-600 hover:bg-green-700 text-white font-medium px-10 py-6 h-auto shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 text-lg"

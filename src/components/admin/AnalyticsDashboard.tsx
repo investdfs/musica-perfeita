@@ -1,64 +1,17 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { MusicRequest, UserProfile } from "@/types/database.types";
-import supabase from "@/lib/supabase";
 
 interface AnalyticsDashboardProps {
   requests: MusicRequest[];
   users: UserProfile[];
-  visitorCount: number;
+  visitorCount: number; // Adicionado contador de visitantes
 }
 
 const AnalyticsDashboard = ({ requests, users, visitorCount }: AnalyticsDashboardProps) => {
   const [timeFrame, setTimeFrame] = useState<"week" | "month" | "year">("month");
-  const [localVisitorCount, setLocalVisitorCount] = useState(visitorCount);
-  
-  // Busca o contador de visitantes do banco de dados
-  useEffect(() => {
-    const fetchVisitorCount = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('site_stats')
-          .select('visitor_count')
-          .limit(1);
-          
-        if (error) {
-          console.error("Erro ao buscar contador de visitantes:", error);
-          return;
-        }
-        
-        if (data && data.length > 0) {
-          setLocalVisitorCount(data[0].visitor_count);
-          
-          // Incrementa o contador de visitantes
-          const { error: updateError } = await supabase.rpc('increment_visitor_count');
-          if (updateError) {
-            console.error("Erro ao incrementar contador de visitantes:", updateError);
-          } else {
-            // Atualiza o contador local
-            setLocalVisitorCount(prev => prev + 1);
-          }
-        } else {
-          // Se não houver registros, cria um
-          const { error: insertError } = await supabase
-            .from('site_stats')
-            .insert({ visitor_count: 1 });
-            
-          if (insertError) {
-            console.error("Erro ao criar registro de estatísticas:", insertError);
-          } else {
-            setLocalVisitorCount(1);
-          }
-        }
-      } catch (error) {
-        console.error("Erro ao processar contador de visitantes:", error);
-      }
-    };
-    
-    fetchVisitorCount();
-  }, []);
   
   // Calculate dashboard metrics
   const totalRequests = requests.length;
@@ -132,7 +85,7 @@ const AnalyticsDashboard = ({ requests, users, visitorCount }: AnalyticsDashboar
             <CardTitle className="text-sm font-medium">Visitantes Únicos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{localVisitorCount}</div>
+            <div className="text-2xl font-bold">{visitorCount}</div>
             <p className="text-xs text-muted-foreground">
               Total acumulativo
             </p>

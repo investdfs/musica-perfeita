@@ -48,7 +48,7 @@ const AdminLogin = () => {
       
       setTimeout(() => {
         navigate("/admin");
-      }, 500);
+      }, 1000);
       return;
     }
     
@@ -66,7 +66,7 @@ const AdminLogin = () => {
       
       setTimeout(() => {
         navigate("/admin");
-      }, 500);
+      }, 1000);
     }
   }, [navigate]);
 

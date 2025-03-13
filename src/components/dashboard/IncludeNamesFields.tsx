@@ -30,7 +30,7 @@ const IncludeNamesFields = ({ form }: IncludeNamesFieldsProps) => {
               />
             </FormControl>
             <div className="space-y-1 leading-none">
-              <FormLabel className="text-gray-700">Citar até 2 nomes na música?</FormLabel>
+              <FormLabel className="text-gray-700">Citar até 4 nomes na música?</FormLabel>
               <p className="text-xs text-gray-500">
                 Os nomes devem estar relacionados à história da pessoa homenageada.
               </p>
@@ -48,7 +48,7 @@ const IncludeNamesFields = ({ form }: IncludeNamesFieldsProps) => {
               <FormLabel className="text-gray-700">Quais os nomes a serem citados?</FormLabel>
               <FormControl>
                 <Input 
-                  placeholder="Digite até 2 nomes separados por vírgula" 
+                  placeholder="Digite até 4 nomes separados por vírgula" 
                   className="border-pink-200 focus-visible:ring-pink-400 bg-white text-gray-900"
                   {...field} 
                   value={field.value || ''}

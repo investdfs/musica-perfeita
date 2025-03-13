@@ -17,8 +17,5 @@ export const isDevelopmentOrPreview = (): boolean => {
  * Utility function to check if the app is running in the Lovable editor environment
  */
 export const isLovableEditor = (): boolean => {
-  return (
-    window.location.href.includes('lovable.dev/projects/') ||
-    window.location.hostname.includes('lovableproject.com')
-  );
+  return window.location.href.includes('lovable.dev/projects/');
 };

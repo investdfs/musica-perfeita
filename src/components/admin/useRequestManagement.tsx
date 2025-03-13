@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MusicRequest } from "@/types/database.types";
 import { isDevelopmentOrPreview } from "@/lib/environment";
@@ -59,36 +60,34 @@ export const useRequestManagement = (
         preview_url: musicLink 
       };
       
-      console.log('[Admin] Atualizando pedido com link:', requestId, updateData);
-      
-      // Sempre atualizar o Supabase, mesmo em desenvolvimento
-      const { error } = await supabase
-        .from('music_requests')
-        .update(updateData)
-        .eq('id', requestId);
+      if (isDevelopmentOrPreview()) {
+        const updatedRequests = requests.map(req => 
+          req.id === requestId 
+            ? { ...req, ...updateData } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      } else {
+        const { error } = await supabase
+          .from('music_requests')
+          .update(updateData)
+          .eq('id', requestId);
           
-      if (error) {
-        console.error('[Admin] Erro ao atualizar pedido no Supabase:', error);
-        throw error;
+        if (error) throw error;
+        
+        const updatedRequests = requests.map(req => 
+          req.id === requestId 
+            ? { ...req, ...updateData } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
       }
-      
-      console.log('[Admin] Pedido atualizado com sucesso no Supabase');
-      
-      // Também atualizar o estado local para refletir a mudança imediatamente
-      const updatedRequests = requests.map(req => 
-        req.id === requestId 
-          ? { ...req, ...updateData } 
-          : req
-      );
-      
-      setRequests(updatedRequests);
-      
-      // Verificar se o status foi atualizado corretamente
-      console.log(`[Admin] Pedido atualizado com sucesso. Novo status: completed, Link: ${musicLink}`);
       
       return Promise.resolve();
     } catch (error) {
-      console.error('[Admin] Erro ao atualizar pedido com link de música:', error);
+      console.error('Error updating request with music link:', error);
       throw error;
     } finally {
       setIsUploading(false);
@@ -108,29 +107,30 @@ export const useRequestManagement = (
         preview_url: musicLink 
       };
       
-      console.log('[Admin] Salvando link da música:', selectedRequest.id, updateData);
-      
-      // Sempre atualizar o Supabase, mesmo em desenvolvimento
-      const { error } = await supabase
-        .from('music_requests')
-        .update(updateData)
-        .eq('id', selectedRequest.id);
+      if (isDevelopmentOrPreview()) {
+        const updatedRequests = requests.map(req => 
+          req.id === selectedRequest.id 
+            ? { ...req, ...updateData } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
+      } else {
+        const { error } = await supabase
+          .from('music_requests')
+          .update(updateData)
+          .eq('id', selectedRequest.id);
           
-      if (error) {
-        console.error('[Admin] Erro ao atualizar pedido no Supabase:', error);
-        throw error;
+        if (error) throw error;
+        
+        const updatedRequests = requests.map(req => 
+          req.id === selectedRequest.id 
+            ? { ...req, ...updateData } 
+            : req
+        );
+        
+        setRequests(updatedRequests);
       }
-      
-      console.log('[Admin] Pedido atualizado com sucesso no Supabase');
-      
-      // Também atualizar o estado local para refletir a mudança imediatamente
-      const updatedRequests = requests.map(req => 
-        req.id === selectedRequest.id 
-          ? { ...req, ...updateData } 
-          : req
-      );
-      
-      setRequests(updatedRequests);
       
       setShowDetails(false);
       
@@ -139,7 +139,7 @@ export const useRequestManagement = (
         description: "O link da música foi salvo e o status do pedido foi atualizado para Concluído.",
       });
     } catch (error: any) {
-      console.error('[Admin] Erro ao atualizar pedido:', error);
+      console.error('Error updating request:', error);
       toast({
         title: "Erro ao atualizar",
         description: error.message || "Não foi possível atualizar o status do pedido",
@@ -297,22 +297,15 @@ export const useRequestManagement = (
       if (status) updates.status = status;
       if (paymentStatus) updates.payment_status = paymentStatus;
       
-      console.log(`[Admin] Atualizando pedido ${requestId} com:`, updates);
-      
-      // Sempre atualizar o Supabase para garantir que o cliente receba as atualizações
-      const { error } = await supabase
-        .from('music_requests')
-        .update(updates)
-        .eq('id', requestId);
-        
-      if (error) {
-        console.error('[Admin] Erro ao atualizar no Supabase:', error);
-        throw error;
+      if (!isDevelopmentOrPreview()) {
+        const { error } = await supabase
+          .from('music_requests')
+          .update(updates)
+          .eq('id', requestId);
+          
+        if (error) throw error;
       }
       
-      console.log('[Admin] Atualização no Supabase bem-sucedida');
-      
-      // Também atualizar o estado local para refletir a mudança imediatamente
       const updatedRequests = requests.map(req => 
         req.id === requestId 
           ? { ...req, ...updates } 
@@ -321,15 +314,12 @@ export const useRequestManagement = (
       
       setRequests(updatedRequests);
       
-      const requestAfterUpdate = updatedRequests.find(req => req.id === requestId);
-      console.log(`[Admin] Pedido após atualização:`, requestAfterUpdate);
-      
       toast({
         title: "Status atualizado",
         description: "O status do pedido foi atualizado com sucesso",
       });
     } catch (error) {
-      console.error('[Admin] Erro ao atualizar status:', error);
+      console.error('Error updating status:', error);
       toast({
         title: "Erro ao atualizar",
         description: "Não foi possível atualizar o status",

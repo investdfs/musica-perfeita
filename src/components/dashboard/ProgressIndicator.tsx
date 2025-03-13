@@ -1,7 +1,6 @@
 
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle, Clock, Music, UserCheck, Factory } from "lucide-react";
-import { useEffect, useState } from "react";
 
 interface ProgressIndicatorProps {
   currentProgress: number;
@@ -9,30 +8,12 @@ interface ProgressIndicatorProps {
 }
 
 const ProgressIndicator = ({ currentProgress, hasAnyRequest }: ProgressIndicatorProps) => {
-  const [animatedProgress, setAnimatedProgress] = useState(0);
-  
-  // CORREÇÃO CRÍTICA: Log para acompanhar mudanças de progresso
-  useEffect(() => {
-    console.log('[ProgressIndicator] Progresso atualizado:', { currentProgress, hasAnyRequest });
-  }, [currentProgress, hasAnyRequest]);
-  
-  // Animar a barra de progresso para uma transição mais suave
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setAnimatedProgress(currentProgress);
-    }, 300);
-    
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [currentProgress]);
-
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100 transition-all card-hover-effect">
       <h2 className="text-xl font-semibold mb-4 text-blue-600">Status do seu pedido</h2>
       
       <Progress 
-        value={animatedProgress} 
+        value={currentProgress} 
         className="h-5 mb-6" 
       />
       

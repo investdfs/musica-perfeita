@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MusicRequest } from "@/types/database.types";
-import { Send, Download, Save, ExternalLink, Music, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Send, Download, Save, ExternalLink, Music } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,9 +45,6 @@ interface RequestsListProps {
   onSaveMusicLink: (requestId: string, musicLink: string) => Promise<void>;
 }
 
-type SortColumn = 'cliente' | 'honoree' | 'status' | 'payment' | 'date';
-type SortDirection = 'asc' | 'desc';
-
 const RequestsList = ({ 
   requests, 
   isLoading, 
@@ -63,8 +60,6 @@ const RequestsList = ({
 }: RequestsListProps) => {
   const [soundcloudIds, setSoundcloudIds] = useState<{[key: string]: string}>({});
   const [savingLinks, setSavingLinks] = useState<{[key: string]: boolean}>({});
-  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -112,59 +107,6 @@ const RequestsList = ({
     }
   };
 
-  const handleSort = (column: SortColumn) => {
-    if (sortColumn === column) {
-      // Inverter a direção se a coluna já estiver selecionada
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      // Definir a nova coluna e resetar a direção para ascendente
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-  };
-
-  const getSortedRequests = () => {
-    if (!sortColumn) return requests;
-
-    return [...requests].sort((a, b) => {
-      let comparison = 0;
-      
-      switch (sortColumn) {
-        case 'cliente':
-          const userNameA = getUserName(a.user_id).toLowerCase();
-          const userNameB = getUserName(b.user_id).toLowerCase();
-          comparison = userNameA.localeCompare(userNameB);
-          break;
-        case 'honoree':
-          comparison = a.honoree_name.toLowerCase().localeCompare(b.honoree_name.toLowerCase());
-          break;
-        case 'status':
-          comparison = a.status.localeCompare(b.status);
-          break;
-        case 'payment':
-          comparison = a.payment_status.localeCompare(b.payment_status);
-          break;
-        case 'date':
-          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-          break;
-      }
-      
-      return sortDirection === 'asc' ? comparison : -comparison;
-    });
-  };
-
-  const getSortIcon = (column: SortColumn) => {
-    if (sortColumn !== column) {
-      return <ArrowUpDown className="ml-1 h-4 w-4 inline" />;
-    }
-    
-    return sortDirection === 'asc' 
-      ? <ArrowUp className="ml-1 h-4 w-4 inline text-blue-500" />
-      : <ArrowDown className="ml-1 h-4 w-4 inline text-blue-500" />;
-  };
-
-  const sortedRequests = getSortedRequests();
-
   return (
     <>
       <h2 className="text-xl font-semibold mb-6 text-gray-900">Lista de Pedidos</h2>
@@ -178,42 +120,17 @@ const RequestsList = ({
           <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead 
-                  className="w-[150px] text-gray-700 cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSort('cliente')}
-                >
-                  Cliente {getSortIcon('cliente')}
-                </TableHead>
-                <TableHead 
-                  className="w-[150px] text-gray-700 cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSort('honoree')}
-                >
-                  Homenageado {getSortIcon('honoree')}
-                </TableHead>
-                <TableHead 
-                  className="w-[120px] text-gray-700 cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSort('status')}
-                >
-                  Status {getSortIcon('status')}
-                </TableHead>
-                <TableHead 
-                  className="w-[120px] text-gray-700 cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSort('payment')}
-                >
-                  Pagamento {getSortIcon('payment')}
-                </TableHead>
-                <TableHead 
-                  className="w-[100px] text-gray-700 cursor-pointer hover:bg-gray-50"
-                  onClick={() => handleSort('date')}
-                >
-                  Data {getSortIcon('date')}
-                </TableHead>
+                <TableHead className="w-[150px] text-gray-700">Cliente</TableHead>
+                <TableHead className="w-[150px] text-gray-700">Homenageado</TableHead>
+                <TableHead className="w-[120px] text-gray-700">Status</TableHead>
+                <TableHead className="w-[120px] text-gray-700">Pagamento</TableHead>
+                <TableHead className="w-[100px] text-gray-700">Data</TableHead>
                 <TableHead className="text-gray-700">Link da Música</TableHead>
                 <TableHead className="w-[100px] text-right text-gray-700">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedRequests.map((request) => (
+              {requests.map((request) => (
                 <TableRow key={request.id}>
                   <TableCell className="font-medium truncate max-w-[150px] text-gray-900">
                     {getUserName(request.user_id)}

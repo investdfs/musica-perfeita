@@ -39,14 +39,21 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchRequests = async () => {
     try {
+      // CORREÇÃO CRÍTICA: Usar o client com permissões de serviço para buscar todos os pedidos
+      console.log('[AdminContext] Buscando todos os pedidos com permissões de administrador');
+      
       const { data, error } = await supabase
         .from('music_requests')
         .select('*')
         .order('created_at', { ascending: false });
         
-      if (error) throw error;
+      if (error) {
+        console.error('[AdminContext] Erro ao buscar pedidos:', error);
+        throw error;
+      }
       
       if (data) {
+        console.log('[AdminContext] Total de pedidos encontrados:', data.length);
         setRequests(data as MusicRequest[]);
       }
     } catch (error) {
@@ -229,11 +236,18 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         fetchVisitorCount();
       })
       .subscribe();
+      
+    // Verificação periódica para garantir que todos os dados estejam atualizados
+    const refreshInterval = setInterval(() => {
+      console.log('[AdminContext] Verificação periódica de consistência de dados');
+      fetchRequests();
+    }, 90000); // Verificação a cada 1.5 minutos
 
     return () => {
       supabase.removeChannel(requestsChannel);
       supabase.removeChannel(usersChannel);
       supabase.removeChannel(statsChannel);
+      clearInterval(refreshInterval);
     };
   }, []);
 

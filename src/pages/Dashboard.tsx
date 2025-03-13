@@ -7,6 +7,7 @@ import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
 import OrderControlPanel from "@/components/dashboard/OrderControlPanel";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { useDashboard } from "@/hooks/useDashboard";
+import { useEffect } from "react";
 
 const Dashboard = () => {
   const {
@@ -30,6 +31,17 @@ const Dashboard = () => {
     showNewRequestForm,
     hasAnyRequest
   });
+  
+  // Verificação adicional para logs de diagnóstico
+  useEffect(() => {
+    console.log('[Dashboard] Estado atualizado:', {
+      userRequestsCount: userRequests.length,
+      showNewRequestForm,
+      hasAnyRequest,
+      temPedido: userRequests.length > 0,
+      mostrarCaixaPedidos: !showNewRequestForm && userRequests.length > 0
+    });
+  }, [userRequests, showNewRequestForm, hasAnyRequest]);
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
@@ -45,7 +57,7 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={hasAnyRequest} />
           
-          {!showNewRequestForm && (
+          {userRequests.length > 0 && !showNewRequestForm && (
             <OrderControlPanel 
               userRequests={userRequests} 
               onCreateNewRequest={handleCreateNewRequest}

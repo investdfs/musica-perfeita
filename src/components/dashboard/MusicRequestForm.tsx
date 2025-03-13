@@ -54,6 +54,12 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     },
   });
 
+  // CORREÇÃO CRÍTICA: Se hasExistingRequest mudar, atualizar showForm
+  useEffect(() => {
+    console.log("[MusicRequestForm] hasExistingRequest alterado:", hasExistingRequest);
+    setShowForm(!hasExistingRequest);
+  }, [hasExistingRequest]);
+
   useEffect(() => {
     return () => {
       setIsSubmitting(false);
@@ -94,7 +100,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
         throw new Error("Perfil de usuário inválido. Tente fazer login novamente.");
       }
       
-      // Marcar que o formulário está sendo ocultado antes da submissão
+      // CORREÇÃO CRÍTICA: Ocultar o formulário ANTES da submissão
       setShowForm(false);
       
       const data = await submitMusicRequest(values, userProfile, coverImage);
@@ -103,8 +109,7 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
       hasSubmittedSuccessfully.current = true;
       
       if (Array.isArray(data) && data.length > 0) {
-        // Já ocultamos o formulário antes da submissão
-        // Agora notificamos o pai sobre o pedido submetido
+        // NOTIFICAR O PAI SOBRE O PEDIDO SUBMETIDO
         onRequestSubmitted(data);
         
         toast({
@@ -131,6 +136,14 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
       }
     }
   };
+
+  // CORREÇÃO CRÍTICA: Verificação de consistência para entender se o formulário deveria estar visível
+  useEffect(() => {
+    if (hasExistingRequest && showForm) {
+      console.log("[MusicRequestForm] Inconsistência detectada: hasExistingRequest=true mas showForm=true");
+      setShowForm(false);
+    }
+  }, [hasExistingRequest, showForm]);
 
   // Se não deve mostrar o formulário ou se já existe um pedido, não renderize nada
   if (!showForm || hasExistingRequest) {

@@ -5,6 +5,7 @@ import { useRequestStatus } from "./useRequestStatus";
 import { useEffect, useCallback, useRef } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
+import { MusicRequest } from "@/types/database.types";
 
 export const useDashboard = () => {
   const { userProfile, handleUserLogout } = useUserAuth();
@@ -56,7 +57,7 @@ export const useDashboard = () => {
   }, [userProfile, handleUserLogout]);
 
   // Função personalizada para lidar com a submissão do pedido
-  const handleRequestSubmittedWithFeedback = (data: any) => {
+  const handleRequestSubmittedWithFeedback = (data: MusicRequest[]) => {
     console.log('[useDashboard] Pedido submetido, dados:', data);
     
     if (!Array.isArray(data) || data.length === 0) {

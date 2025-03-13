@@ -42,11 +42,41 @@ const RequestsManagement = ({
     handleSaveMusicLink
   } = useRequestManagement(requests, setRequests);
 
-  const realtimeChannelRef = useRef(null);
+  const realtimeChannelRef = useRef<any>(null);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
+
+  // Função para forçar atualização dos dados
+  const forceRefresh = () => {
+    setFetchTrigger(prev => prev + 1);
+  };
 
   // Configurar escuta em tempo real para quaisquer mudanças na tabela music_requests
   useEffect(() => {
     console.log('[Admin] Configurando escuta em tempo real para requisições de música');
+    
+    // Forçar busca inicial para garantir que todos os pedidos sejam carregados
+    const fetchAllRequests = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('music_requests')
+          .select('*')
+          .order('created_at', { ascending: false });
+          
+        if (error) {
+          console.error('[Admin] Erro ao buscar pedidos:', error);
+          return;
+        }
+        
+        if (data && data.length > 0) {
+          console.log('[Admin] Pedidos encontrados:', data.length);
+          setRequests(data);
+        }
+      } catch (err) {
+        console.error('[Admin] Erro ao buscar pedidos:', err);
+      }
+    };
+    
+    fetchAllRequests();
     
     const channel = supabase
       .channel('admin-music-requests')
@@ -57,7 +87,7 @@ const RequestsManagement = ({
       }, (payload) => {
         console.log('[Admin] Mudança detectada via tempo real:', payload);
         // Quando detectar mudanças, atualizar imediatamente a lista
-        // A atualização será tratada pelo componente pai
+        fetchAllRequests();
       })
       .subscribe((status) => {
         console.log(`[Admin] Status da inscrição em tempo real: ${status}`);
@@ -65,12 +95,30 @@ const RequestsManagement = ({
     
     realtimeChannelRef.current = channel;
     
+    // Configurar polling de backup a cada 30 segundos
+    const pollingInterval = setInterval(() => {
+      console.log('[Admin] Executando polling de verificação');
+      fetchAllRequests();
+    }, 30000);
+    
     return () => {
       console.log('[Admin] Removendo canal de tempo real admin');
       if (realtimeChannelRef.current) {
         supabase.removeChannel(realtimeChannelRef.current);
         realtimeChannelRef.current = null;
       }
+      clearInterval(pollingInterval);
+    };
+  }, [setRequests, fetchTrigger]);
+
+  // Intervalo de verificação para garantir que dados estejam atualizados
+  useEffect(() => {
+    const consistencyCheckInterval = setInterval(() => {
+      forceRefresh();
+    }, 120000); // Verificar a cada 2 minutos
+    
+    return () => {
+      clearInterval(consistencyCheckInterval);
     };
   }, []);
 
@@ -94,6 +142,11 @@ const RequestsManagement = ({
     
     // Registra no console para debugging
     console.log(`[Admin] Status atualizado para pedido ${requestId}: status=${status}, pagamento=${paymentStatus}`);
+    
+    // Força atualização após breve atraso
+    setTimeout(() => {
+      forceRefresh();
+    }, 1000);
   };
 
   return (

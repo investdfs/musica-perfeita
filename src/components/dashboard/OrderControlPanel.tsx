@@ -20,20 +20,11 @@ const OrderControlPanel = ({
   // Estado para controlar a exibição do spinner de carregamento para evitar flash constante
   const [showLoading, setShowLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isVisible, setIsVisible] = useState(true); // CORREÇÃO CRÍTICA: Adicionar estado de visibilidade
   
-  // CORREÇÃO CRÍTICA: Verificar se temos pedidos sempre que userRequests mudar
+  // Remover completamente o estado de visibilidade, agora o painel sempre será visível
+  
   useEffect(() => {
     console.log('[OrderControlPanel] Pedidos atualizados:', userRequests.length);
-    
-    // CORREÇÃO CRÍTICA: Se não há pedidos, ocultar o painel
-    if (userRequests.length === 0) {
-      console.log('[OrderControlPanel] Sem pedidos, ocultando painel');
-      setIsVisible(false);
-    } else {
-      console.log('[OrderControlPanel] Pedidos encontrados, mostrando painel');
-      setIsVisible(true);
-    }
   }, [userRequests]);
   
   // Usar um delay para mostrar o spinner apenas se o carregamento demorar mais de 800ms
@@ -66,16 +57,9 @@ const OrderControlPanel = ({
     console.log('[OrderControlPanel] Estado atualizado:', { 
       isLoading, 
       showLoading, 
-      userRequestsCount: userRequests.length,
-      isVisible 
+      userRequestsCount: userRequests.length
     });
-  }, [userRequests, isLoading, showLoading, isVisible]);
-
-  // CORREÇÃO CRÍTICA: Se o painel não deve ser visível, não renderizar nada
-  if (!isVisible) {
-    console.log('[OrderControlPanel] Painel de controle oculto');
-    return null;
-  }
+  }, [userRequests, isLoading, showLoading]);
 
   // Mostrar spinner de carregamento
   if (showLoading && mounted) {
@@ -87,16 +71,7 @@ const OrderControlPanel = ({
     );
   }
 
-  // CORREÇÃO CRÍTICA: Se não há pedidos, não renderizar o painel (dupla verificação)
-  if (userRequests.length === 0) {
-    console.log('[OrderControlPanel] Sem pedidos, não renderizando');
-    return null;
-  }
-
-  const hasSubmittedForm = userRequests.length > 0;
-  const currentRequest = userRequests.length > 0 ? userRequests[0] : null;
-
-  // CORREÇÃO CRÍTICA: Renderizar o painel de pedidos
+  // CORREÇÃO CRÍTICA: Sempre renderizar o painel, mesmo sem pedidos
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100">
       <div className="flex justify-between items-center mb-4">
@@ -110,13 +85,22 @@ const OrderControlPanel = ({
         </Button>
       </div>
 
-      <NextStepIndicator currentRequest={currentRequest} hasSubmittedForm={hasSubmittedForm} />
+      <NextStepIndicator 
+        currentRequest={userRequests.length > 0 ? userRequests[0] : null} 
+        hasSubmittedForm={userRequests.length > 0} 
+      />
 
-      <div className="space-y-2">
-        {userRequests.map((request) => (
-          <OrderCard key={request.id} request={request} />
-        ))}
-      </div>
+      {userRequests.length > 0 ? (
+        <div className="space-y-2">
+          {userRequests.map((request) => (
+            <OrderCard key={request.id} request={request} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center p-4 bg-gray-50 rounded-lg">
+          <p className="text-gray-500">Você ainda não tem pedidos. Clique em "Nova música" para começar.</p>
+        </div>
+      )}
     </div>
   );
 };

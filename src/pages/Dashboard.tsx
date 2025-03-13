@@ -30,8 +30,7 @@ const Dashboard = () => {
     userRequestsCount: userRequests.length,
     showNewRequestForm,
     hasAnyRequest,
-    renderOrderPanel: userRequests.length > 0 && !showNewRequestForm,
-    renderFormCondition: userProfile && showNewRequestForm
+    shouldShowForm: userProfile && showNewRequestForm
   });
   
   // Verificação adicional para logs de diagnóstico
@@ -41,17 +40,14 @@ const Dashboard = () => {
       showNewRequestForm,
       hasAnyRequest,
       temPedido: userRequests.length > 0,
-      mostrarCaixaPedidos: !showNewRequestForm && userRequests.length > 0,
       userProfile: !!userProfile
     });
   }, [userRequests, showNewRequestForm, hasAnyRequest, userProfile]);
 
-  // CORREÇÃO CRÍTICA: Verificar diretamente se deve mostrar o painel de controle de pedidos
-  // Se temos pedidos, sempre mostramos o painel de pedidos, a menos que o formulário esteja visível
-  const shouldShowOrderPanel = userRequests.length > 0 && !showNewRequestForm;
+  // CORREÇÃO CRÍTICA: Remover a condição que oculta o painel de controle de pedidos
+  // Agora o painel sempre será mostrado, independentemente do estado do formulário
   
   // CORREÇÃO CRÍTICA: Verificar diretamente se deve mostrar o formulário
-  // Só mostrar o formulário se explicitamente indicado e não houver pedidos OU se o usuário solicitou um novo pedido
   const shouldShowForm = userProfile && showNewRequestForm;
 
   return (
@@ -68,14 +64,12 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={hasAnyRequest} />
           
-          {/* CORREÇÃO CRÍTICA: Usar variável de controle direta para exibir o painel de pedidos */}
-          {shouldShowOrderPanel && (
-            <OrderControlPanel 
-              userRequests={userRequests} 
-              onCreateNewRequest={handleCreateNewRequest}
-              isLoading={isLoading}
-            />
-          )}
+          {/* CORREÇÃO CRÍTICA: O painel de pedidos sempre é visível */}
+          <OrderControlPanel 
+            userRequests={userRequests} 
+            onCreateNewRequest={handleCreateNewRequest}
+            isLoading={isLoading}
+          />
           
           {hasPreviewUrl && !showNewRequestForm && (
             <MusicPreviewPlayer 
@@ -86,7 +80,7 @@ const Dashboard = () => {
             />
           )}
           
-          {/* CORREÇÃO CRÍTICA: Usar variável de controle direta para exibir o formulário */}
+          {/* CORREÇÃO CRÍTICA: O formulário só é mostrado quando shouldShowForm é true */}
           {shouldShowForm && (
             <MusicRequestForm 
               userProfile={userProfile} 

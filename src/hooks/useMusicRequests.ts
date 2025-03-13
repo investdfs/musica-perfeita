@@ -55,7 +55,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       }
       
       if (data) {
-        console.log('[useMusicRequests] Dados recebidos:', data);
+        console.log('[useMusicRequests] Dados recebidos:', data.length, data);
         
         // CORREÇÃO CRÍTICA: Garantir que os dados sejam processados corretamente
         if (Array.isArray(data) && data.length > 0) {
@@ -159,6 +159,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     // Segunda verificação depois de mais tempo para garantir dados consistentes
     setTimeout(() => {
       console.log('[useMusicRequests] Segunda verificação de consistência');
+      formSubmissionInProgressRef.current = false; // Importante: liberar flag apenas após garantir que os dados estão sincronizados
       fetchUserRequests();
     }, 3000);
   };
@@ -205,15 +206,17 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     };
   }, [userProfile, fetchUserRequests, forceUpdateRef.current]);
 
-  // Efeito inicial para definir o estado do formulário
+  // CORREÇÃO CRÍTICA: Verificação inicial para definir o estado do formulário corretamente
   useEffect(() => {
     if (!userProfile?.id) return;
     
     const checkInitialState = async () => {
       try {
+        console.log('[useMusicRequests] Verificando estado inicial para o usuário:', userProfile.id);
+        
         const { data, error } = await supabase
           .from('music_requests')
-          .select('*')
+          .select('id')
           .eq('user_id', userProfile.id)
           .limit(1);
           

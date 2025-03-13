@@ -45,6 +45,8 @@ const RequestsManagement = ({
   const realtimeChannelRef = useRef<any>(null);
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [localRequests, setLocalRequests] = useState<MusicRequest[]>([]);
+  const lastFetchTimeRef = useRef(Date.now());
+  const MIN_FETCH_INTERVAL = 2000; // Minimiza múltiplas chamadas em sequência
 
   // Função para forçar atualização dos dados
   const forceRefresh = () => {
@@ -65,6 +67,14 @@ const RequestsManagement = ({
     // Forçar busca inicial para garantir que todos os pedidos sejam carregados
     const fetchAllRequests = async () => {
       try {
+        // Verificar intervalo mínimo entre fetchs
+        const now = Date.now();
+        if (now - lastFetchTimeRef.current < MIN_FETCH_INTERVAL) {
+          console.log('[RequestsManagement] Ignorando fetch frequente demais');
+          return;
+        }
+        
+        lastFetchTimeRef.current = now;
         console.log('[RequestsManagement] Buscando todos os pedidos...');
         
         const { data, error } = await supabase
@@ -112,11 +122,11 @@ const RequestsManagement = ({
     
     realtimeChannelRef.current = channel;
     
-    // Configurar polling de backup a cada 15 segundos
+    // Configurar polling de backup a cada 10 segundos
     const pollingInterval = setInterval(() => {
       console.log('[RequestsManagement] Executando polling de verificação');
       fetchAllRequests();
-    }, 15000);
+    }, 10000);
     
     return () => {
       console.log('[RequestsManagement] Removendo canal de tempo real admin');
@@ -133,7 +143,7 @@ const RequestsManagement = ({
     const consistencyCheckInterval = setInterval(() => {
       console.log('[RequestsManagement] Verificação periódica de consistência');
       forceRefresh();
-    }, 60000); // Verificar a cada minuto
+    }, 30000); // Verificar a cada 30 segundos
     
     return () => {
       clearInterval(consistencyCheckInterval);

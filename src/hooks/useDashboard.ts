@@ -33,6 +33,7 @@ export const useDashboard = () => {
   const lastFetchTimeRef = useRef(0);
   const MIN_FETCH_INTERVAL = 3000; // 3 segundos entre fetchs para evitar piscar
   const refreshCountRef = useRef(0);
+  const submissionSuccessRef = useRef(false);
 
   // Verificação periódica de conexão
   useEffect(() => {
@@ -60,6 +61,7 @@ export const useDashboard = () => {
   // Função personalizada para lidar com a submissão do pedido
   const handleRequestSubmittedWithFeedback = (data: MusicRequest[]) => {
     console.log('[useDashboard] Pedido submetido, dados:', data);
+    submissionSuccessRef.current = true;
     
     if (!Array.isArray(data) || data.length === 0) {
       console.error('[useDashboard] Dados de pedido inválidos:', data);
@@ -162,7 +164,7 @@ export const useDashboard = () => {
           
         if (error) throw error;
         
-        console.log('[useDashboard] Pedidos existentes na inicialização:', data?.length || 0);
+        console.log('[useDashboard] Pedidos existentes na inicialização:', data?.length || 0, data);
         
         if (data && data.length > 0) {
           // Se tivermos pedidos, atualizar o estado do hook useMusicRequests

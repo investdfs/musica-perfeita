@@ -30,19 +30,21 @@ const Dashboard = () => {
     userRequestsCount: userRequests.length,
     showNewRequestForm,
     hasAnyRequest,
-    renderOrderPanel: userRequests.length > 0 && !showNewRequestForm
+    renderOrderPanel: userRequests.length > 0 && !showNewRequestForm,
+    renderFormCondition: userProfile && showNewRequestForm
   });
   
   // Verificação adicional para logs de diagnóstico
   useEffect(() => {
     console.log('[Dashboard] Estado atualizado:', {
-      userRequestsCount: userRequests.length,
+      userRequestsLength: userRequests.length,
       showNewRequestForm,
       hasAnyRequest,
       temPedido: userRequests.length > 0,
-      mostrarCaixaPedidos: !showNewRequestForm && userRequests.length > 0
+      mostrarCaixaPedidos: !showNewRequestForm && userRequests.length > 0,
+      userProfile: !!userProfile
     });
-  }, [userRequests, showNewRequestForm, hasAnyRequest]);
+  }, [userRequests, showNewRequestForm, hasAnyRequest, userProfile]);
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
@@ -58,6 +60,7 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={hasAnyRequest} />
           
+          {/* CORREÇÃO IMPORTANTE: Exibe o OrderControlPanel sempre que houver pedidos E o formulário não estiver sendo mostrado */}
           {userRequests.length > 0 && !showNewRequestForm && (
             <OrderControlPanel 
               userRequests={userRequests} 
@@ -68,13 +71,14 @@ const Dashboard = () => {
           
           {hasPreviewUrl && !showNewRequestForm && (
             <MusicPreviewPlayer 
-              previewUrl={userRequests[0].preview_url || ''} 
-              fullSongUrl={userRequests[0].full_song_url}
+              previewUrl={userRequests[0]?.preview_url || ''} 
+              fullSongUrl={userRequests[0]?.full_song_url}
               isCompleted={hasCompletedRequest}
-              paymentStatus={userRequests[0].payment_status || 'pending'}
+              paymentStatus={userRequests[0]?.payment_status || 'pending'}
             />
           )}
           
+          {/* Exibe o formulário apenas quando showNewRequestForm for true E userProfile existir */}
           {userProfile && showNewRequestForm && (
             <MusicRequestForm 
               userProfile={userProfile} 

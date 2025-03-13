@@ -46,6 +46,15 @@ const OrderControlPanel = ({
     }
   }, []);
 
+  // Adicionar log para acompanhar a renderização
+  useEffect(() => {
+    console.log('[OrderControlPanel] Estado atualizado:', { 
+      isLoading, 
+      showLoading, 
+      userRequestsCount: userRequests.length 
+    });
+  }, [userRequests, isLoading, showLoading]);
+
   if (showLoading && mounted) {
     return (
       <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100 flex justify-center items-center h-40">

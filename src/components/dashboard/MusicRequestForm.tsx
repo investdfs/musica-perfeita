@@ -54,13 +54,16 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     },
   });
 
-  // Atualizar showForm quando hasExistingRequest mudar
+  // CORREÇÃO CRÍTICA: Atualizar showForm quando hasExistingRequest mudar
   useEffect(() => {
     console.log("[MusicRequestForm] hasExistingRequest alterado:", hasExistingRequest);
-    setShowForm(!hasExistingRequest);
+    // Se já existe um pedido, o formulário não deve ser mostrado
+    if (hasExistingRequest) {
+      setShowForm(false);
+    }
   }, [hasExistingRequest]);
 
-  // Limpar o estado de submissão ao desmontar
+  // CORREÇÃO CRÍTICA: Limpar o estado de submissão ao desmontar
   useEffect(() => {
     return () => {
       setIsSubmitting(false);
@@ -74,11 +77,13 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
   const onSubmit = async (values: MusicRequestFormValues) => {
     console.log("[MusicRequestForm] Formulário enviado, valores:", values);
     
+    // CORREÇÃO CRÍTICA: Verificar se já está em processo de submissão
     if (isSubmitting) {
       console.log("[MusicRequestForm] Já está submetendo, retornando");
       return; // Evitar múltiplos envios
     }
     
+    // CORREÇÃO CRÍTICA: Verificar se já submeteu com sucesso anteriormente
     if (hasSubmittedSuccessfully.current) {
       console.log("[MusicRequestForm] Já submetido com sucesso anteriormente, ignorando novo envio");
       toast({
@@ -92,13 +97,14 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     const currentAttempt = submitAttemptRef.current;
     console.log(`[MusicRequestForm] Iniciando processo de submissão (tentativa ${currentAttempt})`);
     
-    // CORREÇÃO CRÍTICA: Primeiro ocultar o formulário, depois submeter
-    setShowForm(false);
+    // CORREÇÃO CRÍTICA: Primeiro definir o estado de submissão, depois ocultar o formulário
     setIsSubmitting(true);
+    setShowForm(false);
     
     try {
       console.log("[MusicRequestForm] Iniciando submissão do formulário", { values, userProfile });
       
+      // CORREÇÃO CRÍTICA: Garantir que temos um userProfile válido
       if (!userProfile?.id) {
         throw new Error("Perfil de usuário inválido. Tente fazer login novamente.");
       }
@@ -106,26 +112,28 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
       const data = await submitMusicRequest(values, userProfile, coverImage);
       console.log("[MusicRequestForm] Submissão do formulário concluída com sucesso", data);
       
-      // Marcar como submetido com sucesso
+      // CORREÇÃO CRÍTICA: Marcar como submetido com sucesso
       hasSubmittedSuccessfully.current = true;
       
+      // CORREÇÃO CRÍTICA: Verificar se temos dados válidos
       if (Array.isArray(data) && data.length > 0) {
         // CORREÇÃO CRÍTICA: Garantir que o formulário permaneça oculto após o envio
         setShowForm(false);
         
-        // Notificar o componente pai sobre a submissão bem-sucedida
+        // CORREÇÃO CRÍTICA: Notificar o componente pai sobre a submissão bem-sucedida
         onRequestSubmitted(data);
         
+        // CORREÇÃO CRÍTICA: Mostrar toast de sucesso apenas uma vez
         toast({
           title: "Sucesso!",
           description: "Seu pedido foi enviado com sucesso. Aguarde enquanto processamos sua solicitação.",
         });
         
-        // Verificação adicional para garantir que o formulário permanece oculto
+        // CORREÇÃO CRÍTICA: Verificação adicional para garantir que o formulário permanece oculto
         setTimeout(() => {
           console.log("[MusicRequestForm] Verificação adicional de visibilidade do formulário");
           setShowForm(false);
-        }, 1000);
+        }, 500);
       } else {
         console.error("[MusicRequestForm] Dados retornados inválidos:", data);
         throw new Error("Não foi possível processar seu pedido. Resposta inválida do servidor.");
@@ -133,22 +141,30 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     } catch (error: any) {
       console.error("[MusicRequestForm] Erro na submissão do formulário:", error);
       
-      // Em caso de erro, mostrar o formulário novamente
+      // CORREÇÃO CRÍTICA: Em caso de erro, mostrar o formulário novamente
       setShowForm(true);
       
       // Usar a função de exibição de toast de erro especializada
       showErrorToast(error as EnhancedError);
     } finally {
+      // CORREÇÃO CRÍTICA: Limpar o estado de submissão apenas se for a tentativa atual
       if (currentAttempt === submitAttemptRef.current) {
         setIsSubmitting(false);
       }
     }
   };
 
-  // Verificação adicional para garantir consistência de visibilidade
+  // CORREÇÃO CRÍTICA: Verificação adicional para garantir consistência de visibilidade
   useEffect(() => {
+    // Se já existe um pedido, o formulário não deve ser mostrado
     if (hasExistingRequest && showForm) {
       console.log("[MusicRequestForm] Inconsistência detectada: hasExistingRequest=true mas showForm=true");
+      setShowForm(false);
+    }
+    
+    // CORREÇÃO CRÍTICA: Verificar também o estado de submissão
+    if (isSubmitting && showForm) {
+      console.log("[MusicRequestForm] Inconsistência detectada: isSubmitting=true mas showForm=true");
       setShowForm(false);
     }
     
@@ -156,12 +172,13 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     console.log("[MusicRequestForm] Estado atual:", { showForm, hasExistingRequest, isSubmitting });
   }, [hasExistingRequest, showForm, isSubmitting]);
 
-  // Se não deve mostrar o formulário, não renderize nada
+  // CORREÇÃO CRÍTICA: Se não deve mostrar o formulário, não renderize nada
   if (!showForm) {
-    console.log("[MusicRequestForm] Formulário oculto");
+    console.log("[MusicRequestForm] Formulário oculto, não renderizando");
     return null;
   }
 
+  // CORREÇÃO CRÍTICA: Renderizar o formulário apenas se showForm for true
   return (
     <div className="bg-white rounded-xl shadow-md p-8">
       <FormIntroduction />

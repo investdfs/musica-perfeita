@@ -46,6 +46,14 @@ const Dashboard = () => {
     });
   }, [userRequests, showNewRequestForm, hasAnyRequest, userProfile]);
 
+  // CORREÇÃO CRÍTICA: Verificar diretamente se deve mostrar o painel de controle de pedidos
+  // Se temos pedidos, sempre mostramos o painel de pedidos, a menos que o formulário esteja visível
+  const shouldShowOrderPanel = userRequests.length > 0 && !showNewRequestForm;
+  
+  // CORREÇÃO CRÍTICA: Verificar diretamente se deve mostrar o formulário
+  // Só mostrar o formulário se explicitamente indicado e não houver pedidos OU se o usuário solicitou um novo pedido
+  const shouldShowForm = userProfile && showNewRequestForm;
+
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
       <div className="animated-shapes">
@@ -60,8 +68,8 @@ const Dashboard = () => {
           
           <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={hasAnyRequest} />
           
-          {/* CORREÇÃO IMPORTANTE: Exibe o OrderControlPanel sempre que houver pedidos E o formulário não estiver sendo mostrado */}
-          {userRequests.length > 0 && !showNewRequestForm && (
+          {/* CORREÇÃO CRÍTICA: Usar variável de controle direta para exibir o painel de pedidos */}
+          {shouldShowOrderPanel && (
             <OrderControlPanel 
               userRequests={userRequests} 
               onCreateNewRequest={handleCreateNewRequest}
@@ -78,8 +86,8 @@ const Dashboard = () => {
             />
           )}
           
-          {/* Exibe o formulário apenas quando showNewRequestForm for true E userProfile existir */}
-          {userProfile && showNewRequestForm && (
+          {/* CORREÇÃO CRÍTICA: Usar variável de controle direta para exibir o formulário */}
+          {shouldShowForm && (
             <MusicRequestForm 
               userProfile={userProfile} 
               onRequestSubmitted={handleRequestSubmitted}

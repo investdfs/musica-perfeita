@@ -11,6 +11,11 @@ interface ProgressIndicatorProps {
 const ProgressIndicator = ({ currentProgress, hasAnyRequest }: ProgressIndicatorProps) => {
   const [animatedProgress, setAnimatedProgress] = useState(0);
   
+  // CORREÇÃO CRÍTICA: Log para acompanhar mudanças de progresso
+  useEffect(() => {
+    console.log('[ProgressIndicator] Progresso atualizado:', { currentProgress, hasAnyRequest });
+  }, [currentProgress, hasAnyRequest]);
+  
   // Animar a barra de progresso para uma transição mais suave
   useEffect(() => {
     const timeout = setTimeout(() => {

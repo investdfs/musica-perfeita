@@ -34,6 +34,45 @@ export const useDashboard = () => {
   const MIN_FETCH_INTERVAL = 3000; // 3 segundos entre fetchs para evitar piscar
   const refreshCountRef = useRef(0);
   const submissionSuccessRef = useRef(false);
+  const initialCheckDoneRef = useRef(false);
+
+  // CORREÇÃO CRÍTICA: Verificar pedidos existentes na inicialização
+  useEffect(() => {
+    if (!userProfile?.id || initialCheckDoneRef.current) return;
+    
+    console.log('[useDashboard] Verificação inicial de pedidos existentes');
+    
+    const checkExistingRequests = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('music_requests')
+          .select('*')
+          .eq('user_id', userProfile.id)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        
+        console.log('[useDashboard] Pedidos existentes na inicialização:', data?.length || 0, data);
+        
+        if (data && data.length > 0) {
+          // CORREÇÃO CRÍTICA: Atualizar os pedidos do usuário diretamente
+          setUserRequests(data);
+          
+          // Forçar uma verificação adicional após um curto período
+          setTimeout(() => {
+            fetchUserRequests();
+          }, 500);
+        }
+      } catch (error) {
+        console.error('[useDashboard] Erro ao verificar pedidos existentes:', error);
+      } finally {
+        initialCheckDoneRef.current = true;
+      }
+    };
+    
+    // Executar a verificação inicial
+    checkExistingRequests();
+  }, [userProfile, setUserRequests, fetchUserRequests]);
 
   // Verificação periódica de conexão
   useEffect(() => {
@@ -100,6 +139,12 @@ export const useDashboard = () => {
     
     // Incrementar o contador de atualizações forçadas
     refreshCountRef.current++;
+    
+    // CORREÇÃO CRÍTICA: Mostrar toast de sucesso para feedback visual
+    toast({
+      title: "Pedido enviado com sucesso",
+      description: "Seu pedido foi recebido e está sendo processado.",
+    });
   };
 
   // Função para configurar escuta em tempo real
@@ -148,38 +193,10 @@ export const useDashboard = () => {
     };
   }, [userProfile, fetchUserRequests]);
 
-  // Verificar se existem pedidos quando o componente é montado pela primeira vez
+  // Atualizar os dados quando o dashboard é carregado
   useEffect(() => {
     if (!userProfile?.id) return;
     
-    console.log('[useDashboard] Verificando pedidos existentes durante a inicialização');
-    
-    const checkExistingRequests = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('music_requests')
-          .select('*')
-          .eq('user_id', userProfile.id)
-          .order('created_at', { ascending: false });
-          
-        if (error) throw error;
-        
-        console.log('[useDashboard] Pedidos existentes na inicialização:', data?.length || 0, data);
-        
-        if (data && data.length > 0) {
-          // Se tivermos pedidos, atualizar o estado do hook useMusicRequests
-          setUserRequests(data);
-        }
-      } catch (error) {
-        console.error('[useDashboard] Erro ao verificar pedidos existentes:', error);
-      }
-    };
-    
-    checkExistingRequests();
-  }, [userProfile, setUserRequests]);
-
-  // Atualizar os dados quando o dashboard é carregado
-  useEffect(() => {
     // Buscar dados imediatamente na primeira carga
     const now = Date.now();
     fetchUserRequests();
@@ -202,7 +219,7 @@ export const useDashboard = () => {
       clearInterval(pollingIntervalId);
       cleanupRealtimeListener();
     };
-  }, [fetchUserRequests, setupRealtimeListener, refreshCountRef.current]);
+  }, [fetchUserRequests, setupRealtimeListener, refreshCountRef.current, userProfile]);
 
   return {
     userProfile,

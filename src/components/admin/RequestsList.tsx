@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MusicRequest } from "@/types/database.types";
-import { Send, Download, Save, ExternalLink, Music, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Send, Download, Save, ExternalLink, Music, ArrowUpDown, ArrowUp, ArrowDown, AlertTriangle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,6 +63,7 @@ const RequestsList = ({
 }: RequestsListProps) => {
   const [soundcloudIds, setSoundcloudIds] = useState<{[key: string]: string}>({});
   const [savingLinks, setSavingLinks] = useState<{[key: string]: boolean}>({});
+  const [errorStates, setErrorStates] = useState<{[key: string]: string}>({});
   const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
 
@@ -76,11 +77,24 @@ const RequestsList = ({
       ...prev,
       [requestId]: value
     }));
+    
+    // Limpar estado de erro quando o usuário começa a digitar novamente
+    if (errorStates[requestId]) {
+      setErrorStates(prev => ({
+        ...prev,
+        [requestId]: ''
+      }));
+    }
   };
 
   const handleSaveMusicLink = async (requestId: string) => {
     const musicLink = soundcloudIds[requestId];
     if (!musicLink?.trim()) {
+      setErrorStates(prev => ({
+        ...prev,
+        [requestId]: 'O link não pode estar vazio'
+      }));
+      
       toast({
         title: "Link vazio",
         description: "Por favor, insira um link para a música",
@@ -100,11 +114,17 @@ const RequestsList = ({
         title: "Link salvo com sucesso",
         description: "O link da música foi salvo e o pedido foi atualizado.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao salvar link:", error);
+      
+      setErrorStates(prev => ({
+        ...prev,
+        [requestId]: error.message || 'Erro ao salvar o link'
+      }));
+      
       toast({
         title: "Erro ao salvar",
-        description: "Não foi possível salvar o link. Tente novamente.",
+        description: error.message || "Não foi possível salvar o link. Tente novamente.",
         variant: "destructive",
       });
     } finally {
@@ -240,13 +260,20 @@ const RequestsList = ({
                   <TableCell className="text-gray-900">{formatDate(request.created_at)}</TableCell>
                   <TableCell>
                     <div className="flex items-center">
-                      <Input
-                        type="text"
-                        className="h-8 text-xs"
-                        placeholder={request.full_song_url ? "Link atual: " + request.full_song_url.substring(0, 30) + "..." : "Cole o link da música aqui"}
-                        value={soundcloudIds[request.id] || ''}
-                        onChange={(e) => handleSoundCloudIdChange(request.id, e.target.value)}
-                      />
+                      <div className="flex-1 relative">
+                        <Input
+                          type="text"
+                          className={`h-8 text-xs ${errorStates[request.id] ? 'border-red-500 focus:ring-red-300' : ''}`}
+                          placeholder={request.full_song_url ? "Link atual: " + request.full_song_url.substring(0, 30) + "..." : "Cole o link da música aqui"}
+                          value={soundcloudIds[request.id] || ''}
+                          onChange={(e) => handleSoundCloudIdChange(request.id, e.target.value)}
+                        />
+                        {errorStates[request.id] && (
+                          <div className="absolute -bottom-5 left-0 text-xs text-red-500 flex items-center">
+                            <AlertTriangle className="w-3 h-3 mr-1" /> {errorStates[request.id]}
+                          </div>
+                        )}
+                      </div>
                       <Button
                         variant="outline"
                         size="sm"

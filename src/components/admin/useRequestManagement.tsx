@@ -51,17 +51,14 @@ export const useRequestManagement = (
         }
       }
       
-      // Não alteramos o status de pagamento, apenas o status do pedido e links
       const updateData = { 
-        status: 'completed' as MusicRequest['status'], 
-        soundcloud_id: null,
+        status: 'completed', 
         full_song_url: musicLink, 
         preview_url: musicLink 
       };
       
       console.log('[Admin] Atualizando pedido com link:', requestId, updateData);
       
-      // Sempre atualizar o Supabase, mesmo em desenvolvimento
       const { error } = await supabase
         .from('music_requests')
         .update(updateData)
@@ -69,12 +66,11 @@ export const useRequestManagement = (
           
       if (error) {
         console.error('[Admin] Erro ao atualizar pedido no Supabase:', error);
-        throw error;
+        throw new Error(`Erro ao salvar o link: ${error.message}`);
       }
       
       console.log('[Admin] Pedido atualizado com sucesso no Supabase');
       
-      // Também atualizar o estado local para refletir a mudança imediatamente
       const updatedRequests = requests.map(req => 
         req.id === requestId 
           ? { ...req, ...updateData } 
@@ -83,11 +79,10 @@ export const useRequestManagement = (
       
       setRequests(updatedRequests);
       
-      // Verificar se o status foi atualizado corretamente
       console.log(`[Admin] Pedido atualizado com sucesso. Novo status: completed, Link: ${musicLink}`);
       
       return Promise.resolve();
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Admin] Erro ao atualizar pedido com link de música:', error);
       throw error;
     } finally {
@@ -102,7 +97,7 @@ export const useRequestManagement = (
     
     try {
       const updateData = { 
-        status: 'completed' as MusicRequest['status'], 
+        status: 'completed', 
         soundcloud_id: null,
         full_song_url: musicLink, 
         preview_url: musicLink 
@@ -110,7 +105,6 @@ export const useRequestManagement = (
       
       console.log('[Admin] Salvando link da música:', selectedRequest.id, updateData);
       
-      // Sempre atualizar o Supabase, mesmo em desenvolvimento
       const { error } = await supabase
         .from('music_requests')
         .update(updateData)
@@ -123,7 +117,6 @@ export const useRequestManagement = (
       
       console.log('[Admin] Pedido atualizado com sucesso no Supabase');
       
-      // Também atualizar o estado local para refletir a mudança imediatamente
       const updatedRequests = requests.map(req => 
         req.id === selectedRequest.id 
           ? { ...req, ...updateData } 
@@ -208,7 +201,7 @@ export const useRequestManagement = (
         const objectUrl = URL.createObjectURL(file);
         
         const updateData = { 
-          status: 'completed' as MusicRequest['status'],
+          status: 'completed',
           full_song_url: `temp:${objectUrl}`,
           preview_url: `temp:${objectUrl}`
         };
@@ -241,7 +234,7 @@ export const useRequestManagement = (
       console.log("Upload successful, URL:", urlData.publicUrl);
       
       const updateData = { 
-        status: 'completed' as MusicRequest['status'], 
+        status: 'completed', 
         full_song_url: urlData.publicUrl,
         preview_url: urlData.publicUrl 
       };
@@ -299,7 +292,6 @@ export const useRequestManagement = (
       
       console.log(`[Admin] Atualizando pedido ${requestId} com:`, updates);
       
-      // Sempre atualizar o Supabase para garantir que o cliente receba as atualizações
       const { error } = await supabase
         .from('music_requests')
         .update(updates)
@@ -307,12 +299,11 @@ export const useRequestManagement = (
         
       if (error) {
         console.error('[Admin] Erro ao atualizar no Supabase:', error);
-        throw error;
+        throw new Error(`Erro ao atualizar o status: ${error.message}`);
       }
       
       console.log('[Admin] Atualização no Supabase bem-sucedida');
       
-      // Também atualizar o estado local para refletir a mudança imediatamente
       const updatedRequests = requests.map(req => 
         req.id === requestId 
           ? { ...req, ...updates } 
@@ -328,11 +319,11 @@ export const useRequestManagement = (
         title: "Status atualizado",
         description: "O status do pedido foi atualizado com sucesso",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Admin] Erro ao atualizar status:', error);
       toast({
         title: "Erro ao atualizar",
-        description: "Não foi possível atualizar o status",
+        description: error.message || "Não foi possível atualizar o status",
         variant: "destructive",
       });
     }

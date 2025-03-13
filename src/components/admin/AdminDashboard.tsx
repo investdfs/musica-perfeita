@@ -84,6 +84,11 @@ const AdminDashboard = () => {
       </Card>
       
       <Card className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-4">Clientes</h2>
+        <UserManagement users={regularUsers} fetchUsers={fetchUsers} />
+      </Card>
+      
+      <Card className="bg-white rounded-lg shadow-md p-6">
         <h2 className="text-xl font-semibold mb-4">Administradores</h2>
         <AdminManagement 
           users={users} 
@@ -91,11 +96,6 @@ const AdminDashboard = () => {
           isMainAdmin={isMainAdmin}
           showPasswordField={true}
         />
-      </Card>
-      
-      <Card className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Clientes</h2>
-        <UserManagement users={regularUsers} fetchUsers={fetchUsers} />
       </Card>
     </div>
   );

@@ -20,6 +20,7 @@ import { submitMusicRequest } from "./utils/requestSubmission";
 import type { EnhancedError } from "./utils/errorHandling";
 import { toast } from "@/hooks/use-toast";
 import { showErrorToast } from "./utils/errorHandling";
+import { CheckCircle } from "lucide-react";
 
 interface MusicRequestFormProps {
   userProfile: UserProfile;
@@ -121,25 +122,89 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
     }
   };
 
+  // Verificar quais campos foram preenchidos corretamente
+  const completedFields = {
+    personalInfo: Boolean(form.watch('honoree_name') && form.watch('relationship_type')),
+    musicPreferences: Boolean(form.watch('music_genre') && form.watch('music_tone') && form.watch('voice_type')),
+    story: form.watch('story')?.length >= 50,
+    additionalInfo: Boolean(
+      (form.watch('music_focus') && form.watch('music_focus').length >= 10) || 
+      (form.watch('happy_memory') && form.watch('happy_memory').length >= 10) || 
+      (form.watch('sad_memory') && form.watch('sad_memory').length >= 10)
+    )
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-md p-8">
+    <div className="bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-lg p-8 border border-purple-100">
       <FormIntroduction />
       
-      <ImageUpload onImageSelected={handleImageSelected} />
+      <div className="mb-8 bg-white p-6 rounded-lg shadow-sm border border-purple-100">
+        <ImageUpload onImageSelected={handleImageSelected} />
+      </div>
       
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <PersonInfoFields form={form} />
-          <GenreSelector form={form} />
-          <ToneAndVoiceFields form={form} />
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-purple-100 transition-all hover:shadow-md">
+            <div className="flex items-center mb-4">
+              <h3 className="text-xl font-semibold text-purple-800">Informações Pessoais</h3>
+              {completedFields.personalInfo && (
+                <div className="ml-2 flex items-center text-green-500">
+                  <CheckCircle className="h-5 w-5" />
+                </div>
+              )}
+            </div>
+            <PersonInfoFields form={form} />
+          </div>
           
-          <IncludeNamesFields form={form} />
-          <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
-          <MusicFocusField form={form} />
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-purple-100 transition-all hover:shadow-md">
+            <div className="flex items-center mb-4">
+              <h3 className="text-xl font-semibold text-purple-800">Preferências Musicais</h3>
+              {completedFields.musicPreferences && (
+                <div className="ml-2 flex items-center text-green-500">
+                  <CheckCircle className="h-5 w-5" />
+                </div>
+              )}
+            </div>
+            <GenreSelector form={form} />
+            <div className="mt-6">
+              <ToneAndVoiceFields form={form} />
+            </div>
+            <div className="mt-6">
+              <IncludeNamesFields form={form} />
+            </div>
+          </div>
           
-          <HappyMemoryField form={form} />
-          <SadMemoryField form={form} />
-          <SubmitButton isSubmitting={isSubmitting} />
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-purple-100 transition-all hover:shadow-md">
+            <div className="flex items-center mb-4">
+              <h3 className="text-xl font-semibold text-purple-800">Sua História</h3>
+              {completedFields.story && (
+                <div className="ml-2 flex items-center text-green-500">
+                  <CheckCircle className="h-5 w-5" />
+                </div>
+              )}
+            </div>
+            <StoryField form={form} audioExplanationUrl={audioExplanationUrl} />
+          </div>
+          
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-purple-100 transition-all hover:shadow-md">
+            <div className="flex items-center mb-4">
+              <h3 className="text-xl font-semibold text-purple-800">Detalhes Adicionais</h3>
+              {completedFields.additionalInfo && (
+                <div className="ml-2 flex items-center text-green-500">
+                  <CheckCircle className="h-5 w-5" />
+                </div>
+              )}
+            </div>
+            <div className="space-y-6">
+              <MusicFocusField form={form} />
+              <HappyMemoryField form={form} />
+              <SadMemoryField form={form} />
+            </div>
+          </div>
+          
+          <div className="pt-4">
+            <SubmitButton isSubmitting={isSubmitting} />
+          </div>
         </form>
       </Form>
     </div>

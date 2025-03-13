@@ -1,25 +1,17 @@
 
 import { useUserAuth } from "./useUserAuth";
-import { useMusicRequests } from "./useMusicRequests";
+import { useState, useEffect, useCallback } from "react";
+import { MusicRequest } from "@/types/database.types";
 import { useRequestStatus } from "./useRequestStatus";
-import { useEffect, useCallback, useRef } from "react";
 import supabase from "@/lib/supabase";
 import { toast } from "@/hooks/use-toast";
-import { MusicRequest } from "@/types/database.types";
 
 export const useDashboard = () => {
   const { userProfile, handleUserLogout } = useUserAuth();
-  
-  const {
-    userRequests,
-    currentProgress,
-    showNewRequestForm,
-    isLoading,
-    handleRequestSubmitted,
-    handleCreateNewRequest,
-    fetchUserRequests,
-    setUserRequests
-  } = useMusicRequests(userProfile);
+  const [userRequests, setUserRequests] = useState<MusicRequest[]>([]);
+  const [currentProgress, setCurrentProgress] = useState(0);
+  const [showNewRequestForm, setShowNewRequestForm] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   const {
     hasCompletedRequest,
@@ -28,198 +20,124 @@ export const useDashboard = () => {
     hasPaidRequest
   } = useRequestStatus(userRequests);
 
-  // Referências para controle de renderização e atualizações
-  const realtimeChannelRef = useRef<any>(null);
-  const lastFetchTimeRef = useRef(0);
-  const MIN_FETCH_INTERVAL = 3000; // 3 segundos entre fetchs para evitar piscar
-  const refreshCountRef = useRef(0);
-  const submissionSuccessRef = useRef(false);
-  const initialCheckDoneRef = useRef(false);
-
-  // CORREÇÃO CRÍTICA: Verificar pedidos existentes na inicialização
-  useEffect(() => {
-    if (!userProfile?.id || initialCheckDoneRef.current) return;
-    
-    console.log('[useDashboard] Verificação inicial de pedidos existentes');
-    
-    const checkExistingRequests = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('music_requests')
-          .select('*')
-          .eq('user_id', userProfile.id)
-          .order('created_at', { ascending: false });
-          
-        if (error) throw error;
-        
-        console.log('[useDashboard] Pedidos existentes na inicialização:', data?.length || 0, data);
-        
-        if (data && data.length > 0) {
-          // CORREÇÃO CRÍTICA: Atualizar os pedidos do usuário diretamente
-          setUserRequests(data);
-          
-          // Forçar uma verificação adicional após um curto período
-          setTimeout(() => {
-            fetchUserRequests();
-          }, 500);
-        }
-      } catch (error) {
-        console.error('[useDashboard] Erro ao verificar pedidos existentes:', error);
-      } finally {
-        initialCheckDoneRef.current = true;
-      }
-    };
-    
-    // Executar a verificação inicial
-    checkExistingRequests();
-  }, [userProfile, setUserRequests, fetchUserRequests]);
-
-  // Verificação periódica de conexão
-  useEffect(() => {
+  // Função para buscar os pedidos do usuário
+  const fetchUserRequests = useCallback(async () => {
     if (!userProfile?.id) return;
     
-    // Verificação de dados da sessão a cada minuto
-    const checkIntervalId = setInterval(() => {
-      const user = localStorage.getItem("musicaperfeita_user");
-      if (!user) {
-        console.log('[useDashboard] Sessão expirada, redirecionando para login');
-        handleUserLogout();
-        toast({
-          title: "Sessão expirada",
-          description: "Sua sessão expirou. Por favor, faça login novamente.",
-        });
-        clearInterval(checkIntervalId);
-      }
-    }, 60000);
+    setIsLoading(true);
     
-    return () => {
-      clearInterval(checkIntervalId);
-    };
-  }, [userProfile, handleUserLogout]);
-
-  // Função personalizada para lidar com a submissão do pedido
-  const handleRequestSubmittedWithFeedback = (data: MusicRequest[]) => {
-    console.log('[useDashboard] Pedido submetido, dados:', data);
-    submissionSuccessRef.current = true;
-    
-    if (!Array.isArray(data) || data.length === 0) {
-      console.error('[useDashboard] Dados de pedido inválidos:', data);
-      return;
-    }
-    
-    // CORREÇÃO CRÍTICA: Processar os novos dados antes de notificar o hook useMusicRequests
-    handleRequestSubmitted(data);
-    
-    // CORREÇÃO CRÍTICA: Forçar múltiplas atualizações para garantir que o estado seja persistente
-    const scheduleUpdates = () => {
-      // Imediatamente
-      fetchUserRequests();
+    try {
+      console.log('[useDashboard] Buscando pedidos para usuário:', userProfile.id);
       
-      // Após 1 segundo
+      const { data, error } = await supabase
+        .from('music_requests')
+        .select('*')
+        .eq('user_id', userProfile.id)
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      
+      console.log('[useDashboard] Pedidos recebidos:', data);
+      
+      if (data) {
+        setUserRequests(data);
+        
+        // Atualizar o progresso com base no pedido mais recente
+        if (data.length > 0) {
+          const latestRequest = data[0];
+          
+          switch (latestRequest.status) {
+            case 'pending':
+              setCurrentProgress(25);
+              break;
+            case 'in_production':
+              setCurrentProgress(50);
+              break;
+            case 'completed':
+              setCurrentProgress(100);
+              break;
+            default:
+              setCurrentProgress(0);
+          }
+          
+          // Se o usuário tem pedidos, não mostrar o formulário por padrão
+          setShowNewRequestForm(false);
+        } else {
+          // Se o usuário não tem pedidos, mostrar o formulário
+          setShowNewRequestForm(true);
+          setCurrentProgress(10);
+        }
+      }
+    } catch (error) {
+      console.error('[useDashboard] Erro ao buscar pedidos:', error);
+      toast({
+        title: "Erro ao carregar pedidos",
+        description: "Não foi possível carregar seus pedidos. Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+      setCurrentProgress(10);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [userProfile]);
+
+  // Função para lidar com a submissão de um novo pedido
+  const handleRequestSubmitted = useCallback((newRequests: MusicRequest[]) => {
+    console.log('[useDashboard] Novo pedido recebido:', newRequests);
+    
+    if (Array.isArray(newRequests) && newRequests.length > 0) {
+      // Atualizar a lista de pedidos com o novo pedido
+      setUserRequests(prevRequests => {
+        // Verificar se o pedido já existe na lista
+        const newRequestIds = new Set(newRequests.map(r => r.id));
+        const filteredPrevRequests = prevRequests.filter(r => !newRequestIds.has(r.id));
+        
+        // Combinar os novos pedidos com os existentes
+        return [...newRequests, ...filteredPrevRequests];
+      });
+      
+      // Atualizar o progresso para 25% (pedido enviado)
+      setCurrentProgress(25);
+      
+      // Fechar o formulário
+      setShowNewRequestForm(false);
+      
+      // Buscar os pedidos atualizados após um breve atraso
       setTimeout(() => {
-        console.log('[useDashboard] Primeira verificação pós-submissão');
         fetchUserRequests();
       }, 1000);
-      
-      // Após 3 segundos
-      setTimeout(() => {
-        console.log('[useDashboard] Segunda verificação pós-submissão');
-        fetchUserRequests();
-      }, 3000);
-      
-      // Após 5 segundos
-      setTimeout(() => {
-        console.log('[useDashboard] Terceira verificação pós-submissão');
-        fetchUserRequests();
-      }, 5000);
-    };
-    
-    // Iniciar a sequência de atualizações
-    scheduleUpdates();
-    
-    // Incrementar o contador de atualizações forçadas
-    refreshCountRef.current++;
-    
-    // CORREÇÃO CRÍTICA: Mostrar toast de sucesso para feedback visual
-    toast({
-      title: "Pedido enviado com sucesso",
-      description: "Seu pedido foi recebido e está sendo processado.",
-    });
-  };
-
-  // Função para configurar escuta em tempo real
-  const setupRealtimeListener = useCallback(() => {
-    if (!userProfile?.id) return () => {};
-    
-    // Evitar múltiplas inscrições
-    if (realtimeChannelRef.current) {
-      supabase.removeChannel(realtimeChannelRef.current);
     }
-    
-    console.log('[useDashboard] Configurando escuta em tempo real para o usuário:', userProfile.id);
-    
-    // Inscrever-se em mudanças na tabela music_requests filtradas pelo user_id
-    const channel = supabase
-      .channel(`user-requests-${userProfile.id}-${Date.now()}`)
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'music_requests',
-        filter: `user_id=eq.${userProfile.id}`
-      }, (payload) => {
-        console.log('[useDashboard] Mudança detectada via tempo real:', payload);
-        
-        // Verificar se passou tempo mínimo desde o último fetch
-        const now = Date.now();
-        if (now - lastFetchTimeRef.current > MIN_FETCH_INTERVAL) {
-          fetchUserRequests();
-          lastFetchTimeRef.current = now;
-        } else {
-          console.log('[useDashboard] Ignorando fetch frequente demais');
-        }
-      })
-      .subscribe((status) => {
-        console.log(`[useDashboard] Status da inscrição em tempo real: ${status}`);
-      });
-    
-    realtimeChannelRef.current = channel;
-    
-    return () => {
-      console.log('[useDashboard] Removendo canal de tempo real');
-      if (realtimeChannelRef.current) {
-        supabase.removeChannel(realtimeChannelRef.current);
-        realtimeChannelRef.current = null;
-      }
-    };
-  }, [userProfile, fetchUserRequests]);
+  }, [fetchUserRequests]);
 
-  // Atualizar os dados quando o dashboard é carregado
+  // Função para abrir o formulário de novo pedido
+  const handleCreateNewRequest = useCallback(() => {
+    setShowNewRequestForm(true);
+  }, []);
+
+  // Buscar os pedidos do usuário quando o componente for montado ou o usuário mudar
   useEffect(() => {
-    if (!userProfile?.id) return;
-    
-    // Buscar dados imediatamente na primeira carga
-    const now = Date.now();
-    fetchUserRequests();
-    lastFetchTimeRef.current = now;
-    
-    // Configurar escuta em tempo real
-    const cleanupRealtimeListener = setupRealtimeListener();
-    
-    // Polling a cada 5 segundos como fallback para escuta em tempo real
-    const pollingIntervalId = setInterval(() => {
-      const currentTime = Date.now();
-      if (currentTime - lastFetchTimeRef.current > MIN_FETCH_INTERVAL) {
-        console.log('[useDashboard] Atualizando dados via polling');
-        fetchUserRequests();
-        lastFetchTimeRef.current = currentTime;
-      }
-    }, 5000);
-    
-    return () => {
-      clearInterval(pollingIntervalId);
-      cleanupRealtimeListener();
-    };
-  }, [fetchUserRequests, setupRealtimeListener, refreshCountRef.current, userProfile]);
+    if (userProfile?.id) {
+      fetchUserRequests();
+      
+      // Configurar escuta em tempo real para atualizações
+      const channel = supabase
+        .channel(`user-requests-${userProfile.id}`)
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'music_requests',
+          filter: `user_id=eq.${userProfile.id}`
+        }, (payload) => {
+          console.log('[useDashboard] Alteração detectada:', payload);
+          fetchUserRequests();
+        })
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [userProfile, fetchUserRequests]);
 
   return {
     userProfile,
@@ -231,7 +149,7 @@ export const useDashboard = () => {
     hasPreviewUrl,
     hasAnyRequest,
     hasPaidRequest,
-    handleRequestSubmitted: handleRequestSubmittedWithFeedback,
+    handleRequestSubmitted,
     handleCreateNewRequest,
     handleUserLogout
   };

@@ -17,24 +17,8 @@ const OrderControlPanel = ({
   onCreateNewRequest, 
   isLoading = false 
 }: OrderControlPanelProps) => {
-  // Estado para controlar a exibição do spinner de carregamento para evitar flash constante
   const [showLoading, setShowLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [isVisible, setIsVisible] = useState(true); // CORREÇÃO CRÍTICA: Adicionar estado de visibilidade
-  
-  // CORREÇÃO CRÍTICA: Verificar se temos pedidos sempre que userRequests mudar
-  useEffect(() => {
-    console.log('[OrderControlPanel] Pedidos atualizados:', userRequests.length);
-    
-    // CORREÇÃO CRÍTICA: Se não há pedidos, ocultar o painel
-    if (userRequests.length === 0) {
-      console.log('[OrderControlPanel] Sem pedidos, ocultando painel');
-      setIsVisible(false);
-    } else {
-      console.log('[OrderControlPanel] Pedidos encontrados, mostrando painel');
-      setIsVisible(true);
-    }
-  }, [userRequests]);
   
   // Usar um delay para mostrar o spinner apenas se o carregamento demorar mais de 800ms
   useEffect(() => {
@@ -61,22 +45,6 @@ const OrderControlPanel = ({
     }
   }, []);
 
-  // Adicionar log para acompanhar a renderização
-  useEffect(() => {
-    console.log('[OrderControlPanel] Estado atualizado:', { 
-      isLoading, 
-      showLoading, 
-      userRequestsCount: userRequests.length,
-      isVisible 
-    });
-  }, [userRequests, isLoading, showLoading, isVisible]);
-
-  // CORREÇÃO CRÍTICA: Se o painel não deve ser visível, não renderizar nada
-  if (!isVisible) {
-    console.log('[OrderControlPanel] Painel de controle oculto');
-    return null;
-  }
-
   // Mostrar spinner de carregamento
   if (showLoading && mounted) {
     return (
@@ -87,16 +55,10 @@ const OrderControlPanel = ({
     );
   }
 
-  // CORREÇÃO CRÍTICA: Se não há pedidos, não renderizar o painel (dupla verificação)
-  if (userRequests.length === 0) {
-    console.log('[OrderControlPanel] Sem pedidos, não renderizando');
-    return null;
-  }
-
+  // Determinar se temos um pedido atual para exibir
   const hasSubmittedForm = userRequests.length > 0;
   const currentRequest = userRequests.length > 0 ? userRequests[0] : null;
 
-  // CORREÇÃO CRÍTICA: Renderizar o painel de pedidos
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100">
       <div className="flex justify-between items-center mb-4">
@@ -112,11 +74,20 @@ const OrderControlPanel = ({
 
       <NextStepIndicator currentRequest={currentRequest} hasSubmittedForm={hasSubmittedForm} />
 
-      <div className="space-y-2">
-        {userRequests.map((request) => (
-          <OrderCard key={request.id} request={request} />
-        ))}
-      </div>
+      {/* Lista de pedidos - mostrar apenas se houver pedidos */}
+      {userRequests.length > 0 ? (
+        <div className="space-y-2">
+          {userRequests.map((request) => (
+            <OrderCard key={request.id} request={request} />
+          ))}
+        </div>
+      ) : (
+        <div className="p-4 bg-gray-50 rounded-lg text-center">
+          <MusicIcon className="mx-auto h-10 w-10 text-gray-400 mb-2" />
+          <p className="text-gray-600">Você ainda não tem pedidos de música.</p>
+          <p className="text-gray-500 text-sm mt-1">Clique no botão "Nova música" para criar seu primeiro pedido.</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -7,7 +7,6 @@ import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
 import OrderControlPanel from "@/components/dashboard/OrderControlPanel";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { useDashboard } from "@/hooks/useDashboard";
-import { useEffect } from "react";
 
 const Dashboard = () => {
   const {
@@ -25,35 +24,7 @@ const Dashboard = () => {
     handleUserLogout
   } = useDashboard();
 
-  // Log para ajudar no diagnóstico
-  console.log('[Dashboard] Estado atual:', {
-    userRequestsCount: userRequests.length,
-    showNewRequestForm,
-    hasAnyRequest,
-    renderOrderPanel: userRequests.length > 0 && !showNewRequestForm,
-    renderFormCondition: userProfile && showNewRequestForm
-  });
-  
-  // Verificação adicional para logs de diagnóstico
-  useEffect(() => {
-    console.log('[Dashboard] Estado atualizado:', {
-      userRequestsLength: userRequests.length,
-      showNewRequestForm,
-      hasAnyRequest,
-      temPedido: userRequests.length > 0,
-      mostrarCaixaPedidos: !showNewRequestForm && userRequests.length > 0,
-      userProfile: !!userProfile
-    });
-  }, [userRequests, showNewRequestForm, hasAnyRequest, userProfile]);
-
-  // CORREÇÃO CRÍTICA: Verificar diretamente se deve mostrar o painel de controle de pedidos
-  // Se temos pedidos, sempre mostramos o painel de pedidos, a menos que o formulário esteja visível
-  const shouldShowOrderPanel = userRequests.length > 0 && !showNewRequestForm;
-  
-  // CORREÇÃO CRÍTICA: Verificar diretamente se deve mostrar o formulário
-  // Só mostrar o formulário se explicitamente indicado e não houver pedidos OU se o usuário solicitou um novo pedido
-  const shouldShowForm = userProfile && showNewRequestForm;
-
+  // Renderizar o painel de controle de pedidos sempre, conforme solicitado
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
       <div className="animated-shapes">
@@ -66,17 +37,19 @@ const Dashboard = () => {
         <div className="max-w-4xl mx-auto">
           <DashboardHeader userProfile={userProfile} onLogout={handleUserLogout} />
           
-          <ProgressIndicator currentProgress={currentProgress} hasAnyRequest={hasAnyRequest} />
+          <ProgressIndicator 
+            currentProgress={currentProgress} 
+            hasAnyRequest={hasAnyRequest} 
+          />
           
-          {/* CORREÇÃO CRÍTICA: Usar variável de controle direta para exibir o painel de pedidos */}
-          {shouldShowOrderPanel && (
-            <OrderControlPanel 
-              userRequests={userRequests} 
-              onCreateNewRequest={handleCreateNewRequest}
-              isLoading={isLoading}
-            />
-          )}
+          {/* Painel de controle de pedidos - SEMPRE visível */}
+          <OrderControlPanel 
+            userRequests={userRequests} 
+            onCreateNewRequest={handleCreateNewRequest}
+            isLoading={isLoading}
+          />
           
+          {/* Player de prévia de música, mostrado apenas se há uma prévia */}
           {hasPreviewUrl && !showNewRequestForm && (
             <MusicPreviewPlayer 
               previewUrl={userRequests[0]?.preview_url || ''} 
@@ -86,8 +59,8 @@ const Dashboard = () => {
             />
           )}
           
-          {/* CORREÇÃO CRÍTICA: Usar variável de controle direta para exibir o formulário */}
-          {shouldShowForm && (
+          {/* Formulário de pedido de música, mostrado apenas se solicitado explicitamente */}
+          {showNewRequestForm && userProfile && (
             <MusicRequestForm 
               userProfile={userProfile} 
               onRequestSubmitted={handleRequestSubmitted}

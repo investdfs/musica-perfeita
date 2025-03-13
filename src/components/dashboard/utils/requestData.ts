@@ -11,10 +11,11 @@ export function prepareRequestData(
   userProfile: UserProfile, 
   coverUrl: string | null
 ) {
-  // Tratamento para modo de desenvolvimento
-  const userId = userProfile.id === 'dev-user-id' ? uuidv4() : userProfile.id;
-  console.log("Usando ID de usuário:", userId);
+  // Identificação do usuário (com fallback para desenvolvimento)
+  const userId = userProfile?.id || 'dev-user-id';
+  console.log("[requestData] Preparando pedido para usuário:", userId);
   
+  // Construir objeto completo do pedido com valores padrão explícitos
   return {
     user_id: userId,
     honoree_name: values.honoree_name,
@@ -23,10 +24,10 @@ export function prepareRequestData(
     music_genre: values.music_genre,
     music_tone: values.music_tone,
     voice_type: values.voice_type,
-    include_names: values.include_names,
+    include_names: Boolean(values.include_names),
     names_to_include: values.include_names ? values.names_to_include : null,
     story: values.story,
-    cover_image_url: coverUrl,
+    cover_image_url: coverUrl || null,
     status: 'pending',
     preview_url: null,
     full_song_url: null,

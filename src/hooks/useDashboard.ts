@@ -1,173 +1,225 @@
 
-import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useUserAuth } from "./useUserAuth";
+import { useMusicRequests } from "./useMusicRequests";
+import { useRequestStatus } from "./useRequestStatus";
+import { useEffect, useCallback, useRef } from "react";
 import supabase from "@/lib/supabase";
-import { MusicRequest, UserProfile } from "@/types/database.types";
 import { toast } from "@/hooks/use-toast";
-import { isDevelopmentOrPreview } from "@/lib/environment";
-import { v4 as uuidv4 } from 'uuid';
+import { MusicRequest } from "@/types/database.types";
 
 export const useDashboard = () => {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [userRequests, setUserRequests] = useState<MusicRequest[]>([]);
-  const [currentProgress, setCurrentProgress] = useState(0);
-  const [showNewRequestForm, setShowNewRequestForm] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+  const { userProfile, handleUserLogout } = useUserAuth();
+  
+  const {
+    userRequests,
+    currentProgress,
+    showNewRequestForm,
+    isLoading,
+    handleRequestSubmitted,
+    handleCreateNewRequest,
+    fetchUserRequests,
+    setUserRequests
+  } = useMusicRequests(userProfile);
+  
+  const {
+    hasCompletedRequest,
+    hasPreviewUrl,
+    hasAnyRequest,
+    hasPaidRequest
+  } = useRequestStatus(userRequests);
 
-  const checkUserAuth = useCallback(() => {
-    const storedUser = localStorage.getItem("musicaperfeita_user");
-    
-    if (!storedUser) {
-      // Remover o modo de desenvolvimento automático e redirecionar para o login
-      toast({
-        title: "Acesso restrito",
-        description: "Você precisa fazer login para acessar esta página",
-        variant: "destructive",
-      });
-      navigate("/login");
-      return;
-    }
-    
-    const userInfo = storedUser ? JSON.parse(storedUser) : null;
-    setUserProfile(userInfo);
-  }, [navigate]);
+  // Referências para controle de renderização e atualizações
+  const realtimeChannelRef = useRef<any>(null);
+  const lastFetchTimeRef = useRef(0);
+  const MIN_FETCH_INTERVAL = 3000; // 3 segundos entre fetchs para evitar piscar
+  const refreshCountRef = useRef(0);
+  const submissionSuccessRef = useRef(false);
+  const initialCheckDoneRef = useRef(false);
 
-  const fetchUserRequests = useCallback(async () => {
-    try {
-      if (!userProfile?.id) return;
-      
-      const { data, error } = await supabase
-        .from('music_requests')
-        .select('*')
-        .eq('user_id', userProfile.id)
-        .order('created_at', { ascending: false });
+  // CORREÇÃO CRÍTICA: Verificar pedidos existentes na inicialização
+  useEffect(() => {
+    if (!userProfile?.id || initialCheckDoneRef.current) return;
+    
+    console.log('[useDashboard] Verificação inicial de pedidos existentes');
+    
+    const checkExistingRequests = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('music_requests')
+          .select('*')
+          .eq('user_id', userProfile.id)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
         
-      if (error) throw error;
-      
-      if (data) {
-        setUserRequests(data);
+        console.log('[useDashboard] Pedidos existentes na inicialização:', data?.length || 0, data);
         
-        if (data.length > 0) {
-          const latestRequest = data[0];
-          switch (latestRequest.status) {
-            case 'pending':
-              setCurrentProgress(25);
-              break;
-            case 'in_production':
-              setCurrentProgress(50);
-              break;
-            case 'completed':
-              setCurrentProgress(100);
-              break;
-            default:
-              setCurrentProgress(0);
-          }
-        } else {
-          setCurrentProgress(10);
-          setShowNewRequestForm(true);
+        if (data && data.length > 0) {
+          // CORREÇÃO CRÍTICA: Atualizar os pedidos do usuário diretamente
+          setUserRequests(data);
+          
+          // Forçar uma verificação adicional após um curto período
+          setTimeout(() => {
+            fetchUserRequests();
+          }, 500);
         }
-      }
-    } catch (error) {
-      console.error('Error fetching music requests:', error);
-      setCurrentProgress(10);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userProfile]);
-
-  const checkForStatusUpdates = useCallback(async () => {
-    try {
-      if (!userProfile?.id) return;
-      
-      const { data, error } = await supabase
-        .from('music_requests')
-        .select('*')
-        .eq('user_id', userProfile.id)
-        .order('created_at', { ascending: false });
-        
-      if (error) throw error;
-      
-      if (data && data.length > 0) {
-        const latestRequest = data[0];
-        setUserRequests(data);
-        
-        switch (latestRequest.status) {
-          case 'pending':
-            setCurrentProgress(25);
-            break;
-          case 'in_production':
-            setCurrentProgress(50);
-            break;
-          case 'completed':
-            setCurrentProgress(100);
-            break;
-          default:
-            setCurrentProgress(0);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking for status updates:', error);
-    }
-  }, [userProfile]);
-
-  const handleRequestSubmitted = (data: MusicRequest[]) => {
-    setUserRequests([...data, ...userRequests]);
-    setCurrentProgress(25);
-    setShowNewRequestForm(false);
-  };
-
-  const handleCreateNewRequest = () => {
-    setShowNewRequestForm(true);
-  };
-
-  const handleUserLogout = () => {
-    localStorage.removeItem("musicaperfeita_user");
-    
-    toast({
-      title: "Logout realizado",
-      description: "Você saiu da sua conta com sucesso"
-    });
-    
-    navigate("/login");
-  };
-
-  useEffect(() => {
-    checkUserAuth();
-  }, [checkUserAuth]);
-
-  useEffect(() => {
-    if (userProfile) {
-      fetchUserRequests();
-    }
-  }, [userProfile, fetchUserRequests]);
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        checkUserAuth();
+      } catch (error) {
+        console.error('[useDashboard] Erro ao verificar pedidos existentes:', error);
+      } finally {
+        initialCheckDoneRef.current = true;
       }
     };
     
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [checkUserAuth]);
+    // Executar a verificação inicial
+    checkExistingRequests();
+  }, [userProfile, setUserRequests, fetchUserRequests]);
 
+  // Verificação periódica de conexão
   useEffect(() => {
     if (!userProfile?.id) return;
     
-    const intervalId = setInterval(checkForStatusUpdates, 30000);
+    // Verificação de dados da sessão a cada minuto
+    const checkIntervalId = setInterval(() => {
+      const user = localStorage.getItem("musicaperfeita_user");
+      if (!user) {
+        console.log('[useDashboard] Sessão expirada, redirecionando para login');
+        handleUserLogout();
+        toast({
+          title: "Sessão expirada",
+          description: "Sua sessão expirou. Por favor, faça login novamente.",
+        });
+        clearInterval(checkIntervalId);
+      }
+    }, 60000);
     
-    return () => clearInterval(intervalId);
-  }, [userProfile, checkForStatusUpdates]);
+    return () => {
+      clearInterval(checkIntervalId);
+    };
+  }, [userProfile, handleUserLogout]);
 
-  const hasCompletedRequest = userRequests.length > 0 && userRequests[0].status === 'completed';
-  const hasPreviewUrl = userRequests.length > 0 && userRequests[0].preview_url;
-  const hasAnyRequest = userRequests.length > 0;
-  const hasPaidRequest = userRequests.length > 0 && userRequests[0].payment_status === 'completed';
+  // Função personalizada para lidar com a submissão do pedido
+  const handleRequestSubmittedWithFeedback = (data: MusicRequest[]) => {
+    console.log('[useDashboard] Pedido submetido, dados:', data);
+    submissionSuccessRef.current = true;
+    
+    if (!Array.isArray(data) || data.length === 0) {
+      console.error('[useDashboard] Dados de pedido inválidos:', data);
+      return;
+    }
+    
+    // CORREÇÃO CRÍTICA: Processar os novos dados antes de notificar o hook useMusicRequests
+    handleRequestSubmitted(data);
+    
+    // CORREÇÃO CRÍTICA: Forçar múltiplas atualizações para garantir que o estado seja persistente
+    const scheduleUpdates = () => {
+      // Imediatamente
+      fetchUserRequests();
+      
+      // Após 1 segundo
+      setTimeout(() => {
+        console.log('[useDashboard] Primeira verificação pós-submissão');
+        fetchUserRequests();
+      }, 1000);
+      
+      // Após 3 segundos
+      setTimeout(() => {
+        console.log('[useDashboard] Segunda verificação pós-submissão');
+        fetchUserRequests();
+      }, 3000);
+      
+      // Após 5 segundos
+      setTimeout(() => {
+        console.log('[useDashboard] Terceira verificação pós-submissão');
+        fetchUserRequests();
+      }, 5000);
+    };
+    
+    // Iniciar a sequência de atualizações
+    scheduleUpdates();
+    
+    // Incrementar o contador de atualizações forçadas
+    refreshCountRef.current++;
+    
+    // CORREÇÃO CRÍTICA: Mostrar toast de sucesso para feedback visual
+    toast({
+      title: "Pedido enviado com sucesso",
+      description: "Seu pedido foi recebido e está sendo processado.",
+    });
+  };
+
+  // Função para configurar escuta em tempo real
+  const setupRealtimeListener = useCallback(() => {
+    if (!userProfile?.id) return () => {};
+    
+    // Evitar múltiplas inscrições
+    if (realtimeChannelRef.current) {
+      supabase.removeChannel(realtimeChannelRef.current);
+    }
+    
+    console.log('[useDashboard] Configurando escuta em tempo real para o usuário:', userProfile.id);
+    
+    // Inscrever-se em mudanças na tabela music_requests filtradas pelo user_id
+    const channel = supabase
+      .channel(`user-requests-${userProfile.id}-${Date.now()}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'music_requests',
+        filter: `user_id=eq.${userProfile.id}`
+      }, (payload) => {
+        console.log('[useDashboard] Mudança detectada via tempo real:', payload);
+        
+        // Verificar se passou tempo mínimo desde o último fetch
+        const now = Date.now();
+        if (now - lastFetchTimeRef.current > MIN_FETCH_INTERVAL) {
+          fetchUserRequests();
+          lastFetchTimeRef.current = now;
+        } else {
+          console.log('[useDashboard] Ignorando fetch frequente demais');
+        }
+      })
+      .subscribe((status) => {
+        console.log(`[useDashboard] Status da inscrição em tempo real: ${status}`);
+      });
+    
+    realtimeChannelRef.current = channel;
+    
+    return () => {
+      console.log('[useDashboard] Removendo canal de tempo real');
+      if (realtimeChannelRef.current) {
+        supabase.removeChannel(realtimeChannelRef.current);
+        realtimeChannelRef.current = null;
+      }
+    };
+  }, [userProfile, fetchUserRequests]);
+
+  // Atualizar os dados quando o dashboard é carregado
+  useEffect(() => {
+    if (!userProfile?.id) return;
+    
+    // Buscar dados imediatamente na primeira carga
+    const now = Date.now();
+    fetchUserRequests();
+    lastFetchTimeRef.current = now;
+    
+    // Configurar escuta em tempo real
+    const cleanupRealtimeListener = setupRealtimeListener();
+    
+    // Polling a cada 5 segundos como fallback para escuta em tempo real
+    const pollingIntervalId = setInterval(() => {
+      const currentTime = Date.now();
+      if (currentTime - lastFetchTimeRef.current > MIN_FETCH_INTERVAL) {
+        console.log('[useDashboard] Atualizando dados via polling');
+        fetchUserRequests();
+        lastFetchTimeRef.current = currentTime;
+      }
+    }, 5000);
+    
+    return () => {
+      clearInterval(pollingIntervalId);
+      cleanupRealtimeListener();
+    };
+  }, [fetchUserRequests, setupRealtimeListener, refreshCountRef.current, userProfile]);
 
   return {
     userProfile,
@@ -179,7 +231,7 @@ export const useDashboard = () => {
     hasPreviewUrl,
     hasAnyRequest,
     hasPaidRequest,
-    handleRequestSubmitted,
+    handleRequestSubmitted: handleRequestSubmittedWithFeedback,
     handleCreateNewRequest,
     handleUserLogout
   };

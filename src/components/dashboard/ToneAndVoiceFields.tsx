@@ -31,6 +31,10 @@ const ToneAndVoiceFields = ({ form }: ToneAndVoiceFieldsProps) => {
                 <SelectItem value="romantic">Romântica e emotiva</SelectItem>
                 <SelectItem value="nostalgic">Nostálgica</SelectItem>
                 <SelectItem value="fun">Divertida</SelectItem>
+                <SelectItem value="melancholic">Melancólica</SelectItem>
+                <SelectItem value="energetic">Energética</SelectItem>
+                <SelectItem value="peaceful">Tranquila</SelectItem>
+                <SelectItem value="inspirational">Inspiradora</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-gray-500 mt-1">
@@ -63,6 +67,10 @@ const ToneAndVoiceFields = ({ form }: ToneAndVoiceFieldsProps) => {
                 <SelectItem value="female_romantic">Voz Feminina Romântica</SelectItem>
                 <SelectItem value="male_folk">Voz Masculina Folk/MPB</SelectItem>
                 <SelectItem value="female_folk">Voz Feminina Folk/MPB</SelectItem>
+                <SelectItem value="male_deep">Voz Masculina Profunda</SelectItem>
+                <SelectItem value="female_powerful">Voz Feminina Potente</SelectItem>
+                <SelectItem value="male_soft">Voz Masculina Suave</SelectItem>
+                <SelectItem value="female_sweet">Voz Feminina Doce</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-xs text-gray-500 mt-1">

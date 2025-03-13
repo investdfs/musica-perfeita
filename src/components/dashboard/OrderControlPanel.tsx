@@ -1,17 +1,10 @@
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { MusicRequest } from "@/types/database.types";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
-import { 
-  MusicIcon, 
-  PlusCircleIcon, 
-  Clock, 
-  CheckCircle2, 
-  CircleDollarSign, 
-  Loader2 
-} from "lucide-react";
+import { PlusCircleIcon, MusicIcon, Loader2 } from "lucide-react";
+import NextStepIndicator from "./NextStepIndicator";
+import OrderCard from "./OrderCard";
+import { useEffect, useState } from "react";
 
 interface OrderControlPanelProps {
   userRequests: MusicRequest[];
@@ -24,75 +17,68 @@ const OrderControlPanel = ({
   onCreateNewRequest, 
   isLoading = false 
 }: OrderControlPanelProps) => {
-  const [loadingRequestId, setLoadingRequestId] = useState<string | null>(null);
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case "pending":
-        return "Aguardando produção";
-      case "in_production":
-        return "Em produção";
-      case "completed":
-        return "Concluído";
-      default:
-        return "Status desconhecido";
+  // Estado para controlar a exibição do spinner de carregamento para evitar flash constante
+  const [showLoading, setShowLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [isVisible, setIsVisible] = useState(true); // CORREÇÃO CRÍTICA: Adicionar estado de visibilidade
+  
+  // CORREÇÃO CRÍTICA: Verificar se temos pedidos sempre que userRequests mudar
+  useEffect(() => {
+    console.log('[OrderControlPanel] Pedidos atualizados:', userRequests.length);
+    
+    // CORREÇÃO CRÍTICA: Se não há pedidos, ocultar o painel
+    if (userRequests.length === 0) {
+      console.log('[OrderControlPanel] Sem pedidos, ocultando painel');
+      setIsVisible(false);
+    } else {
+      console.log('[OrderControlPanel] Pedidos encontrados, mostrando painel');
+      setIsVisible(true);
     }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Clock className="h-5 w-5 text-yellow-500" />;
-      case "in_production":
-        return <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />;
-      case "completed":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      default:
-        return <Clock className="h-5 w-5 text-gray-500" />;
+  }, [userRequests]);
+  
+  // Usar um delay para mostrar o spinner apenas se o carregamento demorar mais de 800ms
+  useEffect(() => {
+    setMounted(true);
+    let timer: ReturnType<typeof setTimeout>;
+    
+    if (isLoading) {
+      timer = setTimeout(() => {
+        setShowLoading(true);
+      }, 800);
+    } else {
+      setShowLoading(false);
     }
-  };
+    
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isLoading]);
 
-  const getPaymentStatusIcon = (paymentStatus: string) => {
-    switch (paymentStatus) {
-      case "pending":
-        return <CircleDollarSign className="h-5 w-5 text-yellow-500" />;
-      case "processing":
-        return <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />;
-      case "completed":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      default:
-        return <CircleDollarSign className="h-5 w-5 text-gray-500" />;
+  // Evitar renderização do carregamento no primeiro mount para prevenir piscar
+  useEffect(() => {
+    if (!mounted) {
+      setMounted(true);
     }
-  };
+  }, []);
 
-  const getPaymentStatusLabel = (paymentStatus: string) => {
-    switch (paymentStatus) {
-      case "pending":
-        return "Aguardando pagamento";
-      case "processing":
-        return "Processando pagamento";
-      case "completed":
-        return "Pagamento concluído";
-      default:
-        return "Status de pagamento desconhecido";
-    }
-  };
+  // Adicionar log para acompanhar a renderização
+  useEffect(() => {
+    console.log('[OrderControlPanel] Estado atualizado:', { 
+      isLoading, 
+      showLoading, 
+      userRequestsCount: userRequests.length,
+      isVisible 
+    });
+  }, [userRequests, isLoading, showLoading, isVisible]);
 
-  const handleRequestItemClick = (requestId: string) => {
-    setLoadingRequestId(requestId);
-    // Simula um tempo de carregamento para melhorar a experiência do usuário
-    setTimeout(() => {
-      setLoadingRequestId(null);
-      // Implementar navegação para detalhes do pedido quando disponível
-    }, 1000);
-  };
+  // CORREÇÃO CRÍTICA: Se o painel não deve ser visível, não renderizar nada
+  if (!isVisible) {
+    console.log('[OrderControlPanel] Painel de controle oculto');
+    return null;
+  }
 
-  if (isLoading) {
+  // Mostrar spinner de carregamento
+  if (showLoading && mounted) {
     return (
       <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100 flex justify-center items-center h-40">
         <Loader2 className="h-8 w-8 text-blue-500 animate-spin mr-3" />
@@ -101,30 +87,19 @@ const OrderControlPanel = ({
     );
   }
 
+  // CORREÇÃO CRÍTICA: Se não há pedidos, não renderizar o painel (dupla verificação)
   if (userRequests.length === 0) {
-    return (
-      <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100">
-        <div className="text-center mb-6">
-          <MusicIcon className="h-12 w-12 text-purple-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Nenhum pedido encontrado</h2>
-          <p className="text-gray-600 mb-6">
-            Você ainda não criou nenhuma música personalizada. Clique no botão abaixo para começar!
-          </p>
-          <Button 
-            onClick={onCreateNewRequest}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg shadow-md transition-all"
-          >
-            <PlusCircleIcon className="mr-2 h-5 w-5" />
-            Criar nova música
-          </Button>
-        </div>
-      </div>
-    );
+    console.log('[OrderControlPanel] Sem pedidos, não renderizando');
+    return null;
   }
 
+  const hasSubmittedForm = userRequests.length > 0;
+  const currentRequest = userRequests.length > 0 ? userRequests[0] : null;
+
+  // CORREÇÃO CRÍTICA: Renderizar o painel de pedidos
   return (
     <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-6 mb-8 border border-blue-100">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-gray-800">Seus pedidos</h2>
         <Button 
           onClick={onCreateNewRequest}
@@ -135,53 +110,11 @@ const OrderControlPanel = ({
         </Button>
       </div>
 
-      <div className="space-y-4">
-        {userRequests.map((request) => (
-          <div 
-            key={request.id} 
-            className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer bg-white"
-            onClick={() => handleRequestItemClick(request.id)}
-          >
-            <div className="flex flex-col sm:flex-row sm:justify-between">
-              <div className="mb-2 sm:mb-0">
-                <p className="font-semibold text-gray-800">
-                  Para: {request.honoree_name}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Criado em: {formatDate(request.created_at)}
-                </p>
-              </div>
+      <NextStepIndicator currentRequest={currentRequest} hasSubmittedForm={hasSubmittedForm} />
 
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center">
-                  {loadingRequestId === request.id ? (
-                    <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
-                  ) : (
-                    getStatusIcon(request.status)
-                  )}
-                  <span className="ml-1 text-sm">
-                    {getStatusLabel(request.status)}
-                  </span>
-                </div>
-                <div className="flex items-center">
-                  {getPaymentStatusIcon(request.payment_status)}
-                  <span className="ml-1 text-sm">
-                    {getPaymentStatusLabel(request.payment_status)}
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-2">
-              <p className="text-sm text-gray-700">
-                <span className="font-medium">Gênero:</span> {request.music_genre}
-              </p>
-              <p className="text-sm text-gray-700 line-clamp-1">
-                <span className="font-medium">História:</span> {request.story.substring(0, 100)}
-                {request.story.length > 100 ? "..." : ""}
-              </p>
-            </div>
-          </div>
+      <div className="space-y-2">
+        {userRequests.map((request) => (
+          <OrderCard key={request.id} request={request} />
         ))}
       </div>
     </div>

@@ -18,8 +18,8 @@ export type MusicRequest = {
   relationship_type: 'esposa' | 'noiva' | 'namorada' | 'amigo_especial' | 'partner' | 'friend' | 'family' | 'colleague' | 'mentor' | 'child' | 'sibling' | 'parent' | 'other';
   custom_relationship: string | null;
   music_genre: 'romantic' | 'mpb' | 'classical' | 'jazz' | 'hiphop' | 'rock' | 'country' | 'reggae' | 'electronic' | 'samba' | 'folk' | 'pop';
-  music_tone?: 'happy' | 'romantic' | 'nostalgic' | 'fun';
-  voice_type?: 'male' | 'female' | 'male_romantic' | 'female_romantic' | 'male_folk' | 'female_folk';
+  music_tone?: 'happy' | 'romantic' | 'nostalgic' | 'fun' | 'melancholic' | 'energetic' | 'peaceful' | 'inspirational' | 'dramatic' | 'uplifting' | 'reflective' | 'mysterious';
+  voice_type?: 'male' | 'female' | 'male_romantic' | 'female_romantic' | 'male_folk' | 'female_folk' | 'male_deep' | 'female_powerful' | 'male_soft' | 'female_sweet' | 'male_jazzy' | 'female_jazzy' | 'male_rock' | 'female_rock' | 'male_country' | 'female_country';
   include_names: boolean;
   names_to_include: string | null;
   story: string;
@@ -29,4 +29,7 @@ export type MusicRequest = {
   payment_status: 'pending' | 'completed' | null;
   cover_image_url?: string | null;
   soundcloud_id?: string | null; // Mantemos para compatibilidade com dados existentes
+  music_focus?: string | null;
+  happy_memory?: string | null;
+  sad_memory?: string | null;
 };

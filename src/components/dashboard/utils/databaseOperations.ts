@@ -29,27 +29,30 @@ export async function insertMusicRequest(requestData: any) {
   } catch (error) {
     console.error("[databaseOperations] Erro na operação de banco de dados:", error);
     
-    // Tentar uma abordagem mais simples sem select
-    try {
-      const { error } = await supabase
-        .from('music_requests')
-        .insert([requestData]);
-      
-      if (error) throw error;
-      
-      // Buscar o pedido recém-inserido
-      const { data, error: fetchError } = await supabase
-        .from('music_requests')
-        .select('*')
-        .eq('user_id', requestData.user_id)
-        .order('created_at', { ascending: false })
-        .limit(1);
-      
-      if (fetchError) throw fetchError;
-      return data;
-    } catch (fallbackError) {
-      console.error("[databaseOperations] Erro na abordagem alternativa:", fallbackError);
-      throw fallbackError;
+    // Usar uma abordagem mais simples sem select
+    const { error: insertError } = await supabase
+      .from('music_requests')
+      .insert([requestData]);
+    
+    if (insertError) {
+      console.error("[databaseOperations] Erro na inserção simples:", insertError);
+      throw insertError;
     }
+    
+    // Buscar o pedido recém-inserido
+    const { data: fetchedData, error: fetchError } = await supabase
+      .from('music_requests')
+      .select('*')
+      .eq('user_id', requestData.user_id)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    
+    if (fetchError) {
+      console.error("[databaseOperations] Erro ao buscar pedido após inserção:", fetchError);
+      throw fetchError;
+    }
+    
+    console.log("[databaseOperations] Dados recuperados após inserção:", fetchedData);
+    return fetchedData;
   }
 }

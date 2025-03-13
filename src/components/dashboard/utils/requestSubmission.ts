@@ -16,9 +16,9 @@ export async function submitMusicRequest(
 ) {
   try {
     // Log do processo para ajudar na depuração
-    console.log("Iniciando processo de envio de pedido de música");
-    console.log("Perfil do usuário:", userProfile);
-    console.log("Valores do formulário:", values);
+    console.log("[submitMusicRequest] Iniciando processo de envio de pedido de música");
+    console.log("[submitMusicRequest] Perfil do usuário:", userProfile);
+    console.log("[submitMusicRequest] Valores do formulário:", values);
     
     // Validações iniciais
     if (!userProfile?.id) {
@@ -40,18 +40,23 @@ export async function submitMusicRequest(
     // Upload da imagem de capa
     let coverUrl = null;
     try {
-      coverUrl = await uploadCoverImage(coverImage, userProfile.id);
-      console.log("Upload da imagem concluído, URL:", coverUrl);
+      if (coverImage) {
+        console.log("[submitMusicRequest] Iniciando upload da imagem");
+        coverUrl = await uploadCoverImage(coverImage, userProfile.id);
+        console.log("[submitMusicRequest] Upload da imagem concluído, URL:", coverUrl);
+      }
     } catch (uploadError) {
-      console.error("Erro no upload da imagem:", uploadError);
+      console.error("[submitMusicRequest] Erro no upload da imagem:", uploadError);
       // Continuamos mesmo com erro no upload de imagem, mas registramos para depuração
     }
     
     // Preparar os dados do pedido
-    console.log("Preparando dados do pedido");
+    console.log("[submitMusicRequest] Preparando dados do pedido");
     const newRequest = prepareRequestData(values, userProfile, coverUrl);
+    console.log("[submitMusicRequest] Dados do pedido preparados:", newRequest);
     
-    // Timeout para garantir que a operação não fique presa indefinidamente
+    // Definir um timeout para a operação
+    const dbPromise = insertMusicRequest(newRequest);
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => {
         reject(Object.assign(new Error("A operação demorou muito para ser concluída. Tente novamente."), {
@@ -61,21 +66,21 @@ export async function submitMusicRequest(
     });
     
     // Inserir o pedido no banco de dados com timeout
-    const dbPromise = insertMusicRequest(newRequest);
+    console.log("[submitMusicRequest] Enviando pedido para o banco de dados");
     const result = await Promise.race([dbPromise, timeoutPromise]);
     
-    console.log("Resultado da inserção do pedido:", result);
+    console.log("[submitMusicRequest] Resultado da inserção do pedido:", result);
     
     // Garantir que o resultado é um array válido para facilitar o processamento no componente
     if (result && !Array.isArray(result)) {
-      console.log("Convertendo resultado não-array para array:", result);
+      console.log("[submitMusicRequest] Convertendo resultado não-array para array");
       return [result];
     }
     
     return result;
     
   } catch (error) {
-    console.error('Erro ao enviar pedido de música:', error);
+    console.error('[submitMusicRequest] Erro ao enviar pedido de música:', error);
     
     // Verificar se o erro é relacionado a validação de dados
     if (error instanceof Error && 

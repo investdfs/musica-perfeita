@@ -100,6 +100,10 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
           title: "Sucesso!",
           description: "Seu pedido foi enviado com sucesso. Aguarde enquanto processamos sua solicitação.",
         });
+        
+        // Limpar o formulário após o envio bem-sucedido
+        form.reset();
+        setCoverImage(null);
       } else {
         console.error("[MusicRequestForm] Dados retornados inválidos:", data);
         throw new Error("Não foi possível processar seu pedido. Resposta inválida do servidor.");

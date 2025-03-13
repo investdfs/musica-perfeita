@@ -1,7 +1,6 @@
 
 import { MusicRequestFormValues } from "../formSchema";
 import { UserProfile } from "@/types/database.types";
-import { v4 as uuidv4 } from "uuid";
 
 /**
  * Prepara os dados do pedido de música para o banco de dados

@@ -13,7 +13,7 @@ export interface EnhancedError extends Error {
  * Processa erros e retorna mensagens formatadas baseadas no tipo de erro
  */
 export function processError(error: unknown): EnhancedError {
-  console.error('Erro processado:', error);
+  console.error('[processError] Erro original:', error);
   
   // Convertemos o erro para o tipo EnhancedError
   const err = error as EnhancedError;
@@ -24,7 +24,7 @@ export function processError(error: unknown): EnhancedError {
   let errorDetails = "";
   
   if (err.message) {
-    console.log("Mensagem de erro:", err.message);
+    console.log("[processError] Mensagem de erro original:", err.message);
     
     // Detectar tipo de erro com base na mensagem e propriedades
     if (err.type === "network" || 
@@ -69,12 +69,10 @@ export function processError(error: unknown): EnhancedError {
     }
   }
   
-  console.error("Erro detalhado:", {
-    message: err.message,
-    code: err.code,
+  console.log("[processError] Erro processado:", {
+    message: errorMessage,
     type: errorType,
-    details: errorDetails,
-    stack: err.stack
+    details: errorDetails
   });
   
   // Incluir o tipo de erro no objeto de erro para tratamento específico na interface

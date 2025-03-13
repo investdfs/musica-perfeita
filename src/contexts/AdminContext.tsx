@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
@@ -31,6 +31,8 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentUserProfile, setCurrentUserProfile] = useState<UserProfile | null>(null);
   const [isMainAdmin, setIsMainAdmin] = useState(false);
   const [visitorCount, setVisitorCount] = useState(0);
+  const lastFetchTimeRef = useRef(0);
+  const MIN_FETCH_INTERVAL = 2000; // 2 segundos entre fetchs
 
   const getUserEmail = (userId: string): string | undefined => {
     const user = users.find(u => u.id === userId);
@@ -39,7 +41,17 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchRequests = async () => {
     try {
-      // CORREÇÃO CRÍTICA: Usar o client com permissões de serviço para buscar todos os pedidos
+      const now = Date.now();
+      
+      // Evitar fetchs muito frequentes
+      if (now - lastFetchTimeRef.current < MIN_FETCH_INTERVAL) {
+        console.log('[AdminContext] Ignorando fetch muito frequente');
+        return;
+      }
+      
+      lastFetchTimeRef.current = now;
+      
+      // CORREÇÃO CRÍTICA: Buscar todos os pedidos com a abordagem client-server correta
       console.log('[AdminContext] Buscando todos os pedidos com permissões de administrador');
       
       const { data, error } = await supabase
@@ -54,16 +66,22 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (data) {
         console.log('[AdminContext] Total de pedidos encontrados:', data.length);
-        setRequests(data as MusicRequest[]);
+        
+        // CORREÇÃO CRÍTICA: Garantir que os dados sejam processados corretamente
+        if (Array.isArray(data)) {
+          setRequests(data);
+        } else {
+          console.error('[AdminContext] Dados retornados não são um array:', data);
+          setRequests([]);
+        }
       }
     } catch (error) {
-      console.error('Error fetching requests:', error);
+      console.error('[AdminContext] Erro ao buscar pedidos:', error);
       toast({
         title: "Erro ao carregar pedidos",
         description: "Não foi possível carregar a lista de pedidos",
         variant: "destructive",
       });
-      throw error;
     }
   };
   
@@ -91,7 +109,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         setVisitorCount(0);
       }
     } catch (error) {
-      console.error('Error fetching visitor count:', error);
+      console.error('[AdminContext] Erro ao buscar contagem de visitantes:', error);
       setVisitorCount(0);
     }
   };
@@ -108,52 +126,52 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       
       if (data) {
-        console.log("Users data fetched:", data);
+        console.log("[AdminContext] Dados de usuários carregados:", data);
         setUsers(data as UserProfile[]);
         
         // Carrega informações do admin do localStorage
         const adminEmail = localStorage.getItem('admin_email');
         const isAdminMain = localStorage.getItem('admin_is_main') === 'true';
         
-        console.log("Admin email from localStorage:", adminEmail);
-        console.log("Admin is main from localStorage:", isAdminMain);
+        console.log("[AdminContext] Email do admin no localStorage:", adminEmail);
+        console.log("[AdminContext] Admin principal no localStorage:", isAdminMain);
         
         if (adminEmail) {
           // Procura o usuário admin pelo email
           const admin = data.find(user => user.email === adminEmail);
-          console.log("Found admin user:", admin);
+          console.log("[AdminContext] Admin encontrado:", admin);
           
           if (admin) {
             setCurrentUserProfile(admin);
             
             // Definir isMainAdmin com base nos dados do localStorage e do banco
             const isMainAdminValue = isAdminMain || admin.is_main_admin === true;
-            console.log("Setting isMainAdmin to:", isMainAdminValue);
+            console.log("[AdminContext] Definindo isMainAdmin como:", isMainAdminValue);
             setIsMainAdmin(isMainAdminValue);
           } else {
-            console.log("Admin não encontrado com o email:", adminEmail);
+            console.log("[AdminContext] Admin não encontrado com o email:", adminEmail);
             setIsMainAdmin(false);
             setCurrentUserProfile(null);
           }
         } else {
-          console.log("Email do admin não encontrado no localStorage");
+          console.log("[AdminContext] Email do admin não encontrado no localStorage");
           setIsMainAdmin(false);
           setCurrentUserProfile(null);
         }
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('[AdminContext] Erro ao buscar usuários:', error);
       toast({
         title: "Erro ao carregar usuários",
         description: "Não foi possível carregar a lista de usuários",
         variant: "destructive",
       });
-      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Sempre que os filtros ou os dados mudarem, atualizar a lista filtrada
   useEffect(() => {
     if (requests.length === 0) return;
     
@@ -179,6 +197,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
     setFilteredRequests(result);
   }, [requests, searchQuery, filterStatus, filterPaymentStatus, users]);
 
+  // Inicialização e atualização periódica
   useEffect(() => {
     const initializeData = async () => {
       setIsLoading(true);
@@ -188,7 +207,7 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
         await fetchRequests();
         await fetchUsers();
       } catch (error) {
-        console.error("Error initializing data:", error);
+        console.error("[AdminContext] Erro ao inicializar dados:", error);
         toast({
           title: "Erro ao carregar dados",
           description: "Verifique sua conexão com a internet e tente novamente",
@@ -201,47 +220,54 @@ export const AdminProvider = ({ children }: { children: React.ReactNode }) => {
 
     initializeData();
     
+    // CORREÇÃO CRÍTICA: Configurar canais em tempo real para atualizações de dados
     const requestsChannel = supabase
-      .channel('music_requests_changes')
+      .channel('admin-music-requests-changes')
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: 'music_requests' 
-      }, () => {
-        console.log('Music requests changed, refreshing data...');
+      }, (payload) => {
+        console.log('[AdminContext] Mudança em music_requests detectada:', payload);
         fetchRequests();
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`[AdminContext] Status da inscrição em tempo real (requests): ${status}`);
+      });
       
     const usersChannel = supabase
-      .channel('user_profiles_changes')
+      .channel('admin-user-profiles-changes')
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: 'user_profiles' 
-      }, () => {
-        console.log('User profiles changed, refreshing data...');
+      }, (payload) => {
+        console.log('[AdminContext] Mudança em user_profiles detectada:', payload);
         fetchUsers();
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`[AdminContext] Status da inscrição em tempo real (users): ${status}`);
+      });
       
     const statsChannel = supabase
-      .channel('site_stats_changes')
+      .channel('admin-site-stats-changes')
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
         table: 'site_stats' 
-      }, () => {
-        console.log('Site stats changed, refreshing visitor count...');
+      }, (payload) => {
+        console.log('[AdminContext] Mudança em site_stats detectada:', payload);
         fetchVisitorCount();
       })
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`[AdminContext] Status da inscrição em tempo real (stats): ${status}`);
+      });
       
     // Verificação periódica para garantir que todos os dados estejam atualizados
     const refreshInterval = setInterval(() => {
       console.log('[AdminContext] Verificação periódica de consistência de dados');
       fetchRequests();
-    }, 90000); // Verificação a cada 1.5 minutos
+    }, 30000); // Verificação a cada 30 segundos
 
     return () => {
       supabase.removeChannel(requestsChannel);

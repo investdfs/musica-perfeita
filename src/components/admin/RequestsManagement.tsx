@@ -44,65 +44,82 @@ const RequestsManagement = ({
 
   const realtimeChannelRef = useRef<any>(null);
   const [fetchTrigger, setFetchTrigger] = useState(0);
+  const [localRequests, setLocalRequests] = useState<MusicRequest[]>([]);
 
   // Função para forçar atualização dos dados
   const forceRefresh = () => {
+    console.log('[RequestsManagement] Forçando atualização dos dados');
     setFetchTrigger(prev => prev + 1);
   };
 
-  // Configurar escuta em tempo real para quaisquer mudanças na tabela music_requests
+  // Efeito para monitorar mudanças nas props de requests
   useEffect(() => {
-    console.log('[Admin] Configurando escuta em tempo real para requisições de música');
+    console.log('[RequestsManagement] Requests atualizados:', requests.length);
+    setLocalRequests(requests);
+  }, [requests]);
+
+  // CORREÇÃO CRÍTICA: Configurar escuta em tempo real para quaisquer mudanças na tabela music_requests
+  useEffect(() => {
+    console.log('[RequestsManagement] Configurando escuta em tempo real para requisições de música');
     
     // Forçar busca inicial para garantir que todos os pedidos sejam carregados
     const fetchAllRequests = async () => {
       try {
+        console.log('[RequestsManagement] Buscando todos os pedidos...');
+        
         const { data, error } = await supabase
           .from('music_requests')
           .select('*')
           .order('created_at', { ascending: false });
           
         if (error) {
-          console.error('[Admin] Erro ao buscar pedidos:', error);
+          console.error('[RequestsManagement] Erro ao buscar pedidos:', error);
           return;
         }
         
         if (data && data.length > 0) {
-          console.log('[Admin] Pedidos encontrados:', data.length);
+          console.log('[RequestsManagement] Pedidos encontrados:', data.length);
           setRequests(data);
+          setLocalRequests(data);
+        } else {
+          console.log('[RequestsManagement] Nenhum pedido encontrado');
         }
       } catch (err) {
-        console.error('[Admin] Erro ao buscar pedidos:', err);
+        console.error('[RequestsManagement] Erro ao buscar pedidos:', err);
       }
     };
     
     fetchAllRequests();
     
+    // CORREÇÃO CRÍTICA: Usar um canal dedicado para o admin com um timestamp para evitar colisões
+    const channelName = `admin-music-requests-${Date.now()}`;
+    console.log(`[RequestsManagement] Criando canal em tempo real: ${channelName}`);
+    
     const channel = supabase
-      .channel('admin-music-requests')
+      .channel(channelName)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'music_requests'
       }, (payload) => {
-        console.log('[Admin] Mudança detectada via tempo real:', payload);
+        console.log('[RequestsManagement] Mudança detectada via tempo real:', payload);
         // Quando detectar mudanças, atualizar imediatamente a lista
         fetchAllRequests();
       })
       .subscribe((status) => {
-        console.log(`[Admin] Status da inscrição em tempo real: ${status}`);
+        console.log(`[RequestsManagement] Status da inscrição em tempo real: ${status}`);
       });
     
     realtimeChannelRef.current = channel;
     
-    // Configurar polling de backup a cada 30 segundos
+    // Configurar polling de backup a cada 15 segundos
     const pollingInterval = setInterval(() => {
-      console.log('[Admin] Executando polling de verificação');
+      console.log('[RequestsManagement] Executando polling de verificação');
       fetchAllRequests();
-    }, 30000);
+    }, 15000);
     
     return () => {
-      console.log('[Admin] Removendo canal de tempo real admin');
+      console.log('[RequestsManagement] Removendo canal de tempo real admin');
       if (realtimeChannelRef.current) {
         supabase.removeChannel(realtimeChannelRef.current);
         realtimeChannelRef.current = null;
@@ -114,8 +131,9 @@ const RequestsManagement = ({
   // Intervalo de verificação para garantir que dados estejam atualizados
   useEffect(() => {
     const consistencyCheckInterval = setInterval(() => {
+      console.log('[RequestsManagement] Verificação periódica de consistência');
       forceRefresh();
-    }, 120000); // Verificar a cada 2 minutos
+    }, 60000); // Verificar a cada minuto
     
     return () => {
       clearInterval(consistencyCheckInterval);
@@ -141,7 +159,7 @@ const RequestsManagement = ({
     });
     
     // Registra no console para debugging
-    console.log(`[Admin] Status atualizado para pedido ${requestId}: status=${status}, pagamento=${paymentStatus}`);
+    console.log(`[RequestsManagement] Status atualizado para pedido ${requestId}: status=${status}, pagamento=${paymentStatus}`);
     
     // Força atualização após breve atraso
     setTimeout(() => {
@@ -152,7 +170,7 @@ const RequestsManagement = ({
   return (
     <>
       <RequestsList
-        requests={requests}
+        requests={localRequests.length > 0 ? localRequests : requests}
         isLoading={isLoading}
         getUserName={getUserName}
         onViewDetails={handleViewDetails}

@@ -32,6 +32,7 @@ export const useDashboard = () => {
   const realtimeChannelRef = useRef<any>(null);
   const lastFetchTimeRef = useRef(0);
   const MIN_FETCH_INTERVAL = 3000; // 3 segundos entre fetchs para evitar piscar
+  const refreshCountRef = useRef(0);
 
   // Verificação periódica de conexão
   useEffect(() => {
@@ -65,14 +66,38 @@ export const useDashboard = () => {
       return;
     }
     
-    // Garantir que o formulário fique oculto antes de processar os novos dados
+    // CORREÇÃO CRÍTICA: Processar os novos dados antes de notificar o hook useMusicRequests
     handleRequestSubmitted(data);
     
-    // Forçar uma nova busca de dados para sincronizar o estado
-    setTimeout(() => {
-      console.log('[useDashboard] Atualizando dados após submissão');
+    // CORREÇÃO CRÍTICA: Forçar múltiplas atualizações para garantir que o estado seja persistente
+    const scheduleUpdates = () => {
+      // Imediatamente
       fetchUserRequests();
-    }, 1000);
+      
+      // Após 1 segundo
+      setTimeout(() => {
+        console.log('[useDashboard] Primeira verificação pós-submissão');
+        fetchUserRequests();
+      }, 1000);
+      
+      // Após 3 segundos
+      setTimeout(() => {
+        console.log('[useDashboard] Segunda verificação pós-submissão');
+        fetchUserRequests();
+      }, 3000);
+      
+      // Após 5 segundos
+      setTimeout(() => {
+        console.log('[useDashboard] Terceira verificação pós-submissão');
+        fetchUserRequests();
+      }, 5000);
+    };
+    
+    // Iniciar a sequência de atualizações
+    scheduleUpdates();
+    
+    // Incrementar o contador de atualizações forçadas
+    refreshCountRef.current++;
   };
 
   // Função para configurar escuta em tempo real
@@ -121,6 +146,36 @@ export const useDashboard = () => {
     };
   }, [userProfile, fetchUserRequests]);
 
+  // Verificar se existem pedidos quando o componente é montado pela primeira vez
+  useEffect(() => {
+    if (!userProfile?.id) return;
+    
+    console.log('[useDashboard] Verificando pedidos existentes durante a inicialização');
+    
+    const checkExistingRequests = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('music_requests')
+          .select('*')
+          .eq('user_id', userProfile.id)
+          .order('created_at', { ascending: false });
+          
+        if (error) throw error;
+        
+        console.log('[useDashboard] Pedidos existentes na inicialização:', data?.length || 0);
+        
+        if (data && data.length > 0) {
+          // Se tivermos pedidos, atualizar o estado do hook useMusicRequests
+          setUserRequests(data);
+        }
+      } catch (error) {
+        console.error('[useDashboard] Erro ao verificar pedidos existentes:', error);
+      }
+    };
+    
+    checkExistingRequests();
+  }, [userProfile, setUserRequests]);
+
   // Atualizar os dados quando o dashboard é carregado
   useEffect(() => {
     // Buscar dados imediatamente na primeira carga
@@ -145,7 +200,7 @@ export const useDashboard = () => {
       clearInterval(pollingIntervalId);
       cleanupRealtimeListener();
     };
-  }, [fetchUserRequests, setupRealtimeListener]);
+  }, [fetchUserRequests, setupRealtimeListener, refreshCountRef.current]);
 
   return {
     userProfile,

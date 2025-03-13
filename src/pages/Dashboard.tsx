@@ -29,7 +29,8 @@ const Dashboard = () => {
   console.log('[Dashboard] Estado atual:', {
     userRequestsCount: userRequests.length,
     showNewRequestForm,
-    hasAnyRequest
+    hasAnyRequest,
+    renderOrderPanel: userRequests.length > 0 && !showNewRequestForm
   });
   
   // Verificação adicional para logs de diagnóstico

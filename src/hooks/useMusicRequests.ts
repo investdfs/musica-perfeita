@@ -13,6 +13,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
   const isFetchingRef = useRef(false);
   const lastDataHashRef = useRef("");
   const formSubmissionInProgressRef = useRef(false);
+  const forceUpdateRef = useRef(0);
 
   // Função utilitária para criar hash dos dados para comparação
   const hashData = (data: any) => {
@@ -56,64 +57,43 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       if (data) {
         console.log('[useMusicRequests] Dados recebidos:', data);
         
-        // Verificar se os dados são realmente diferentes usando hash
-        const newDataHash = hashData(data);
-        
-        if (newDataHash !== lastDataHashRef.current) {
-          console.log('[useMusicRequests] Dados diferentes detectados, atualizando estado');
-          lastDataHashRef.current = newDataHash;
+        // CORREÇÃO CRÍTICA: Garantir que os dados sejam processados corretamente
+        if (Array.isArray(data) && data.length > 0) {
+          // Verificar se o formulário deveria estar oculto ou não
+          console.log('[useMusicRequests] Pedidos encontrados, ocultando formulário');
+          setShowNewRequestForm(false);
+          formSubmissionInProgressRef.current = false;
+          
           setUserRequests(data);
           
-          if (data.length > 0) {
-            const latestRequest = data[0];
-            console.log('[useMusicRequests] Pedido mais recente:', latestRequest);
-            
-            switch (latestRequest.status) {
-              case 'pending':
-                setCurrentProgress(25);
-                break;
-              case 'in_production':
-                setCurrentProgress(50);
-                break;
-              case 'completed':
-                setCurrentProgress(100);
-                break;
-              default:
-                setCurrentProgress(0);
-            }
-            
-            // CORREÇÃO CRÍTICA: Se houver um pedido, GARANTIR que o formulário fique oculto
-            // Esta é uma alteração importante para resolver o problema
-            if (data.length > 0) {
-              console.log('[useMusicRequests] Pedidos encontrados, ocultando formulário DEFINITIVAMENTE');
-              setShowNewRequestForm(false);
-              formSubmissionInProgressRef.current = false; // Importante: resetar o estado de submissão
-            } else {
-              console.log('[useMusicRequests] Nenhum pedido encontrado, mostrando formulário');
-              // Apenas mostrar o formulário se não estiver em processo de submissão
-              if (!formSubmissionInProgressRef.current) {
-                setShowNewRequestForm(true);
-              }
-            }
-          } else {
-            setCurrentProgress(10);
-            // Apenas mostrar o formulário se não estiver em processo de submissão
-            if (!formSubmissionInProgressRef.current) {
-              setShowNewRequestForm(true);
-            } else {
-              console.log('[useMusicRequests] Processo de submissão em andamento, mantendo formulário oculto');
-            }
+          const latestRequest = data[0];
+          console.log('[useMusicRequests] Pedido mais recente:', latestRequest);
+          
+          switch (latestRequest.status) {
+            case 'pending':
+              setCurrentProgress(25);
+              break;
+            case 'in_production':
+              setCurrentProgress(50);
+              break;
+            case 'completed':
+              setCurrentProgress(100);
+              break;
+            default:
+              setCurrentProgress(0);
           }
         } else {
-          console.log('[useMusicRequests] Os dados são iguais, não é necessário atualizar o estado');
-          
-          // CORREÇÃO CRÍTICA: Mesmo se os dados forem iguais, precisamos garantir a coerência da UI
-          // Verificar novamente o estado do formulário
-          if (data.length > 0 && showNewRequestForm) {
-            console.log('[useMusicRequests] Estado inconsistente detectado, forçando ocultação do formulário');
-            setShowNewRequestForm(false);
+          // Se não houver pedidos, mostrar o formulário
+          console.log('[useMusicRequests] Nenhum pedido encontrado, mostrando formulário');
+          if (!formSubmissionInProgressRef.current) {
+            setShowNewRequestForm(true);
           }
+          setCurrentProgress(10);
+          setUserRequests([]);
         }
+        
+        // Atualizar o hash para comparação futura
+        lastDataHashRef.current = hashData(data);
       }
     } catch (error) {
       console.error('[useMusicRequests] Erro ao buscar pedidos de música:', error);
@@ -134,12 +114,12 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       setIsLoading(false);
       isFetchingRef.current = false;
     }
-  }, [userProfile, showNewRequestForm]);
+  }, [userProfile]);
 
   const handleRequestSubmitted = (data: MusicRequest[]) => {
     console.log('[useMusicRequests] Pedido enviado, atualizando estado:', data);
     
-    // CORREÇÃO CRÍTICA: Marcar que estamos em processo de submissão para evitar que o formulário reapareça
+    // CORREÇÃO CRÍTICA: Marcar que estamos em processo de submissão
     formSubmissionInProgressRef.current = true;
     
     // CORREÇÃO CRÍTICA: Ocultar o formulário imediatamente
@@ -151,17 +131,17 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       return;
     }
     
-    // Verificar duplicações
-    const newRequestId = data[0]?.id;
-    const isDuplicate = userRequests.some(r => r.id === newRequestId);
-    
-    if (isDuplicate) {
-      console.log('[useMusicRequests] Pedido duplicado, ignorando:', newRequestId);
-      return;
-    }
-    
-    // Atualizar a lista de pedidos e garantir que o formulário fique oculto
+    // Atualizar a lista de pedidos
     setUserRequests(prevRequests => {
+      // Verificar se o pedido já existe para evitar duplicação
+      const newRequestId = data[0]?.id;
+      const isDuplicate = prevRequests.some(r => r.id === newRequestId);
+      
+      if (isDuplicate) {
+        console.log('[useMusicRequests] Pedido duplicado, ignorando:', newRequestId);
+        return prevRequests;
+      }
+      
       const updatedRequests = [...data, ...prevRequests];
       console.log('[useMusicRequests] Lista de pedidos atualizada:', updatedRequests);
       return updatedRequests;
@@ -169,17 +149,18 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     
     setCurrentProgress(25);
     
-    // CORREÇÃO CRÍTICA: Garantir que o formulário permaneça oculto
-    setShowNewRequestForm(false);
-    
-    // Atualizar o hash para evitar problemas com atualizações duplicadas
-    lastDataHashRef.current = hashData([...data, ...userRequests]);
-    
-    // Forçar uma nova busca após um breve intervalo para garantir sincronização
+    // Forçar uma nova busca após um breve intervalo
     setTimeout(() => {
-      console.log('[useMusicRequests] Verificação de consistência pós-submissão');
+      console.log('[useMusicRequests] Forçando nova busca para garantir sincronização');
+      forceUpdateRef.current++;
       fetchUserRequests();
-    }, 1500);
+    }, 1000);
+    
+    // Segunda verificação depois de mais tempo para garantir dados consistentes
+    setTimeout(() => {
+      console.log('[useMusicRequests] Segunda verificação de consistência');
+      fetchUserRequests();
+    }, 3000);
   };
 
   const handleCreateNewRequest = () => {
@@ -187,14 +168,14 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     setShowNewRequestForm(true);
   };
 
-  // Configurar canal em tempo real para atualizações de pedidos
+  // Efeito para buscar pedidos toda vez que o userProfile mudar ou forceUpdate for incrementado
   useEffect(() => {
     if (!userProfile?.id) return;
     
     console.log('[useMusicRequests] Configurando canal em tempo real para atualizações de pedidos');
     
     const channel = supabase
-      .channel(`user-requests-updates-${userProfile.id}`)
+      .channel(`user-requests-updates-${userProfile.id}-${Date.now()}`)
       .on('postgres_changes', { 
         event: '*', 
         schema: 'public', 
@@ -211,7 +192,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     // Fazer fetch inicial
     fetchUserRequests();
     
-    // Configurar intervalos menos frequentes de polling como fallback
+    // Configurar intervalos de polling como fallback
     const intervalId = setInterval(() => {
       console.log('[useMusicRequests] Executando polling periódico');
       fetchUserRequests();
@@ -222,14 +203,64 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       supabase.removeChannel(channel);
       clearInterval(intervalId);
     };
-  }, [userProfile, fetchUserRequests]);
+  }, [userProfile, fetchUserRequests, forceUpdateRef.current]);
 
-  // CORREÇÃO CRÍTICA: Efeito especial para garantir que o formulário permaneça oculto quando houver pedidos
+  // Efeito inicial para definir o estado do formulário
   useEffect(() => {
-    if (userRequests.length > 0 && showNewRequestForm) {
-      console.log('[useMusicRequests] Correção de estado: pedidos existem mas formulário está visível');
-      setShowNewRequestForm(false);
-    }
+    if (!userProfile?.id) return;
+    
+    const checkInitialState = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('music_requests')
+          .select('*')
+          .eq('user_id', userProfile.id)
+          .limit(1);
+          
+        if (error) throw error;
+        
+        // Se já existe algum pedido, não mostrar o formulário
+        if (data && data.length > 0) {
+          console.log('[useMusicRequests] Pedido existente encontrado na inicialização, ocultando formulário');
+          setShowNewRequestForm(false);
+        } else {
+          console.log('[useMusicRequests] Nenhum pedido encontrado na inicialização, mostrando formulário');
+          setShowNewRequestForm(true);
+        }
+      } catch (error) {
+        console.error('[useMusicRequests] Erro ao verificar pedidos iniciais:', error);
+        setShowNewRequestForm(true);
+      }
+    };
+    
+    checkInitialState();
+  }, [userProfile]);
+
+  // CORREÇÃO CRÍTICA: Verificação periódica do estado do formulário vs. pedidos
+  useEffect(() => {
+    const checkConsistency = () => {
+      // Se tivermos pedidos mas o formulário estiver visível, ocultar o formulário
+      if (userRequests.length > 0 && showNewRequestForm) {
+        console.log('[useMusicRequests] Inconsistência detectada! Pedidos existem mas formulário está visível');
+        setShowNewRequestForm(false);
+      }
+      
+      // Se não tivermos pedidos, não estivermos em processo de submissão e o formulário estiver oculto, mostrar o formulário
+      if (userRequests.length === 0 && !formSubmissionInProgressRef.current && !showNewRequestForm) {
+        console.log('[useMusicRequests] Inconsistência detectada! Sem pedidos, sem submissão em progresso, mas formulário está oculto');
+        setShowNewRequestForm(true);
+      }
+    };
+    
+    // Verificar consistência agora
+    checkConsistency();
+    
+    // E configurar uma verificação periódica
+    const consistencyInterval = setInterval(checkConsistency, 5000);
+    
+    return () => {
+      clearInterval(consistencyInterval);
+    };
   }, [userRequests, showNewRequestForm]);
 
   return {

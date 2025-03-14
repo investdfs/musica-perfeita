@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest, UserProfile } from "@/types/database.types";
@@ -71,14 +72,19 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
             }
           }
           
-          setMusicRequest(location.state.musicRequest);
+          // Garantir que o objeto musicRequest está em conformidade com o tipo MusicRequest
+          const typedRequest = {
+            ...location.state.musicRequest,
+            relationship_type: location.state.musicRequest.relationship_type as MusicRequest['relationship_type']
+          };
+          setMusicRequest(typedRequest);
         } 
         // Tentar recuperar do localStorage como fallback
         else {
           const savedRequest = localStorage.getItem("current_music_request");
           
           if (savedRequest) {
-            const parsedRequest = JSON.parse(savedRequest) as MusicRequest;
+            const parsedRequest = JSON.parse(savedRequest);
             console.log("Dados da música recuperados do localStorage:", parsedRequest);
             
             // Verificar permissão
@@ -97,7 +103,12 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
               }
             }
             
-            setMusicRequest(parsedRequest);
+            // Garantir que o objeto parsedRequest está em conformidade com o tipo MusicRequest
+            const typedRequest = {
+              ...parsedRequest,
+              relationship_type: parsedRequest.relationship_type as MusicRequest['relationship_type']
+            };
+            setMusicRequest(typedRequest);
           } else {
             // Se não temos dados nem no state nem no localStorage, buscar do banco
             if (userProfile?.id) {
@@ -118,7 +129,13 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                 });
               } else if (data && data.length > 0) {
                 console.log("Pedido encontrado no banco:", data[0]);
-                setMusicRequest(data[0]);
+                
+                // Garantir que o objeto data[0] está em conformidade com o tipo MusicRequest
+                const typedRequest = {
+                  ...data[0],
+                  relationship_type: data[0].relationship_type as MusicRequest['relationship_type']
+                };
+                setMusicRequest(typedRequest);
               } else {
                 console.error("Nenhum pedido encontrado para este usuário");
                 toast({

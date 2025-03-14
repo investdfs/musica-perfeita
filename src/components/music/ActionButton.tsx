@@ -21,14 +21,20 @@ const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
       return;
     }
     
+    // Garantir que o objeto musicRequest está em conformidade com o tipo MusicRequest
+    const typedMusicRequest = {
+      ...musicRequest,
+      relationship_type: musicRequest.relationship_type as MusicRequest['relationship_type']
+    };
+    
     // Armazenar os dados do pedido no localStorage para recuperação em caso de perda durante a navegação
     try {
-      localStorage.setItem("current_music_request", JSON.stringify(musicRequest));
-      console.log("Navegando para pagamento com dados:", musicRequest);
+      localStorage.setItem("current_music_request", JSON.stringify(typedMusicRequest));
+      console.log("Navegando para pagamento com dados:", typedMusicRequest);
       
       // Usar navigate com replace para evitar problemas de histórico de navegação
       navigate("/pagamento", { 
-        state: { musicRequest },
+        state: { musicRequest: typedMusicRequest },
         replace: true 
       });
     } catch (error) {

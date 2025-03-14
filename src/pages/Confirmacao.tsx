@@ -51,7 +51,12 @@ const Confirmacao = ({ userProfile }: ConfirmacaoProps) => {
               variant: "destructive",
             });
           } else if (data) {
-            setMusicRequest(data);
+            // Converter os dados para o tipo MusicRequest, garantindo tipo correto para relationship_type
+            const typedRequest = {
+              ...data,
+              relationship_type: data.relationship_type as MusicRequest['relationship_type']
+            };
+            setMusicRequest(typedRequest);
             
             // Se o pagamento foi bem-sucedido, atualizar o status no banco
             if (status === 'success') {
@@ -65,7 +70,12 @@ const Confirmacao = ({ userProfile }: ConfirmacaoProps) => {
               } else {
                 console.log("Status de pagamento atualizado com sucesso");
                 // Atualizar localmente o objeto musicRequest
-                setMusicRequest(prev => prev ? {...prev, payment_status: 'completed'} : null);
+                if (typedRequest) {
+                  setMusicRequest({
+                    ...typedRequest,
+                    payment_status: 'completed'
+                  });
+                }
               }
             }
           }
@@ -97,7 +107,12 @@ const Confirmacao = ({ userProfile }: ConfirmacaoProps) => {
             console.error("Erro ao buscar pedido:", error);
           } else if (data && data.length > 0) {
             console.log("Pedido encontrado:", data[0]);
-            setMusicRequest(data[0]);
+            // Converter os dados para o tipo MusicRequest
+            const typedRequest = {
+              ...data[0],
+              relationship_type: data[0].relationship_type as MusicRequest['relationship_type']
+            };
+            setMusicRequest(typedRequest);
             
             // Definir status com base no status de pagamento do pedido
             if (data[0].payment_status === 'completed') {

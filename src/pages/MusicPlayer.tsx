@@ -77,6 +77,11 @@ const MusicPlayer = () => {
           'male_rock', 'female_rock', 'male_country', 'female_country'
         ] as const;
         
+        // Garantir que status seja um dos valores permitidos
+        const validStatusTypes = [
+          'pending', 'in_production', 'completed'
+        ] as const;
+        
         // Verificar se os valores recebidos são válidos
         const relationshipType = validRelationshipTypes.includes(data.relationship_type as any) 
           ? data.relationship_type as MusicRequest['relationship_type']
@@ -93,6 +98,10 @@ const MusicPlayer = () => {
         const voiceType = data.voice_type && validVoiceTypes.includes(data.voice_type as any)
           ? data.voice_type as MusicRequest['voice_type']
           : undefined;
+          
+        const status = validStatusTypes.includes(data.status as any)
+          ? data.status as MusicRequest['status']
+          : 'pending';
         
         // Criar objeto tipado corretamente
         const typedRequest: MusicRequest = {
@@ -100,7 +109,8 @@ const MusicPlayer = () => {
           relationship_type: relationshipType,
           music_genre: musicGenre,
           music_tone: musicTone,
-          voice_type: voiceType
+          voice_type: voiceType,
+          status: status
         };
         
         setRequestData(typedRequest);

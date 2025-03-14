@@ -7,6 +7,7 @@ import SoundCloudPlayer from "@/components/music/SoundCloudPlayer";
 import { Music, ChevronRight, Clock, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import ScrollToTopButton from "@/components/ui/scroll-to-top";
 
 const MusicPlayer = () => {
   const location = useLocation();
@@ -45,7 +46,7 @@ const MusicPlayer = () => {
             </h1>
             
             <p className="text-center text-gray-300 max-w-xl mx-auto mb-2">
-              Ouça uma prévia de 60 segundos da sua música personalizada criada com base nas suas preferências.
+              Ouça uma prévia de 40 segundos da sua música personalizada criada com base nas suas preferências.
             </p>
             
             <p className="text-center text-indigo-400 text-sm max-w-xl mx-auto">
@@ -54,7 +55,7 @@ const MusicPlayer = () => {
           </div>
           
           <div className="mb-8">
-            <SoundCloudPlayer musicUrl={musicUrl} limitPlayTime={true} playTimeLimit={60000} />
+            <SoundCloudPlayer musicUrl={musicUrl} limitPlayTime={true} playTimeLimit={40000} />
           </div>
           
           {/* Card de Detalhes da Música */}
@@ -72,7 +73,7 @@ const MusicPlayer = () => {
                     <Clock className="h-4 w-4 text-indigo-400 mr-2" />
                     <p className="text-sm text-gray-400">Duração</p>
                   </div>
-                  <p className="text-gray-200 font-medium">Prévia de 60 segundos</p>
+                  <p className="text-gray-200 font-medium">Prévia de 40 segundos</p>
                 </div>
                 
                 <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
@@ -95,7 +96,7 @@ const MusicPlayer = () => {
               <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
                 <h3 className="text-lg font-medium text-gray-200 mb-3">Instruções</h3>
                 <ul className="list-disc pl-5 space-y-2 text-gray-300">
-                  <li>Esta é apenas uma prévia limitada a 60 segundos da sua música.</li>
+                  <li>Esta é apenas uma prévia limitada a 40 segundos da sua música.</li>
                   <li>Para acessar a versão completa, faça o pagamento.</li>
                   <li>A música foi criada exclusivamente para você, com base nas informações que você forneceu.</li>
                   <li>Após o pagamento, você poderá baixar a música em alta qualidade.</li>
@@ -116,6 +117,7 @@ const MusicPlayer = () => {
         </div>
       </main>
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 };

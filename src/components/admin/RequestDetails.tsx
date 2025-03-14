@@ -27,48 +27,59 @@ const RequestDetails = ({
     <Dialog open={showDetails} onOpenChange={setShowDetails}>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Detalhes do Pedido</DialogTitle>
+          <DialogTitle className="text-xl">Detalhes do Pedido</DialogTitle>
           <DialogDescription>
             {selectedRequest && `Pedido para ${selectedRequest.honoree_name}`}
           </DialogDescription>
         </DialogHeader>
         
         {selectedRequest && (
-          <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Relacionamento</h3>
-                <p>{selectedRequest.relationship_type}</p>
+          <div className="space-y-6 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Relacionamento</h3>
+                <p className="text-gray-900">{selectedRequest.relationship_type}</p>
               </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Gênero Musical</h3>
-                <p>{selectedRequest.music_genre}</p>
+              
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Gênero Musical</h3>
+                <p className="text-gray-900">{selectedRequest.music_genre}</p>
               </div>
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Incluir Nomes</h3>
-                <p>{selectedRequest.include_names ? 'Sim' : 'Não'}</p>
+              
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Incluir Nomes</h3>
+                <p className="text-gray-900">{selectedRequest.include_names ? 'Sim' : 'Não'}</p>
               </div>
+              
               {selectedRequest.include_names && (
-                <div>
-                  <h3 className="text-sm font-medium text-gray-500">Nomes</h3>
-                  <p>{selectedRequest.names_to_include || 'Nenhum nome especificado'}</p>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Nomes</h3>
+                  <p className="text-gray-900">{selectedRequest.names_to_include || 'Nenhum nome especificado'}</p>
                 </div>
               )}
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Status do Pagamento</h3>
-                <p>{selectedRequest.payment_status === 'completed' ? 'Pago' : 'Não Pago'}</p>
+              
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-sm font-medium text-gray-500 mb-2">Status do Pagamento</h3>
+                <p className="text-gray-900">{selectedRequest.payment_status === 'completed' ? 'Pago' : 'Não Pago'}</p>
               </div>
+              
+              {selectedRequest.technical_details && (
+                <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
+                  <h3 className="text-sm font-medium text-purple-700 mb-2">Detalhes Técnicos</h3>
+                  <p className="text-gray-900 whitespace-pre-wrap">{selectedRequest.technical_details}</p>
+                </div>
+              )}
             </div>
             
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">História</h3>
-              <p className="p-3 bg-gray-50 rounded whitespace-pre-wrap">{selectedRequest.story}</p>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-500 mb-3">História</h3>
+              <p className="text-gray-900 whitespace-pre-wrap">{selectedRequest.story}</p>
             </div>
             
-            <div className="border-t pt-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Link atual da música</h3>
+            <div className="border-t pt-6">
+              <h3 className="text-sm font-medium text-gray-500 mb-3">Link atual da música</h3>
               {selectedRequest.full_song_url ? (
-                <div className="p-3 bg-green-50 rounded">
+                <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                   <p className="text-sm text-green-700">
                     Link atual: <a href={selectedRequest.full_song_url} target="_blank" rel="noopener noreferrer" className="font-medium underline">{selectedRequest.full_song_url}</a>
                   </p>
@@ -77,7 +88,7 @@ const RequestDetails = ({
                   </p>
                 </div>
               ) : (
-                <div className="p-3 bg-gray-50 rounded">
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <p className="text-sm text-gray-700">
                     Nenhum link de música foi adicionado a este pedido ainda.
                   </p>
@@ -90,10 +101,10 @@ const RequestDetails = ({
           </div>
         )}
         
-        <DialogFooter>
+        <DialogFooter className="mt-6">
           <Button 
-            variant="outline" 
             onClick={() => setShowDetails(false)}
+            className="bg-gray-700 hover:bg-gray-800"
           >
             Fechar
           </Button>

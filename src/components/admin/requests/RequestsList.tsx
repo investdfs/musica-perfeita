@@ -20,6 +20,7 @@ interface RequestsListProps {
   isUploading: boolean;
   selectedRequestId: string | null;
   onSaveMusicLink: (requestId: string, musicLink: string) => Promise<void>;
+  onEditTechnicalDetails: (request: MusicRequest) => void;
 }
 
 const RequestsList = ({ 
@@ -33,7 +34,8 @@ const RequestsList = ({
   onDownloadFile,
   isUploading,
   selectedRequestId,
-  onSaveMusicLink
+  onSaveMusicLink,
+  onEditTechnicalDetails
 }: RequestsListProps) => {
   const {
     sortColumn,
@@ -74,6 +76,7 @@ const RequestsList = ({
                   isUploading={isUploading}
                   selectedRequestId={selectedRequestId}
                   onSaveMusicLink={onSaveMusicLink}
+                  onEditTechnicalDetails={onEditTechnicalDetails}
                 />
               ))}
             </TableBody>

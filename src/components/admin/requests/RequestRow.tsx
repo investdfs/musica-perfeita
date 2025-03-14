@@ -23,7 +23,8 @@ import {
   ExternalLink, 
   MoreHorizontal, 
   CheckCircle, 
-  AlertTriangle 
+  AlertTriangle,
+  FileText
 } from "lucide-react";
 import { MusicRequest } from "@/types/database.types";
 import { toast } from "@/hooks/use-toast";
@@ -39,6 +40,7 @@ interface RequestRowProps {
   isUploading: boolean;
   selectedRequestId: string | null;
   onSaveMusicLink: (requestId: string, musicLink: string) => Promise<void>;
+  onEditTechnicalDetails: (request: MusicRequest) => void;
 }
 
 const RequestRow = ({
@@ -51,7 +53,8 @@ const RequestRow = ({
   onDownloadFile,
   isUploading,
   selectedRequestId,
-  onSaveMusicLink
+  onSaveMusicLink,
+  onEditTechnicalDetails
 }: RequestRowProps) => {
   const [musicLink, setMusicLink] = useState<string>('');
   const [errorState, setErrorState] = useState<string>('');
@@ -110,13 +113,15 @@ const RequestRow = ({
   };
 
   return (
-    <TableRow>
-      <TableCell className="font-medium truncate max-w-[150px] text-gray-900">
-        {getUserName(request.user_id)}
+    <TableRow className="border-b border-gray-200 hover:bg-gray-50">
+      <TableCell className="font-medium py-4 text-gray-900">
+        <div className="truncate max-w-[140px]">{getUserName(request.user_id)}</div>
         <div className="text-xs text-gray-500 mt-1">ID: {request.id.substring(0, 6)}...</div>
       </TableCell>
-      <TableCell className="truncate max-w-[150px] text-gray-900">{request.honoree_name}</TableCell>
-      <TableCell>
+      <TableCell className="py-4 text-gray-900">
+        <div className="truncate max-w-[140px]">{request.honoree_name}</div>
+      </TableCell>
+      <TableCell className="py-4">
         <Badge variant={
           request.status === 'pending' ? 'warning' : 
           request.status === 'in_production' ? 'info' : 'success'
@@ -128,13 +133,13 @@ const RequestRow = ({
               : 'Concluído'}
         </Badge>
       </TableCell>
-      <TableCell>
+      <TableCell className="py-4">
         <Badge variant={request.payment_status === 'pending' ? 'destructive' : 'success'}>
           {request.payment_status === 'pending' ? 'Não Pago' : 'Pago'}
         </Badge>
       </TableCell>
-      <TableCell className="text-gray-900">{formatDate(request.created_at)}</TableCell>
-      <TableCell>
+      <TableCell className="py-4 text-gray-900">{formatDate(request.created_at)}</TableCell>
+      <TableCell className="py-4">
         <div className="flex items-center">
           <div className="flex-1 relative">
             <Input
@@ -150,32 +155,49 @@ const RequestRow = ({
               </div>
             )}
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleSaveMusicLink}
-            disabled={!musicLink?.trim() || isSaving}
-            className="h-8 ml-1 whitespace-nowrap"
-            title="Enviar Música"
-          >
-            {isSaving ? (
-              <span className="flex items-center">
-                <span className="animate-spin mr-1">⏳</span> Enviando...
-              </span>
-            ) : (
-              <span className="flex items-center">
-                <CheckCircle className="w-4 h-4 mr-1" /> Enviar
-              </span>
-            )}
-          </Button>
+          <div className="flex ml-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSaveMusicLink}
+              disabled={!musicLink?.trim() || isSaving}
+              className="h-8 whitespace-nowrap"
+              title="Enviar Música"
+            >
+              {isSaving ? (
+                <span className="flex items-center">
+                  <span className="animate-spin mr-1">⏳</span> Enviando...
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  <CheckCircle className="w-4 h-4 mr-1" /> Enviar
+                </span>
+              )}
+            </Button>
+            
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onEditTechnicalDetails(request)}
+              className="h-8 ml-1 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+              title="Detalhes técnicos da música"
+            >
+              <FileText className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         {request.full_song_url && (
           <div className="mt-1 text-xs text-green-600 truncate">
-            ✓ Música disponível: {request.full_song_url.substring(0, 40)}...
+            ✓ Música disponível
+          </div>
+        )}
+        {request.technical_details && (
+          <div className="mt-1 text-xs text-purple-600">
+            ✓ Detalhes técnicos adicionados
           </div>
         )}
       </TableCell>
-      <TableCell className="text-right">
+      <TableCell className="text-right py-4">
         <div className="flex justify-end space-x-1">
           {request.status === 'completed' && (
             <>
@@ -217,6 +239,11 @@ const RequestRow = ({
               <DropdownMenuItem onClick={() => onViewDetails(request)}>
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Ver Detalhes
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem onClick={() => onEditTechnicalDetails(request)}>
+                <FileText className="w-4 h-4 mr-2 text-purple-600" />
+                Editar Detalhes Técnicos
               </DropdownMenuItem>
               
               <DropdownMenuSeparator />

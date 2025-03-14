@@ -30,14 +30,14 @@ const ScrollToTopButton = () => {
   return (
     <button
       onClick={scrollToTop}
-      className={`fixed bottom-4 right-4 p-2 rounded-full bg-purple-600/70 text-white shadow-md hover:bg-purple-700 transition-all transform ${
+      className={`fixed bottom-4 right-4 p-2 rounded-full bg-purple-600/60 text-white shadow-md hover:bg-purple-700 transition-all transform ${
         isVisible 
           ? 'opacity-100 translate-y-0' 
           : 'opacity-0 translate-y-10 pointer-events-none'
-      } duration-300 z-50`}
+      } duration-300 z-50 w-8 h-8 flex items-center justify-center`}
       aria-label="Voltar ao topo"
     >
-      <ChevronUp className="h-5 w-5" />
+      <ChevronUp className="h-4 w-4" />
     </button>
   );
 };

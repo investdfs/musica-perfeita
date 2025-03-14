@@ -24,11 +24,13 @@ import {
   MoreHorizontal, 
   CheckCircle, 
   AlertTriangle,
-  FileText
+  FileText,
+  Play
 } from "lucide-react";
 import { MusicRequest } from "@/types/database.types";
 import { toast } from "@/hooks/use-toast";
 import TechnicalDetailsPopup from "./TechnicalDetailsPopup";
+import { useNavigate } from "react-router-dom";
 
 interface RequestRowProps {
   request: MusicRequest;
@@ -59,6 +61,7 @@ const RequestRow = ({
   const [errorState, setErrorState] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
+  const navigate = useNavigate();
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -71,6 +74,23 @@ const RequestRow = ({
     // Limpar estado de erro quando o usuário começa a digitar novamente
     if (errorState) {
       setErrorState('');
+    }
+  };
+
+  const handlePreviewMusic = () => {
+    if (request.preview_url) {
+      navigate('/music-player', { 
+        state: { 
+          musicUrl: request.preview_url,
+          requestId: request.id
+        } 
+      });
+    } else {
+      toast({
+        title: "Prévia não disponível",
+        description: "Este pedido ainda não possui uma prévia disponível.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -182,6 +202,19 @@ const RequestRow = ({
           >
             <FileText className="w-4 h-4" />
           </Button>
+          
+          {/* Botão para ver prévia */}
+          {request.preview_url && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handlePreviewMusic}
+              className="h-8 ml-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+              title="Ouvir Prévia"
+            >
+              <Play className="w-4 h-4" />
+            </Button>
+          )}
         </div>
         {request.full_song_url && (
           <div className="mt-1 text-xs text-green-600 truncate">

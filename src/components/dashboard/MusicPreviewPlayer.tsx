@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Music, PlayCircle, PauseCircle, ExternalLink, Lock } from "lucide-react";
@@ -9,13 +10,15 @@ interface MusicPreviewPlayerProps {
   fullSongUrl: string | null;
   isCompleted: boolean;
   paymentStatus?: string;
+  requestId?: string;
 }
 
 const MusicPreviewPlayer = ({ 
   previewUrl, 
   fullSongUrl, 
   isCompleted,
-  paymentStatus = 'pending'
+  paymentStatus = 'pending',
+  requestId
 }: MusicPreviewPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
@@ -53,14 +56,20 @@ const MusicPreviewPlayer = ({
     if (!audioElement && !isSoundCloud && !isDirectFileLink) return;
     
     if (isSoundCloud) {
-      navigate("/music-player", { state: { musicUrl: previewUrl } });
+      navigate("/music-player", { 
+        state: { 
+          musicUrl: previewUrl,
+          requestId: requestId 
+        } 
+      });
     } else if (isDirectFileLink) {
       const playerUrl = isCompleted ? "/music-player-full" : "/music-player";
       navigate(playerUrl, { 
         state: { 
           musicUrl: previewUrl,
           downloadUrl: isCompleted && isPaid ? fullSongUrl : undefined,
-          paymentStatus: paymentStatus
+          paymentStatus: paymentStatus,
+          requestId: requestId
         } 
       });
     } else if (audioElement) {
@@ -87,7 +96,8 @@ const MusicPreviewPlayer = ({
           state: { 
             musicUrl: fullSongUrl, 
             downloadUrl: isPaid ? fullSongUrl : undefined,
-            paymentStatus: paymentStatus
+            paymentStatus: paymentStatus,
+            requestId: requestId
           } 
         });
       } else {

@@ -4,20 +4,26 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SoundCloudPlayer from "@/components/music/SoundCloudPlayer";
-import { Music, ChevronRight, Clock, Heart } from "lucide-react";
+import TechnicalDetailsViewer from "@/components/music/TechnicalDetailsViewer";
+import { Music, ChevronRight, Clock, Heart, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import ScrollToTopButton from "@/components/ui/scroll-to-top-button";
+import { supabase } from "@/integrations/supabase/client";
+import { MusicRequest } from "@/types/database.types";
 
 const MusicPlayer = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [musicUrl, setMusicUrl] = useState<string>("");
+  const [requestData, setRequestData] = useState<MusicRequest | null>(null);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     // Obter a URL da música dos parâmetros da URL ou do estado da rota
     const params = new URLSearchParams(location.search);
     const urlFromParams = params.get("url");
+    const requestIdFromParams = params.get("requestId");
     
     if (urlFromParams) {
       setMusicUrl(urlFromParams);
@@ -27,14 +33,41 @@ const MusicPlayer = () => {
       // URL padrão para caso não haja nenhuma música especificada
       setMusicUrl("https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Rivers-End-1.wav");
     }
+    
+    // Buscar dados do pedido se tiver o ID
+    if (requestIdFromParams || location.state?.requestId) {
+      fetchRequestData(requestIdFromParams || location.state?.requestId);
+    } else {
+      setLoading(false);
+    }
   }, [location]);
+  
+  const fetchRequestData = async (requestId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('music_requests')
+        .select('*')
+        .eq('id', requestId)
+        .single();
+        
+      if (error) {
+        console.error("Erro ao buscar dados do pedido:", error);
+      } else if (data) {
+        setRequestData(data);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar dados do pedido:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       <main className="flex-grow py-12 px-6 bg-gradient-to-b from-gray-900 to-indigo-950">
         <div className="max-w-4xl mx-auto">
-          <div className="mb-12">
+          <div className="mb-8">
             <div className="flex items-center justify-center mb-4">
               <div className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center shadow-lg">
                 <Music className="h-6 w-6 text-white" />
@@ -63,6 +96,36 @@ const MusicPlayer = () => {
             />
           </div>
           
+          {/* Botão de ação posicionado logo abaixo do player */}
+          <div className="flex justify-center mb-8">
+            <Button onClick={() => navigate("/pagamento")} className="group relative bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg overflow-hidden">
+              <span className="flex items-center relative z-10">
+                Liberar Música Completa
+                <ChevronRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
+              </span>
+              <span className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 transform scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
+            </Button>
+          </div>
+          
+          {/* Exibir detalhes técnicos se disponíveis */}
+          {requestData?.has_technical_details && (
+            <div className="mb-8">
+              <div className="bg-purple-900/30 backdrop-blur-sm border border-purple-500/30 rounded-lg p-4 flex items-center justify-between">
+                <div className="flex items-center">
+                  <FileText className="h-5 w-5 text-purple-400 mr-2" />
+                  <span className="text-purple-200 font-medium">Detalhes técnicos disponíveis para esta música</span>
+                </div>
+                {requestData && (
+                  <TechnicalDetailsViewer 
+                    request={requestData} 
+                    variant="dialog" 
+                    className="text-purple-200 border-purple-400/50 hover:bg-purple-800/30"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+          
           {/* Card de Detalhes da Música */}
           <Card className="bg-gray-800/95 shadow-lg rounded-xl border border-gray-700 mb-8">
             <CardHeader className="pb-2">
@@ -86,7 +149,7 @@ const MusicPlayer = () => {
                     <Heart className="h-4 w-4 text-indigo-400 mr-2" />
                     <p className="text-sm text-gray-400">Criada para</p>
                   </div>
-                  <p className="text-gray-200 font-medium">Você</p>
+                  <p className="text-gray-200 font-medium">{requestData?.honoree_name || "Você"}</p>
                 </div>
                 
                 <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
@@ -109,16 +172,6 @@ const MusicPlayer = () => {
               </div>
             </CardContent>
           </Card>
-          
-          <div className="flex justify-center">
-            <Button onClick={() => navigate("/pagamento")} className="group relative bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg overflow-hidden animate-pulse">
-              <span className="flex items-center relative z-10">
-                Liberar Música Completa
-                <ChevronRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform animate-bounce" />
-              </span>
-              <span className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 transform scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-            </Button>
-          </div>
         </div>
       </main>
       <Footer />

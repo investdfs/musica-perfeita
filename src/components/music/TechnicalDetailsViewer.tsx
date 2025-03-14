@@ -1,12 +1,18 @@
 
 import { MusicRequest } from "@/types/database.types";
-import { FileText, ChevronDown, ChevronUp } from "lucide-react";
+import { FileText, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle 
+} from "@/components/ui/dialog";
 
 interface TechnicalDetailsViewerProps {
   request: MusicRequest;
-  variant?: "inline" | "card" | "modal";
+  variant?: "inline" | "card" | "modal" | "dialog";
   className?: string;
 }
 
@@ -16,6 +22,7 @@ const TechnicalDetailsViewer = ({
   className = ""
 }: TechnicalDetailsViewerProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // Se não houver detalhes técnicos, não renderizar nada
   if (!request.has_technical_details || !request.technical_details) {
@@ -74,12 +81,42 @@ const TechnicalDetailsViewer = ({
     );
   }
   
+  if (variant === "dialog") {
+    return (
+      <>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsDialogOpen(true)}
+          className={`flex items-center gap-1 text-purple-700 border-purple-200 hover:bg-purple-50 ${className}`}
+        >
+          <FileText className="w-4 h-4" />
+          <span>Ver Detalhes Técnicos</span>
+        </Button>
+        
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-purple-600" />
+                Detalhes Técnicos da Música
+              </DialogTitle>
+            </DialogHeader>
+            <div className="p-4 text-sm bg-white text-gray-700 border border-purple-100 rounded-md">
+              {formattedDetails}
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+  
   // Modal variant - botão que abre um modal
   return (
     <Button
       variant="outline"
       size="sm"
-      onClick={() => {/* Implementar lógica do modal */}}
+      onClick={() => setIsDialogOpen(true)}
       className={`flex items-center gap-1 text-purple-700 border-purple-200 hover:bg-purple-50 ${className}`}
     >
       <FileText className="w-4 h-4" />

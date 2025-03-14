@@ -3,14 +3,11 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import SoundCloudPlayer from "@/components/music/SoundCloudPlayer";
-import TechnicalDetailsViewer from "@/components/music/TechnicalDetailsViewer";
-import { Music, ChevronRight, Clock, Heart, FileText } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
-import ScrollToTopButton from "@/components/ui/scroll-to-top-button";
 import { supabase } from "@/integrations/supabase/client";
 import { MusicRequest } from "@/types/database.types";
+import MusicPlayerHeader from "@/components/music/MusicPlayerHeader";
+import MusicPlayerMain from "@/components/music/MusicPlayerMain";
+import ScrollToTopButton from "@/components/ui/scroll-to-top-button";
 
 const MusicPlayer = () => {
   const location = useLocation();
@@ -72,6 +69,14 @@ const MusicPlayer = () => {
           'peaceful', 'inspirational', 'dramatic', 'uplifting', 'reflective', 'mysterious'
         ] as const;
         
+        // Garantir que voice_type seja um dos valores permitidos
+        const validVoiceTypes = [
+          'male', 'female', 'male_romantic', 'female_romantic', 
+          'male_folk', 'female_folk', 'male_deep', 'female_powerful', 
+          'male_soft', 'female_sweet', 'male_jazzy', 'female_jazzy', 
+          'male_rock', 'female_rock', 'male_country', 'female_country'
+        ] as const;
+        
         // Verificar se os valores recebidos são válidos
         const relationshipType = validRelationshipTypes.includes(data.relationship_type as any) 
           ? data.relationship_type as MusicRequest['relationship_type']
@@ -84,13 +89,18 @@ const MusicPlayer = () => {
         const musicTone = data.music_tone && validMusicTones.includes(data.music_tone as any)
           ? data.music_tone as MusicRequest['music_tone']
           : undefined;
+          
+        const voiceType = data.voice_type && validVoiceTypes.includes(data.voice_type as any)
+          ? data.voice_type as MusicRequest['voice_type']
+          : undefined;
         
         // Criar objeto tipado corretamente
         const typedRequest: MusicRequest = {
           ...data,
           relationship_type: relationshipType,
           music_genre: musicGenre,
-          music_tone: musicTone
+          music_tone: musicTone,
+          voice_type: voiceType
         };
         
         setRequestData(typedRequest);
@@ -105,115 +115,12 @@ const MusicPlayer = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <main className="flex-grow py-12 px-6 bg-gradient-to-b from-gray-900 to-indigo-950">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <div className="h-12 w-12 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center shadow-lg">
-                <Music className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            
-            <h1 className="text-4xl font-bold text-center text-gray-100 mb-4 tracking-tight">
-              Prévia da Sua Música
-            </h1>
-            
-            <p className="text-center text-gray-300 max-w-xl mx-auto mb-2">
-              Ouça uma prévia de 40 segundos da sua música personalizada criada com base nas suas preferências.
-            </p>
-            
-            <p className="text-center text-indigo-400 text-sm max-w-xl mx-auto">
-              Para acessar a versão completa, faça o pagamento e desbloqueie todos os recursos.
-            </p>
-          </div>
-          
-          <div className="mb-8">
-            <SoundCloudPlayer 
-              musicUrl={musicUrl} 
-              limitPlayTime={true} 
-              playTimeLimit={40000} 
-              isInteractive={false}
-            />
-          </div>
-          
-          {/* Botão de ação posicionado logo abaixo do player */}
-          <div className="flex justify-center mb-8">
-            <Button onClick={() => navigate("/pagamento")} className="group relative bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg overflow-hidden">
-              <span className="flex items-center relative z-10">
-                Liberar Música Completa
-                <ChevronRight className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
-              </span>
-              <span className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-600 transform scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300"></span>
-            </Button>
-          </div>
-          
-          {/* Exibir detalhes técnicos se disponíveis */}
-          {requestData?.has_technical_details && (
-            <div className="mb-8">
-              <div className="bg-purple-900/30 backdrop-blur-sm border border-purple-500/30 rounded-lg p-4 flex items-center justify-between">
-                <div className="flex items-center">
-                  <FileText className="h-5 w-5 text-purple-400 mr-2" />
-                  <span className="text-purple-200 font-medium">Detalhes técnicos disponíveis para esta música</span>
-                </div>
-                {requestData && (
-                  <TechnicalDetailsViewer 
-                    request={requestData} 
-                    variant="dialog" 
-                    className="text-purple-200 border-purple-400/50 hover:bg-purple-800/30"
-                  />
-                )}
-              </div>
-            </div>
-          )}
-          
-          {/* Card de Detalhes da Música */}
-          <Card className="bg-gray-800/95 shadow-lg rounded-xl border border-gray-700 mb-8">
-            <CardHeader className="pb-2">
-              <div className="flex items-center">
-                <Music className="h-5 w-5 text-indigo-400 mr-2" />
-                <CardTitle className="text-xl font-semibold text-gray-200">Detalhes da Música</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="p-4 rounded-lg border border-gray-700 bg-gray-900/90">
-                  <div className="flex items-center mb-2">
-                    <Clock className="h-4 w-4 text-indigo-400 mr-2" />
-                    <p className="text-sm text-gray-400">Duração</p>
-                  </div>
-                  <p className="text-gray-200 font-medium">Prévia de 40 segundos</p>
-                </div>
-                
-                <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
-                  <div className="flex items-center mb-2">
-                    <Heart className="h-4 w-4 text-indigo-400 mr-2" />
-                    <p className="text-sm text-gray-400">Criada para</p>
-                  </div>
-                  <p className="text-gray-200 font-medium">{requestData?.honoree_name || "Você"}</p>
-                </div>
-                
-                <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
-                  <div className="flex items-center mb-2">
-                    <Music className="h-4 w-4 text-indigo-400 mr-2" />
-                    <p className="text-sm text-gray-400">Formato</p>
-                  </div>
-                  <p className="text-gray-200 font-medium">Prévia Limitada</p>
-                </div>
-              </div>
-              
-              <div className="bg-gray-900/90 p-4 rounded-lg border border-gray-700">
-                <h3 className="text-lg font-medium text-gray-200 mb-3">Instruções</h3>
-                <ul className="list-disc pl-5 space-y-2 text-gray-300">
-                  <li>Esta é apenas uma prévia limitada a 40 segundos da sua música.</li>
-                  <li>Para acessar a versão completa, faça o pagamento.</li>
-                  <li>A música foi criada exclusivamente para você, com base nas informações que você forneceu.</li>
-                  <li>Após o pagamento, você poderá baixar a música em alta qualidade.</li>
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+      <MusicPlayerMain 
+        musicUrl={musicUrl} 
+        requestData={requestData} 
+        loading={loading}
+        navigate={navigate}
+      />
       <Footer />
       <ScrollToTopButton />
     </div>

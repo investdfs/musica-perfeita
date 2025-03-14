@@ -5,8 +5,9 @@ import { MusicRequest, UserProfile } from "@/types/database.types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Check, Music, ShieldCheck, CreditCard, Clock, Lock } from "lucide-react";
+import { Check, Music, ShieldCheck, CreditCard, Clock, Lock, Headphones, Calendar, Heart, Tag, Mic, Sparkles, UserRound, BookOpen } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { formatDate } from "@/lib/utils";
 
 interface PagamentoProps {
   userProfile: UserProfile | null;
@@ -34,6 +35,91 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
       setIsProcessing(false);
       navigate("/confirmacao", { state: { musicRequest } });
     }, 2000);
+  };
+
+  const getRelationshipLabel = (type: string, custom?: string | null) => {
+    const relationshipMap: Record<string, string> = {
+      'esposa': 'Esposa',
+      'noiva': 'Noiva',
+      'namorada': 'Namorada',
+      'amigo_especial': 'Amigo Especial',
+      'partner': 'Parceiro(a)',
+      'friend': 'Amigo(a)',
+      'family': 'Familiar',
+      'colleague': 'Colega',
+      'mentor': 'Mentor(a)',
+      'child': 'Filho(a)',
+      'sibling': 'Irmão/Irmã',
+      'parent': 'Pai/Mãe',
+      'other': custom || 'Outro'
+    };
+    
+    return relationshipMap[type] || type;
+  };
+
+  const getGenreLabel = (genre: string) => {
+    const genreMap: Record<string, string> = {
+      'romantic': 'Romântica',
+      'mpb': 'MPB',
+      'classical': 'Clássica',
+      'jazz': 'Jazz',
+      'hiphop': 'Hip Hop',
+      'rock': 'Rock',
+      'country': 'Country',
+      'reggae': 'Reggae',
+      'electronic': 'Eletrônica',
+      'samba': 'Samba',
+      'folk': 'Folk',
+      'pop': 'Pop'
+    };
+    
+    return genreMap[genre] || genre;
+  };
+
+  const getToneLabel = (tone?: string) => {
+    if (!tone) return 'Não especificado';
+    
+    const toneMap: Record<string, string> = {
+      'happy': 'Alegre',
+      'romantic': 'Romântica',
+      'nostalgic': 'Nostálgica',
+      'fun': 'Divertida',
+      'melancholic': 'Melancólica',
+      'energetic': 'Energética',
+      'peaceful': 'Tranquila',
+      'inspirational': 'Inspiradora',
+      'dramatic': 'Dramática',
+      'uplifting': 'Motivadora',
+      'reflective': 'Reflexiva',
+      'mysterious': 'Misteriosa'
+    };
+    
+    return toneMap[tone] || tone;
+  };
+
+  const getVoiceLabel = (voice?: string) => {
+    if (!voice) return 'Não especificado';
+    
+    const voiceMap: Record<string, string> = {
+      'male': 'Masculina',
+      'female': 'Feminina',
+      'male_romantic': 'Masculina Romântica',
+      'female_romantic': 'Feminina Romântica',
+      'male_folk': 'Masculina Folk',
+      'female_folk': 'Feminina Folk',
+      'male_deep': 'Masculina Profunda',
+      'female_powerful': 'Feminina Poderosa',
+      'male_soft': 'Masculina Suave',
+      'female_sweet': 'Feminina Doce',
+      'male_jazzy': 'Masculina Jazz',
+      'female_jazzy': 'Feminina Jazz',
+      'male_rock': 'Masculina Rock',
+      'female_rock': 'Feminina Rock',
+      'male_country': 'Masculina Country',
+      'female_country': 'Feminina Country'
+    };
+    
+    return voiceMap[voice] || voice;
   };
 
   return (
@@ -68,44 +154,122 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                 </h2>
               </div>
               
-              <div className="p-8">
+              <div className="p-6">
                 {musicRequest ? (
-                  <div className="space-y-6">
-                    <div className="flex items-center pb-4 border-b border-gray-100">
-                      <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mr-4">
-                        <Music className="h-5 w-5 text-purple-600" />
+                  <div className="space-y-5">
+                    {/* Seção de imagem e informações principais */}
+                    <div className="flex flex-col md:flex-row gap-4 pb-4 border-b border-gray-100">
+                      {/* Imagem de capa, se disponível */}
+                      <div className="w-full md:w-1/3 aspect-square rounded-lg overflow-hidden bg-purple-50 border border-purple-100 relative flex-shrink-0">
+                        {musicRequest.cover_image_url ? (
+                          <img 
+                            src={musicRequest.cover_image_url} 
+                            alt="Capa da música" 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
+                            <Music className="h-16 w-16 text-purple-300" />
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        <h3 className="font-medium text-xl text-gray-800">Música Personalizada</h3>
-                        <p className="text-purple-600">Para: {musicRequest.honoree_name}</p>
+                      
+                      {/* Informações principais */}
+                      <div className="flex-1">
+                        <div className="flex items-start mb-3">
+                          <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
+                            <Heart className="h-5 w-5 text-indigo-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-xl text-gray-800">Música Personalizada</h3>
+                            <p className="text-indigo-600 font-medium">Para: {musicRequest.honoree_name}</p>
+                            <p className="text-gray-500 text-sm mt-1">
+                              Relacionamento: {getRelationshipLabel(musicRequest.relationship_type, musicRequest.custom_relationship)}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                          <div className="flex items-center">
+                            <Tag className="h-4 w-4 text-indigo-500 mr-2" />
+                            <span className="text-sm">
+                              <span className="text-gray-500">Gênero:</span> {' '}
+                              <span className="font-medium text-gray-700">{getGenreLabel(musicRequest.music_genre)}</span>
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <Mic className="h-4 w-4 text-indigo-500 mr-2" />
+                            <span className="text-sm">
+                              <span className="text-gray-500">Voz:</span> {' '}
+                              <span className="font-medium text-gray-700">{getVoiceLabel(musicRequest.voice_type)}</span>
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <Sparkles className="h-4 w-4 text-indigo-500 mr-2" />
+                            <span className="text-sm">
+                              <span className="text-gray-500">Tom:</span> {' '}
+                              <span className="font-medium text-gray-700">{getToneLabel(musicRequest.music_tone)}</span>
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center">
+                            <Calendar className="h-4 w-4 text-indigo-500 mr-2" />
+                            <span className="text-sm">
+                              <span className="text-gray-500">Solicitado em:</span> {' '}
+                              <span className="font-medium text-gray-700">{formatDate(musicRequest.created_at)}</span>
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                     
+                    {/* Seção de história e detalhes adicionais */}
                     <div className="space-y-4">
-                      <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-gray-500 font-medium">Gênero Musical</span>
-                        <span className="font-medium text-indigo-600">{musicRequest.music_genre}</span>
+                      {/* História */}
+                      <div className="bg-indigo-50 p-4 rounded-lg">
+                        <div className="flex items-center mb-2">
+                          <BookOpen className="h-4 w-4 text-indigo-600 mr-2" />
+                          <h4 className="font-medium text-indigo-800">História</h4>
+                        </div>
+                        <p className="text-sm text-gray-700 line-clamp-3">
+                          {musicRequest.story}
+                        </p>
                       </div>
                       
-                      <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-gray-500 font-medium">Status</span>
-                        <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-                          Aguardando Pagamento
+                      {/* Inclui nomes? */}
+                      {musicRequest.include_names && (
+                        <div className="bg-pink-50 p-4 rounded-lg">
+                          <div className="flex items-center mb-2">
+                            <UserRound className="h-4 w-4 text-pink-600 mr-2" />
+                            <h4 className="font-medium text-pink-800">Nomes incluídos</h4>
+                          </div>
+                          <p className="text-sm text-gray-700">{musicRequest.names_to_include}</p>
+                        </div>
+                      )}
+                      
+                      {/* Foco da música (se disponível) */}
+                      {musicRequest.music_focus && (
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <div className="flex items-center mb-2">
+                            <Headphones className="h-4 w-4 text-purple-600 mr-2" />
+                            <h4 className="font-medium text-purple-800">Foco da música</h4>
+                          </div>
+                          <p className="text-sm text-gray-700">{musicRequest.music_focus}</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-between items-center py-2 px-4 bg-yellow-50 rounded-lg border border-yellow-100">
+                      <div className="flex items-center">
+                        <Clock className="h-5 w-5 text-yellow-600 mr-2" />
+                        <span className="text-sm font-medium text-yellow-800">
+                          Status: {musicRequest.payment_status === 'completed' ? 'Pagamento Confirmado' : 'Aguardando Pagamento'}
                         </span>
                       </div>
-                      
-                      <div className="flex justify-between py-2 border-b border-gray-100">
-                        <span className="text-gray-500 font-medium">Data da Solicitação</span>
-                        <span className="font-medium">{new Date(musicRequest.created_at).toLocaleDateString('pt-BR')}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-6 bg-indigo-50 p-4 rounded-lg">
-                      <div className="flex items-start">
-                        <Clock className="h-5 w-5 text-indigo-600 mt-0.5 mr-3 flex-shrink-0" />
-                        <p className="text-sm text-gray-700">
-                          Ao concluir o pagamento, sua música completa será liberada para você imediatamente!
-                        </p>
+                      <div className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        Prévia disponível
                       </div>
                     </div>
                   </div>
@@ -136,7 +300,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                 </h2>
               </div>
               
-              <div className="p-8">
+              <div className="p-6">
                 <div className="mb-6">
                   <h3 className="text-xl font-semibold mb-4 text-gray-800">Valor</h3>
                   <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border border-gray-100">

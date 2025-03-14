@@ -1,7 +1,8 @@
 
-import { Music, Clock, Heart, AlertTriangle } from "lucide-react";
+import { Music, Clock, Heart, AlertTriangle, User, Mic, Sparkles, Music2, BookOpen, Tag } from "lucide-react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { MusicRequest } from "@/types/database.types";
+import { formatDate } from "@/lib/utils";
 
 interface MusicDetailsCardProps {
   requestData: MusicRequest | null;

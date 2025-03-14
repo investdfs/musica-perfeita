@@ -34,7 +34,7 @@ const MusicPlayerMain = ({
           />
         </div>
         
-        <ActionButton navigate={navigate} />
+        <ActionButton navigate={navigate} musicRequest={requestData} />
         
         <TechnicalDetailsSection requestData={requestData} />
         

@@ -61,7 +61,14 @@ export async function insertMusicRequest(requestData: any) {
  * Recupera o número do pedido para exibição
  */
 export async function getOrderNumber(requestId: string): Promise<string | null> {
+  if (!requestId) {
+    console.error("[databaseOperations] ID do pedido não fornecido");
+    return null;
+  }
+  
   try {
+    console.log(`[databaseOperations] Buscando número do pedido para ID: ${requestId}`);
+    
     const { data, error } = await supabase
       .from('music_requests')
       .select('order_number')
@@ -73,6 +80,7 @@ export async function getOrderNumber(requestId: string): Promise<string | null> 
       return null;
     }
     
+    console.log("[databaseOperations] Número do pedido recuperado:", data?.order_number);
     return data?.order_number || null;
   } catch (error) {
     console.error("[databaseOperations] Erro ao buscar número do pedido:", error);

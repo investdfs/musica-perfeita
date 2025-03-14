@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import supabase from "@/lib/supabase";
@@ -14,7 +15,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
   const formSubmissionInProgressRef = useRef(false);
   const forceUpdateRef = useRef(0);
   
-  // CORREÇÃO CRÍTICA: Adicionar flag para controlar inicialização
+  // Flag para controlar inicialização
   const initialStateCheckedRef = useRef(false);
 
   // Função utilitária para criar hash dos dados para comparação
@@ -62,12 +63,12 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       if (data) {
         console.log('[useMusicRequests] Dados recebidos:', data.length, data);
         
-        // CORREÇÃO CRÍTICA: Garantir que os dados sejam processados corretamente
+        // Garantir que os dados sejam processados corretamente
         if (Array.isArray(data)) {
-          // CORREÇÃO CRÍTICA: Verificar se o formulário deveria estar oculto ou não
+          // Verificar se o formulário deveria estar oculto ou não
           if (data.length > 0) {
             console.log('[useMusicRequests] Pedidos encontrados, ocultando formulário:', data.length);
-            // CORREÇÃO CRÍTICA: Ocultar formulário se há pedidos (sem depender de flags adicionais)
+            // Ocultar formulário se há pedidos (sem depender de flags adicionais)
             setShowNewRequestForm(false);
             formSubmissionInProgressRef.current = false;
             setUserRequests(data);
@@ -98,7 +99,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
             setUserRequests([]);
           }
           
-          // CORREÇÃO CRÍTICA: Indicar que o estado inicial foi verificado
+          // Indicar que o estado inicial foi verificado
           initialStateCheckedRef.current = true;
           
           // Atualizar o hash para comparação futura
@@ -129,10 +130,10 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
   const handleRequestSubmitted = (data: MusicRequest[]) => {
     console.log('[useMusicRequests] Pedido enviado, atualizando estado:', data);
     
-    // CORREÇÃO CRÍTICA: Marcar que estamos em processo de submissão
+    // Marcar que estamos em processo de submissão
     formSubmissionInProgressRef.current = true;
     
-    // CORREÇÃO CRÍTICA: Ocultar o formulário imediatamente
+    // Ocultar o formulário imediatamente
     setShowNewRequestForm(false);
     
     // Verificar se temos dados válidos
@@ -141,14 +142,13 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
       return;
     }
     
-    // CORREÇÃO CRÍTICA: Definir diretamente os pedidos do usuário com os novos dados
-    // Ao invés de concatenar, substituir completamente para garantir consistência
+    // Definir diretamente os pedidos do usuário com os novos dados
     setUserRequests(data);
     
     // Atualizar o progresso
     setCurrentProgress(25);
     
-    // CORREÇÃO CRÍTICA: Melhorar sequência de verificações para garantir a sincronização
+    // Melhorar sequência de verificações para garantir a sincronização
     const scheduleVerifications = () => {
       // Forçar busca imediata
       fetchUserRequests();
@@ -179,11 +179,18 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
   };
 
   const handleCreateNewRequest = () => {
+    console.log('[useMusicRequests] Criando novo pedido de música');
     formSubmissionInProgressRef.current = false;
     setShowNewRequestForm(true);
   };
 
-  // CORREÇÃO CRÍTICA: Verificação inicial explícita para definir corretamente o estado do formulário
+  // CORREÇÃO: Garantir que o botão "Nova música" sempre funcione
+  const handleCancelRequestForm = () => {
+    console.log('[useMusicRequests] Cancelando formulário de pedido');
+    setShowNewRequestForm(false);
+  };
+
+  // Verificação inicial explícita para definir corretamente o estado do formulário
   useEffect(() => {
     if (!userProfile?.id) return;
     
@@ -202,7 +209,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
         
         console.log('[useMusicRequests] Verificação inicial de pedidos:', data);
         
-        // CORREÇÃO CRÍTICA: Definir explicitamente se deve mostrar o formulário ou não
+        // Definir explicitamente se deve mostrar o formulário ou não
         if (data && data.length > 0) {
           // Já existe pedido, ocultar formulário
           console.log('[useMusicRequests] Pedido existente encontrado na inicialização, ocultando formulário');
@@ -286,7 +293,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     };
   }, [userProfile, fetchUserRequests, forceUpdateRef.current]);
 
-  // CORREÇÃO CRÍTICA: Verificação periódica do estado de consistência entre formulário e pedidos
+  // Verificação periódica do estado de consistência entre formulário e pedidos
   useEffect(() => {
     if (!initialStateCheckedRef.current) return;
     
@@ -328,6 +335,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     isLoading,
     handleRequestSubmitted,
     handleCreateNewRequest,
+    handleCancelRequestForm,
     fetchUserRequests,
     setUserRequests,
     setShowNewRequestForm

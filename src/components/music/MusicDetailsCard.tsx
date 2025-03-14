@@ -8,6 +8,9 @@ interface MusicDetailsCardProps {
   requestData: MusicRequest | null;
 }
 
+// Imagem padrão para quando o cliente não inseriu uma imagem
+const defaultCoverImage = "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-cinematic-shot-of-a-daughter-holding-h_CRjW0yhLQoKwfgKKygkP_w_AsXzu3rcQRq-8GRcUwb_kA.webp";
+
 const MusicDetailsCard = ({ requestData }: MusicDetailsCardProps) => {
   const isPaid = requestData?.payment_status === 'completed';
   
@@ -37,10 +40,10 @@ const MusicDetailsCard = ({ requestData }: MusicDetailsCardProps) => {
       </CardHeader>
       <CardContent>
         {/* Imagem de capa, se disponível */}
-        {requestData?.cover_image_url && (
+        {(requestData?.cover_image_url || defaultCoverImage) && (
           <div className="mb-4 rounded-lg overflow-hidden border border-gray-700 max-h-48">
             <img 
-              src={requestData.cover_image_url} 
+              src={requestData?.cover_image_url || defaultCoverImage} 
               alt="Imagem de capa" 
               className="w-full h-full object-cover"
             />

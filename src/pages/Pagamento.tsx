@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest, UserProfile } from "@/types/database.types";
@@ -169,11 +170,25 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     const requestId = musicRequest.id;
     const userId = userProfile?.id || 'guest';
     
-    const successUrl = `${window.location.origin}/confirmacao?request_id=${requestId}&user_id=${userId}&status=success`;
-    const failureUrl = `${window.location.origin}/confirmacao?request_id=${requestId}&user_id=${userId}&status=failure`;
+    // URLs completas para configurar no Mercado Pago
+    const baseUrl = window.location.origin;
+    const successUrl = `${baseUrl}/confirmacao?request_id=${requestId}&user_id=${userId}&status=success`;
+    const failureUrl = `${baseUrl}/confirmacao?request_id=${requestId}&user_id=${userId}&status=failure`;
     
-    console.log("URL de sucesso para retorno do Mercado Pago:", successUrl);
-    console.log("URL de falha para retorno do Mercado Pago:", failureUrl);
+    console.log("URLs de retorno para configurar no Mercado Pago:");
+    console.log("URL de sucesso:", successUrl);
+    console.log("URL de falha:", failureUrl);
+    
+    // Mostra as URLs para o usuário configurar
+    toast({
+      title: "URLs para configurar no Mercado Pago",
+      description: `Configure as seguintes URLs no painel do Mercado Pago:
+      
+      URL de Sucesso: ${successUrl}
+      
+      URL de Falha: ${failureUrl}`,
+      duration: 10000,
+    });
     
     window.open("https://mpago.la/2WyrDAe", "_blank");
     
@@ -319,7 +334,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                 <div className="p-6">
                   {musicRequest ? (
                     <div className="space-y-5">
-                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-purple-50 border border-purple-100 relative flex-shrink-0 mb-4">
+                      <div className="w-full aspect-square max-w-[50%] mx-auto rounded-lg overflow-hidden bg-purple-50 border border-purple-100 relative flex-shrink-0 mb-4">
                         {musicRequest.cover_image_url ? (
                           <img 
                             src={musicRequest.cover_image_url} 
@@ -603,4 +618,3 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
 };
 
 export default Pagamento;
-

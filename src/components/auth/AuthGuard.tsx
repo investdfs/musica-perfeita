@@ -31,6 +31,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       // Se estiver em modo de desenvolvimento ou no editor Lovable, permitir acesso completo
       if (isDevelopmentOrPreview() || isLovableEditor()) {
         console.log("Ambiente de desenvolvimento ou editor detectado - navegação livre permitida");
+        setIsAuthenticated(true);
         return true;
       }
 
@@ -86,6 +87,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       // Se for admin, permitir acesso a qualquer página sem restrições
       if (isAdmin) {
         console.log("Usuário é administrador - acesso livre permitido");
+        setIsAuthenticated(true);
         return true;
       }
 
@@ -120,12 +122,11 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
         }
       }
       
+      setIsAuthenticated(!!storedUser || isAdmin);
       return !!storedUser || isAdmin;
     };
     
-    checkAuth().then(isAuth => {
-      setIsAuthenticated(isAuth);
-    });
+    checkAuth();
   }, [location.pathname, location.search, navigate]);
 
   // Se estiver em modo de desenvolvimento ou editor, sempre renderize o conteúdo

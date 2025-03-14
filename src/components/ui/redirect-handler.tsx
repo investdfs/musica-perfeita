@@ -2,6 +2,7 @@
 import { UserProfile } from "@/types/database.types";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { isDevelopmentOrPreview } from "@/lib/environment";
 
 interface RedirectHandlerProps {
   userProfile: UserProfile | null;
@@ -22,14 +23,22 @@ const RedirectHandler = ({
   const navigate = useNavigate();
   
   useEffect(() => {
+    // Verificar se o usuário é admin
+    const isAdmin = localStorage.getItem("musicaperfeita_admin") === "true";
+    
+    // Permitir acesso irrestrito para admins ou em ambiente de desenvolvimento
+    if (isAdmin || isDevelopmentOrPreview()) {
+      return;
+    }
+    
     if (!isLoggedIn) {
       navigate(redirectUrl, { replace: true });
     }
   }, [isLoggedIn, navigate, redirectUrl]);
   
-  // Se o usuário está logado, renderizar os children
-  // Se não, não renderizar nada enquanto o redirecionamento acontece
-  return isLoggedIn ? <>{children}</> : null;
+  // Se o usuário está logado ou é admin ou está em ambiente de desenvolvimento, renderizar os children
+  const isAdmin = localStorage.getItem("musicaperfeita_admin") === "true";
+  return (isLoggedIn || isAdmin || isDevelopmentOrPreview()) ? <>{children}</> : null;
 };
 
 export default RedirectHandler;

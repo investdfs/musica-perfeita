@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest, UserProfile } from "@/types/database.types";
@@ -170,7 +169,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     const requestId = musicRequest.id;
     const userId = userProfile?.id || 'guest';
     
-    // URLs completas para configurar no Mercado Pago
     const baseUrl = window.location.origin;
     const successUrl = `${baseUrl}/confirmacao?request_id=${requestId}&user_id=${userId}&status=success`;
     const failureUrl = `${baseUrl}/confirmacao?request_id=${requestId}&user_id=${userId}&status=failure`;
@@ -179,7 +177,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     console.log("URL de sucesso:", successUrl);
     console.log("URL de falha:", failureUrl);
     
-    // Mostra as URLs para o usuário configurar
     toast({
       title: "URLs para configurar no Mercado Pago",
       description: `Configure as seguintes URLs no painel do Mercado Pago:
@@ -206,7 +203,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
         timestamp: new Date().toISOString()
       }));
       
-      navigate("/confirmacao", { state: { musicRequest } });
+      navigate("/processando-pagamento", { state: { musicRequest } });
     }, 2000);
   };
 

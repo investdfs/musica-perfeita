@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
-import { isLovableEditor } from "@/lib/environment";
+import { isLovableEditor, isDevelopmentOrPreview } from "@/lib/environment";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -28,9 +28,9 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       // Verificar se está logado como admin
       const isAdmin = localStorage.getItem("musicaperfeita_admin") === "true";
       
-      // Se estiver no editor Lovable, permitir acesso completo para teste e desenvolvimento
-      if (isLovableEditor()) {
-        console.log("Ambiente Lovable Editor detectado - navegação livre permitida");
+      // Se estiver em modo de desenvolvimento ou no editor Lovable, permitir acesso completo
+      if (isDevelopmentOrPreview() || isLovableEditor()) {
+        console.log("Ambiente de desenvolvimento ou editor detectado - navegação livre permitida");
         return true;
       }
 
@@ -127,6 +127,11 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
       setIsAuthenticated(isAuth);
     });
   }, [location.pathname, location.search, navigate]);
+
+  // Se estiver em modo de desenvolvimento ou editor, sempre renderize o conteúdo
+  if (isDevelopmentOrPreview() || isLovableEditor()) {
+    return <>{children}</>;
+  }
 
   // Se ainda estiver verificando, não renderizar nada apenas para páginas que precisam de autenticação
   // Se for admin, sempre renderizamos o conteúdo

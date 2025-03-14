@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { formatDate } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { validateMusicRequest } from "@/utils/validationUtils";
+import TextDialog from "@/components/payment/TextDialog";
 
 interface PagamentoProps {
   userProfile: UserProfile | null;
@@ -171,15 +172,15 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     const successUrl = `${window.location.origin}/confirmacao?request_id=${requestId}&user_id=${userId}&status=success`;
     const failureUrl = `${window.location.origin}/confirmacao?request_id=${requestId}&user_id=${userId}&status=failure`;
     
-    console.log("URL de sucesso:", successUrl);
-    console.log("URL de falha:", failureUrl);
+    console.log("URL de sucesso para retorno do Mercado Pago:", successUrl);
+    console.log("URL de falha para retorno do Mercado Pago:", failureUrl);
     
     window.open("https://mpago.la/2WyrDAe", "_blank");
     
     setTimeout(() => {
       toast({
         title: "Pagamento iniciado!",
-        description: "Acompanhe o processo no Mercado Pago.",
+        description: "Acompanhe o processo no Mercado Pago. Após completar, você será redirecionado automaticamente.",
       });
       
       setIsProcessing(false);
@@ -318,128 +319,154 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                 <div className="p-6">
                   {musicRequest ? (
                     <div className="space-y-5">
-                      <div className="flex flex-col md:flex-row gap-4 pb-4 border-b border-gray-100">
-                        <div className="w-full md:w-1/3 aspect-square rounded-lg overflow-hidden bg-purple-50 border border-purple-100 relative flex-shrink-0">
-                          {musicRequest.cover_image_url ? (
-                            <img 
-                              src={musicRequest.cover_image_url} 
-                              alt="Capa da música" 
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
-                              <Music className="h-16 w-16 text-purple-300" />
-                            </div>
-                          )}
+                      <div className="w-full aspect-square rounded-lg overflow-hidden bg-purple-50 border border-purple-100 relative flex-shrink-0 mb-4">
+                        {musicRequest.cover_image_url ? (
+                          <img 
+                            src={musicRequest.cover_image_url} 
+                            alt="Capa da música" 
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
+                            <Music className="h-16 w-16 text-purple-300" />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-start mb-3">
+                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
+                          <Heart className="h-5 w-5 text-indigo-600" />
                         </div>
-                        
-                        <div className="flex-1">
-                          <div className="flex items-start mb-3">
-                            <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
-                              <Heart className="h-5 w-5 text-indigo-600" />
-                            </div>
-                            <div>
-                              <h3 className="font-medium text-xl text-gray-800">Música Personalizada</h3>
-                              <p className="text-indigo-600 font-medium">Para: {musicRequest.honoree_name}</p>
-                              <p className="text-gray-500 text-sm mt-1">
-                                Relacionamento: {getRelationshipLabel(musicRequest.relationship_type, musicRequest.custom_relationship)}
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-                            <div className="flex items-center">
-                              <Tag className="h-4 w-4 text-indigo-500 mr-2" />
-                              <span className="text-sm">
-                                <span className="text-gray-500">Gênero:</span> {' '}
-                                <span className="font-medium text-gray-700">{getGenreLabel(musicRequest.music_genre)}</span>
-                              </span>
-                            </div>
-                            
-                            <div className="flex items-center">
-                              <Mic className="h-4 w-4 text-indigo-500 mr-2" />
-                              <span className="text-sm">
-                                <span className="text-gray-500">Voz:</span> {' '}
-                                <span className="font-medium text-gray-700">{getVoiceLabel(musicRequest.voice_type)}</span>
-                              </span>
-                            </div>
-                            
-                            <div className="flex items-center">
-                              <Sparkles className="h-4 w-4 text-indigo-500 mr-2" />
-                              <span className="text-sm">
-                                <span className="text-gray-500">Tom:</span> {' '}
-                                <span className="font-medium text-gray-700">{getToneLabel(musicRequest.music_tone)}</span>
-                              </span>
-                            </div>
-                            
-                            <div className="flex items-center">
-                              <Calendar className="h-4 w-4 text-indigo-500 mr-2" />
-                              <span className="text-sm">
-                                <span className="text-gray-500">Solicitado em:</span> {' '}
-                                <span className="font-medium text-gray-700">{formatDate(musicRequest.created_at)}</span>
-                              </span>
-                            </div>
-                          </div>
+                        <div>
+                          <h3 className="font-medium text-xl text-gray-800">Música Personalizada</h3>
+                          <p className="text-indigo-600 font-medium">Para: {musicRequest.honoree_name}</p>
+                          <p className="text-gray-500 text-sm mt-1">
+                            Relacionamento: {getRelationshipLabel(musicRequest.relationship_type, musicRequest.custom_relationship)}
+                          </p>
                         </div>
                       </div>
                       
-                      <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3 mt-4">
+                        <div className="flex items-center">
+                          <Tag className="h-4 w-4 text-indigo-500 mr-2 flex-shrink-0" />
+                          <span className="text-sm">
+                            <span className="text-gray-500">Gênero:</span> {' '}
+                            <span className="font-medium text-gray-700">{getGenreLabel(musicRequest.music_genre)}</span>
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <Mic className="h-4 w-4 text-indigo-500 mr-2 flex-shrink-0" />
+                          <span className="text-sm">
+                            <span className="text-gray-500">Voz:</span> {' '}
+                            <span className="font-medium text-gray-700">{getVoiceLabel(musicRequest.voice_type)}</span>
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <Sparkles className="h-4 w-4 text-indigo-500 mr-2 flex-shrink-0" />
+                          <span className="text-sm">
+                            <span className="text-gray-500">Tom:</span> {' '}
+                            <span className="font-medium text-gray-700">{getToneLabel(musicRequest.music_tone)}</span>
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 text-indigo-500 mr-2 flex-shrink-0" />
+                          <span className="text-sm">
+                            <span className="text-gray-500">Solicitado:</span> {' '}
+                            <span className="font-medium text-gray-700">{formatDate(musicRequest.created_at)}</span>
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-4 mt-4">
                         {musicRequest.story && (
-                          <div className="bg-indigo-50 p-4 rounded-lg">
-                            <div className="flex items-center mb-2">
-                              <BookOpen className="h-4 w-4 text-indigo-600 mr-2" />
-                              <h4 className="font-medium text-indigo-800">História</h4>
+                          <div className="bg-indigo-50 p-3 rounded-lg">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center">
+                                <BookOpen className="h-4 w-4 text-indigo-600 mr-2 flex-shrink-0" />
+                                <h4 className="font-medium text-indigo-800 text-sm">História</h4>
+                              </div>
+                              <TextDialog 
+                                title="História Completa" 
+                                content={musicRequest.story} 
+                              />
                             </div>
-                            <p className="text-sm text-gray-700">
+                            <p className="text-xs text-gray-700 line-clamp-1">
                               {musicRequest.story}
                             </p>
                           </div>
                         )}
                         
                         {musicRequest.include_names && musicRequest.names_to_include && (
-                          <div className="bg-pink-50 p-4 rounded-lg">
-                            <div className="flex items-center mb-2">
-                              <UserRound className="h-4 w-4 text-pink-600 mr-2" />
-                              <h4 className="font-medium text-pink-800">Nomes incluídos</h4>
+                          <div className="bg-pink-50 p-3 rounded-lg">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center">
+                                <UserRound className="h-4 w-4 text-pink-600 mr-2 flex-shrink-0" />
+                                <h4 className="font-medium text-pink-800 text-sm">Nomes incluídos</h4>
+                              </div>
+                              <TextDialog 
+                                title="Nomes Incluídos" 
+                                content={musicRequest.names_to_include} 
+                              />
                             </div>
-                            <p className="text-sm text-gray-700">{musicRequest.names_to_include}</p>
+                            <p className="text-xs text-gray-700 line-clamp-1">{musicRequest.names_to_include}</p>
                           </div>
                         )}
                         
                         {musicRequest.music_focus && (
-                          <div className="bg-purple-50 p-4 rounded-lg">
-                            <div className="flex items-center mb-2">
-                              <Headphones className="h-4 w-4 text-purple-600 mr-2" />
-                              <h4 className="font-medium text-purple-800">Foco da música</h4>
+                          <div className="bg-purple-50 p-3 rounded-lg">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center">
+                                <Headphones className="h-4 w-4 text-purple-600 mr-2 flex-shrink-0" />
+                                <h4 className="font-medium text-purple-800 text-sm">Foco da música</h4>
+                              </div>
+                              <TextDialog 
+                                title="Foco da Música" 
+                                content={musicRequest.music_focus} 
+                              />
                             </div>
-                            <p className="text-sm text-gray-700">{musicRequest.music_focus}</p>
+                            <p className="text-xs text-gray-700 line-clamp-1">{musicRequest.music_focus}</p>
                           </div>
                         )}
                         
                         {musicRequest.happy_memory && (
-                          <div className="bg-green-50 p-4 rounded-lg">
-                            <div className="flex items-center mb-2">
-                              <Heart className="h-4 w-4 text-green-600 mr-2" />
-                              <h4 className="font-medium text-green-800">Memória Feliz</h4>
+                          <div className="bg-green-50 p-3 rounded-lg">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center">
+                                <Heart className="h-4 w-4 text-green-600 mr-2 flex-shrink-0" />
+                                <h4 className="font-medium text-green-800 text-sm">Memória Feliz</h4>
+                              </div>
+                              <TextDialog 
+                                title="Memória Feliz" 
+                                content={musicRequest.happy_memory} 
+                              />
                             </div>
-                            <p className="text-sm text-gray-700">{musicRequest.happy_memory}</p>
+                            <p className="text-xs text-gray-700 line-clamp-1">{musicRequest.happy_memory}</p>
                           </div>
                         )}
                         
                         {musicRequest.sad_memory && (
-                          <div className="bg-blue-50 p-4 rounded-lg">
-                            <div className="flex items-center mb-2">
-                              <Heart className="h-4 w-4 text-blue-600 mr-2" />
-                              <h4 className="font-medium text-blue-800">Memória Triste</h4>
+                          <div className="bg-blue-50 p-3 rounded-lg">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center">
+                                <Heart className="h-4 w-4 text-blue-600 mr-2 flex-shrink-0" />
+                                <h4 className="font-medium text-blue-800 text-sm">Memória Triste</h4>
+                              </div>
+                              <TextDialog 
+                                title="Memória Triste" 
+                                content={musicRequest.sad_memory} 
+                              />
                             </div>
-                            <p className="text-sm text-gray-700">{musicRequest.sad_memory}</p>
+                            <p className="text-xs text-gray-700 line-clamp-1">{musicRequest.sad_memory}</p>
                           </div>
                         )}
                       </div>
                       
                       <div className="flex justify-between items-center py-2 px-4 bg-yellow-50 rounded-lg border border-yellow-100">
                         <div className="flex items-center">
-                          <Clock className="h-5 w-5 text-yellow-600 mr-2" />
+                          <Clock className="h-5 w-5 text-yellow-600 mr-2 flex-shrink-0" />
                           <span className="text-sm font-medium text-yellow-800">
                             Status: {musicRequest.payment_status === 'completed' ? 'Pagamento Confirmado' : 'Aguardando Pagamento'}
                           </span>
@@ -576,3 +603,4 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
 };
 
 export default Pagamento;
+

@@ -67,12 +67,10 @@ const Confirmacao = ({ userProfile }: ConfirmacaoProps) => {
               } else {
                 console.log("Status de pagamento atualizado com sucesso");
                 // Atualizar localmente o objeto musicRequest
-                if (validatedRequest) {
-                  setMusicRequest({
-                    ...validatedRequest,
-                    payment_status: 'completed'
-                  });
-                }
+                setMusicRequest({
+                  ...validatedRequest,
+                  payment_status: 'completed'
+                });
               }
             }
           }

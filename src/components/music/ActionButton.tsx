@@ -11,6 +11,39 @@ interface ActionButtonProps {
 }
 
 const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
+  // Funções auxiliares para validar que os valores correspondem aos tipos enumerados esperados
+  const validateRelationshipType = (value: string): MusicRequest['relationship_type'] => {
+    const validTypes = ['esposa', 'noiva', 'namorada', 'amigo_especial', 'partner', 'friend', 'family', 'colleague', 'mentor', 'child', 'sibling', 'parent', 'other'];
+    return validTypes.includes(value) ? value as MusicRequest['relationship_type'] : 'other';
+  };
+  
+  const validateMusicGenre = (value: string): MusicRequest['music_genre'] => {
+    const validGenres = ['romantic', 'mpb', 'classical', 'jazz', 'hiphop', 'rock', 'country', 'reggae', 'electronic', 'samba', 'folk', 'pop'];
+    return validGenres.includes(value) ? value as MusicRequest['music_genre'] : 'pop';
+  };
+  
+  const validateMusicTone = (value?: string): MusicRequest['music_tone'] | undefined => {
+    if (!value) return undefined;
+    const validTones = ['happy', 'romantic', 'nostalgic', 'fun', 'melancholic', 'energetic', 'peaceful', 'inspirational', 'dramatic', 'uplifting', 'reflective', 'mysterious'];
+    return validTones.includes(value) ? value as MusicRequest['music_tone'] : 'happy';
+  };
+  
+  const validateVoiceType = (value?: string): MusicRequest['voice_type'] | undefined => {
+    if (!value) return undefined;
+    const validVoices = ['male', 'female', 'male_romantic', 'female_romantic', 'male_folk', 'female_folk', 'male_deep', 'female_powerful', 'male_soft', 'female_sweet', 'male_jazzy', 'female_jazzy', 'male_rock', 'female_rock', 'male_country', 'female_country'];
+    return validVoices.includes(value) ? value as MusicRequest['voice_type'] : 'male';
+  };
+  
+  const validateStatus = (value: string): MusicRequest['status'] => {
+    const validStatuses = ['pending', 'in_production', 'completed'];
+    return validStatuses.includes(value) ? value as MusicRequest['status'] : 'pending';
+  };
+  
+  const validatePaymentStatus = (value?: string | null): 'pending' | 'completed' | null => {
+    if (!value) return null;
+    return value === 'completed' ? 'completed' : 'pending';
+  };
+
   const handleNavigation = () => {
     if (!musicRequest) {
       toast({
@@ -21,20 +54,25 @@ const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
       return;
     }
     
-    // Garantir que o objeto musicRequest está em conformidade com o tipo MusicRequest
-    const typedMusicRequest = {
+    // Validar os tipos enumerados antes de armazenar/navegar
+    const validatedRequest: MusicRequest = {
       ...musicRequest,
-      relationship_type: musicRequest.relationship_type as MusicRequest['relationship_type']
+      relationship_type: validateRelationshipType(musicRequest.relationship_type),
+      music_genre: validateMusicGenre(musicRequest.music_genre),
+      music_tone: validateMusicTone(musicRequest.music_tone),
+      voice_type: validateVoiceType(musicRequest.voice_type),
+      status: validateStatus(musicRequest.status),
+      payment_status: validatePaymentStatus(musicRequest.payment_status)
     };
     
     // Armazenar os dados do pedido no localStorage para recuperação em caso de perda durante a navegação
     try {
-      localStorage.setItem("current_music_request", JSON.stringify(typedMusicRequest));
-      console.log("Navegando para pagamento com dados:", typedMusicRequest);
+      localStorage.setItem("current_music_request", JSON.stringify(validatedRequest));
+      console.log("Navegando para pagamento com dados:", validatedRequest);
       
       // Usar navigate com replace para evitar problemas de histórico de navegação
       navigate("/pagamento", { 
-        state: { musicRequest: typedMusicRequest },
+        state: { musicRequest: validatedRequest },
         replace: true 
       });
     } catch (error) {

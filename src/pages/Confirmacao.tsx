@@ -51,12 +51,18 @@ const Confirmacao = ({ userProfile }: ConfirmacaoProps) => {
               variant: "destructive",
             });
           } else if (data) {
-            // Converter os dados para o tipo MusicRequest, garantindo tipo correto para relationship_type
-            const typedRequest = {
+            // Validar os tipos enumerados para garantir que correspondam às expectativas do TypeScript
+            const validatedRequest: MusicRequest = {
               ...data,
-              relationship_type: data.relationship_type as MusicRequest['relationship_type']
+              relationship_type: validateRelationshipType(data.relationship_type),
+              music_genre: validateMusicGenre(data.music_genre),
+              music_tone: data.music_tone ? validateMusicTone(data.music_tone) : undefined,
+              voice_type: data.voice_type ? validateVoiceType(data.voice_type) : undefined,
+              status: validateStatus(data.status),
+              payment_status: data.payment_status ? validatePaymentStatus(data.payment_status) : null
             };
-            setMusicRequest(typedRequest);
+            
+            setMusicRequest(validatedRequest);
             
             // Se o pagamento foi bem-sucedido, atualizar o status no banco
             if (status === 'success') {
@@ -70,9 +76,9 @@ const Confirmacao = ({ userProfile }: ConfirmacaoProps) => {
               } else {
                 console.log("Status de pagamento atualizado com sucesso");
                 // Atualizar localmente o objeto musicRequest
-                if (typedRequest) {
+                if (validatedRequest) {
                   setMusicRequest({
-                    ...typedRequest,
+                    ...validatedRequest,
                     payment_status: 'completed'
                   });
                 }
@@ -83,7 +89,20 @@ const Confirmacao = ({ userProfile }: ConfirmacaoProps) => {
         // Caso contrário, verificar dados do estado da navegação
         else if (location.state?.musicRequest) {
           console.log("Usando dados do state da navegação:", location.state.musicRequest);
-          setMusicRequest(location.state.musicRequest);
+          const stateData = location.state.musicRequest;
+          
+          // Validar os tipos enumerados do estado de navegação
+          const validatedRequest: MusicRequest = {
+            ...stateData,
+            relationship_type: validateRelationshipType(stateData.relationship_type),
+            music_genre: validateMusicGenre(stateData.music_genre),
+            music_tone: stateData.music_tone ? validateMusicTone(stateData.music_tone) : undefined,
+            voice_type: stateData.voice_type ? validateVoiceType(stateData.voice_type) : undefined,
+            status: validateStatus(stateData.status),
+            payment_status: stateData.payment_status ? validatePaymentStatus(stateData.payment_status) : null
+          };
+          
+          setMusicRequest(validatedRequest);
           
           // Verificar se temos dados de pagamento pendente no localStorage
           const pendingPayment = localStorage.getItem("payment_pending_request");
@@ -107,12 +126,19 @@ const Confirmacao = ({ userProfile }: ConfirmacaoProps) => {
             console.error("Erro ao buscar pedido:", error);
           } else if (data && data.length > 0) {
             console.log("Pedido encontrado:", data[0]);
-            // Converter os dados para o tipo MusicRequest
-            const typedRequest = {
+            
+            // Validar os tipos enumerados para garantir que correspondam às expectativas do TypeScript
+            const validatedRequest: MusicRequest = {
               ...data[0],
-              relationship_type: data[0].relationship_type as MusicRequest['relationship_type']
+              relationship_type: validateRelationshipType(data[0].relationship_type),
+              music_genre: validateMusicGenre(data[0].music_genre),
+              music_tone: data[0].music_tone ? validateMusicTone(data[0].music_tone) : undefined,
+              voice_type: data[0].voice_type ? validateVoiceType(data[0].voice_type) : undefined,
+              status: validateStatus(data[0].status),
+              payment_status: data[0].payment_status ? validatePaymentStatus(data[0].payment_status) : null
             };
-            setMusicRequest(typedRequest);
+            
+            setMusicRequest(validatedRequest);
             
             // Definir status com base no status de pagamento do pedido
             if (data[0].payment_status === 'completed') {
@@ -136,6 +162,36 @@ const Confirmacao = ({ userProfile }: ConfirmacaoProps) => {
 
     fetchData();
   }, [searchParams, location.state, userProfile]);
+
+  // Funções auxiliares para validar que os valores correspondem aos tipos enumerados esperados
+  const validateRelationshipType = (value: string): MusicRequest['relationship_type'] => {
+    const validTypes = ['esposa', 'noiva', 'namorada', 'amigo_especial', 'partner', 'friend', 'family', 'colleague', 'mentor', 'child', 'sibling', 'parent', 'other'];
+    return validTypes.includes(value) ? value as MusicRequest['relationship_type'] : 'other';
+  };
+  
+  const validateMusicGenre = (value: string): MusicRequest['music_genre'] => {
+    const validGenres = ['romantic', 'mpb', 'classical', 'jazz', 'hiphop', 'rock', 'country', 'reggae', 'electronic', 'samba', 'folk', 'pop'];
+    return validGenres.includes(value) ? value as MusicRequest['music_genre'] : 'pop';
+  };
+  
+  const validateMusicTone = (value: string): MusicRequest['music_tone'] => {
+    const validTones = ['happy', 'romantic', 'nostalgic', 'fun', 'melancholic', 'energetic', 'peaceful', 'inspirational', 'dramatic', 'uplifting', 'reflective', 'mysterious'];
+    return validTones.includes(value) ? value as MusicRequest['music_tone'] : 'happy';
+  };
+  
+  const validateVoiceType = (value: string): MusicRequest['voice_type'] => {
+    const validVoices = ['male', 'female', 'male_romantic', 'female_romantic', 'male_folk', 'female_folk', 'male_deep', 'female_powerful', 'male_soft', 'female_sweet', 'male_jazzy', 'female_jazzy', 'male_rock', 'female_rock', 'male_country', 'female_country'];
+    return validVoices.includes(value) ? value as MusicRequest['voice_type'] : 'male';
+  };
+  
+  const validateStatus = (value: string): MusicRequest['status'] => {
+    const validStatuses = ['pending', 'in_production', 'completed'];
+    return validStatuses.includes(value) ? value as MusicRequest['status'] : 'pending';
+  };
+  
+  const validatePaymentStatus = (value: string): 'pending' | 'completed' => {
+    return value === 'completed' ? 'completed' : 'pending';
+  };
 
   const renderStatusMessage = () => {
     switch (paymentStatus) {

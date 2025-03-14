@@ -21,6 +21,36 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
   const [musicRequest, setMusicRequest] = useState<MusicRequest | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   
+  // Funções auxiliares para validar que os valores correspondem aos tipos enumerados esperados
+  const validateRelationshipType = (value: string): MusicRequest['relationship_type'] => {
+    const validTypes = ['esposa', 'noiva', 'namorada', 'amigo_especial', 'partner', 'friend', 'family', 'colleague', 'mentor', 'child', 'sibling', 'parent', 'other'];
+    return validTypes.includes(value) ? value as MusicRequest['relationship_type'] : 'other';
+  };
+  
+  const validateMusicGenre = (value: string): MusicRequest['music_genre'] => {
+    const validGenres = ['romantic', 'mpb', 'classical', 'jazz', 'hiphop', 'rock', 'country', 'reggae', 'electronic', 'samba', 'folk', 'pop'];
+    return validGenres.includes(value) ? value as MusicRequest['music_genre'] : 'pop';
+  };
+  
+  const validateMusicTone = (value: string): MusicRequest['music_tone'] => {
+    const validTones = ['happy', 'romantic', 'nostalgic', 'fun', 'melancholic', 'energetic', 'peaceful', 'inspirational', 'dramatic', 'uplifting', 'reflective', 'mysterious'];
+    return validTones.includes(value) ? value as MusicRequest['music_tone'] : 'happy';
+  };
+  
+  const validateVoiceType = (value: string): MusicRequest['voice_type'] => {
+    const validVoices = ['male', 'female', 'male_romantic', 'female_romantic', 'male_folk', 'female_folk', 'male_deep', 'female_powerful', 'male_soft', 'female_sweet', 'male_jazzy', 'female_jazzy', 'male_rock', 'female_rock', 'male_country', 'female_country'];
+    return validVoices.includes(value) ? value as MusicRequest['voice_type'] : 'male';
+  };
+  
+  const validateStatus = (value: string): MusicRequest['status'] => {
+    const validStatuses = ['pending', 'in_production', 'completed'];
+    return validStatuses.includes(value) ? value as MusicRequest['status'] : 'pending';
+  };
+  
+  const validatePaymentStatus = (value: string): 'pending' | 'completed' => {
+    return value === 'completed' ? 'completed' : 'pending';
+  };
+  
   // Função para verificar se o usuário tem permissão para acessar este pedido
   const verifyUserAccess = async (requestId: string, userId?: string) => {
     if (!userId) return false;
@@ -72,12 +102,18 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
             }
           }
           
-          // Garantir que o objeto musicRequest está em conformidade com o tipo MusicRequest
-          const typedRequest = {
+          // Validar os tipos enumerados do estado de navegação
+          const validatedRequest: MusicRequest = {
             ...location.state.musicRequest,
-            relationship_type: location.state.musicRequest.relationship_type as MusicRequest['relationship_type']
+            relationship_type: validateRelationshipType(location.state.musicRequest.relationship_type),
+            music_genre: validateMusicGenre(location.state.musicRequest.music_genre),
+            music_tone: location.state.musicRequest.music_tone ? validateMusicTone(location.state.musicRequest.music_tone) : undefined,
+            voice_type: location.state.musicRequest.voice_type ? validateVoiceType(location.state.musicRequest.voice_type) : undefined,
+            status: validateStatus(location.state.musicRequest.status),
+            payment_status: location.state.musicRequest.payment_status ? validatePaymentStatus(location.state.musicRequest.payment_status) : null
           };
-          setMusicRequest(typedRequest);
+          
+          setMusicRequest(validatedRequest);
         } 
         // Tentar recuperar do localStorage como fallback
         else {
@@ -103,12 +139,18 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
               }
             }
             
-            // Garantir que o objeto parsedRequest está em conformidade com o tipo MusicRequest
-            const typedRequest = {
+            // Validar os tipos enumerados
+            const validatedRequest: MusicRequest = {
               ...parsedRequest,
-              relationship_type: parsedRequest.relationship_type as MusicRequest['relationship_type']
+              relationship_type: validateRelationshipType(parsedRequest.relationship_type),
+              music_genre: validateMusicGenre(parsedRequest.music_genre),
+              music_tone: parsedRequest.music_tone ? validateMusicTone(parsedRequest.music_tone) : undefined,
+              voice_type: parsedRequest.voice_type ? validateVoiceType(parsedRequest.voice_type) : undefined,
+              status: validateStatus(parsedRequest.status),
+              payment_status: parsedRequest.payment_status ? validatePaymentStatus(parsedRequest.payment_status) : null
             };
-            setMusicRequest(typedRequest);
+            
+            setMusicRequest(validatedRequest);
           } else {
             // Se não temos dados nem no state nem no localStorage, buscar do banco
             if (userProfile?.id) {
@@ -130,12 +172,18 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
               } else if (data && data.length > 0) {
                 console.log("Pedido encontrado no banco:", data[0]);
                 
-                // Garantir que o objeto data[0] está em conformidade com o tipo MusicRequest
-                const typedRequest = {
+                // Validar os tipos enumerados
+                const validatedRequest: MusicRequest = {
                   ...data[0],
-                  relationship_type: data[0].relationship_type as MusicRequest['relationship_type']
+                  relationship_type: validateRelationshipType(data[0].relationship_type),
+                  music_genre: validateMusicGenre(data[0].music_genre),
+                  music_tone: data[0].music_tone ? validateMusicTone(data[0].music_tone) : undefined,
+                  voice_type: data[0].voice_type ? validateVoiceType(data[0].voice_type) : undefined,
+                  status: validateStatus(data[0].status),
+                  payment_status: data[0].payment_status ? validatePaymentStatus(data[0].payment_status) : null
                 };
-                setMusicRequest(typedRequest);
+                
+                setMusicRequest(validatedRequest);
               } else {
                 console.error("Nenhum pedido encontrado para este usuário");
                 toast({

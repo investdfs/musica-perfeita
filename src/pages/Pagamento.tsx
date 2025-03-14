@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import Header from "@/components/Header";
@@ -17,7 +17,22 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const musicRequest = location.state?.musicRequest as MusicRequest | undefined;
+  const [musicRequest, setMusicRequest] = useState<MusicRequest | undefined>(undefined);
+  
+  useEffect(() => {
+    // Verificar se temos dados de solicitação na navegação
+    if (location.state?.musicRequest) {
+      setMusicRequest(location.state.musicRequest);
+      console.log("Dados da música recebidos:", location.state.musicRequest);
+    } else {
+      console.error("Nenhum dado de música recebido na navegação");
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os detalhes da música",
+        variant: "destructive",
+      });
+    }
+  }, [location.state]);
 
   const handlePayment = () => {
     setIsProcessing(true);
@@ -228,18 +243,20 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                     {/* Seção de história e detalhes adicionais */}
                     <div className="space-y-4">
                       {/* História */}
-                      <div className="bg-indigo-50 p-4 rounded-lg">
-                        <div className="flex items-center mb-2">
-                          <BookOpen className="h-4 w-4 text-indigo-600 mr-2" />
-                          <h4 className="font-medium text-indigo-800">História</h4>
+                      {musicRequest.story && (
+                        <div className="bg-indigo-50 p-4 rounded-lg">
+                          <div className="flex items-center mb-2">
+                            <BookOpen className="h-4 w-4 text-indigo-600 mr-2" />
+                            <h4 className="font-medium text-indigo-800">História</h4>
+                          </div>
+                          <p className="text-sm text-gray-700">
+                            {musicRequest.story}
+                          </p>
                         </div>
-                        <p className="text-sm text-gray-700 line-clamp-3">
-                          {musicRequest.story}
-                        </p>
-                      </div>
+                      )}
                       
                       {/* Inclui nomes? */}
-                      {musicRequest.include_names && (
+                      {musicRequest.include_names && musicRequest.names_to_include && (
                         <div className="bg-pink-50 p-4 rounded-lg">
                           <div className="flex items-center mb-2">
                             <UserRound className="h-4 w-4 text-pink-600 mr-2" />
@@ -257,6 +274,28 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                             <h4 className="font-medium text-purple-800">Foco da música</h4>
                           </div>
                           <p className="text-sm text-gray-700">{musicRequest.music_focus}</p>
+                        </div>
+                      )}
+
+                      {/* Memórias felizes (se disponível) */}
+                      {musicRequest.happy_memory && (
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <div className="flex items-center mb-2">
+                            <Heart className="h-4 w-4 text-green-600 mr-2" />
+                            <h4 className="font-medium text-green-800">Memória Feliz</h4>
+                          </div>
+                          <p className="text-sm text-gray-700">{musicRequest.happy_memory}</p>
+                        </div>
+                      )}
+
+                      {/* Memórias tristes (se disponível) */}
+                      {musicRequest.sad_memory && (
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <div className="flex items-center mb-2">
+                            <Heart className="h-4 w-4 text-blue-600 mr-2" />
+                            <h4 className="font-medium text-blue-800">Memória Triste</h4>
+                          </div>
+                          <p className="text-sm text-gray-700">{musicRequest.sad_memory}</p>
                         </div>
                       )}
                     </div>

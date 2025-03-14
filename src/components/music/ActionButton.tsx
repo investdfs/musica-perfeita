@@ -3,6 +3,7 @@ import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NavigateFunction } from "react-router-dom";
 import { MusicRequest } from "@/types/database.types";
+import { toast } from "@/hooks/use-toast";
 
 interface ActionButtonProps {
   navigate: NavigateFunction;
@@ -11,7 +12,16 @@ interface ActionButtonProps {
 
 const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
   const handleNavigation = () => {
-    console.log("Navegando para pagamento com dados:", { musicRequest });
+    if (!musicRequest) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível obter os detalhes da música",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    console.log("Navegando para pagamento com dados:", musicRequest);
     navigate("/pagamento", { state: { musicRequest } });
   };
 

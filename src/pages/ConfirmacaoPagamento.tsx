@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CheckCircle, Music, AlertCircle } from "lucide-react";
@@ -63,7 +64,7 @@ const ConfirmacaoPagamento = () => {
         toast({
           title: "Pagamento confirmado!",
           description: "Seu acesso à música completa foi liberado com sucesso.",
-          variant: "success",
+          variant: "default", // Alterado de "success" para "default"
         });
       } catch (error: any) {
         console.error("[ConfirmacaoPagamento] Erro no processamento:", error);

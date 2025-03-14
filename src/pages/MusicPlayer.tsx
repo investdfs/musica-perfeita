@@ -8,6 +8,7 @@ import { MusicRequest } from "@/types/database.types";
 import MusicPlayerHeader from "@/components/music/MusicPlayerHeader";
 import MusicPlayerMain from "@/components/music/MusicPlayerMain";
 import ScrollToTopButton from "@/components/ui/scroll-to-top-button";
+import { validateMusicRequest } from "@/utils/validationUtils";
 
 const MusicPlayer = () => {
   const location = useLocation();
@@ -50,80 +51,9 @@ const MusicPlayer = () => {
       if (error) {
         console.error("Erro ao buscar dados do pedido:", error);
       } else if (data) {
-        // Garantir que relationship_type seja um dos valores permitidos
-        const validRelationshipTypes = [
-          'esposa', 'noiva', 'namorada', 'amigo_especial', 'partner', 
-          'friend', 'family', 'colleague', 'mentor', 'child', 
-          'sibling', 'parent', 'other'
-        ] as const;
-        
-        // Garantir que music_genre seja um dos valores permitidos
-        const validMusicGenres = [
-          'romantic', 'mpb', 'classical', 'jazz', 'hiphop', 
-          'rock', 'country', 'reggae', 'electronic', 'samba', 'folk', 'pop'
-        ] as const;
-        
-        // Garantir que music_tone seja um dos valores permitidos
-        const validMusicTones = [
-          'happy', 'romantic', 'nostalgic', 'fun', 'melancholic', 'energetic', 
-          'peaceful', 'inspirational', 'dramatic', 'uplifting', 'reflective', 'mysterious'
-        ] as const;
-        
-        // Garantir que voice_type seja um dos valores permitidos
-        const validVoiceTypes = [
-          'male', 'female', 'male_romantic', 'female_romantic', 
-          'male_folk', 'female_folk', 'male_deep', 'female_powerful', 
-          'male_soft', 'female_sweet', 'male_jazzy', 'female_jazzy', 
-          'male_rock', 'female_rock', 'male_country', 'female_country'
-        ] as const;
-        
-        // Garantir que status seja um dos valores permitidos
-        const validStatusTypes = [
-          'pending', 'in_production', 'completed'
-        ] as const;
-        
-        // Garantir que payment_status seja um dos valores permitidos
-        const validPaymentStatusTypes = [
-          'pending', 'completed'
-        ] as const;
-        
-        // Verificar se os valores recebidos são válidos
-        const relationshipType = validRelationshipTypes.includes(data.relationship_type as any) 
-          ? data.relationship_type as MusicRequest['relationship_type']
-          : 'other';
-          
-        const musicGenre = validMusicGenres.includes(data.music_genre as any) 
-          ? data.music_genre as MusicRequest['music_genre']
-          : 'pop';
-          
-        const musicTone = data.music_tone && validMusicTones.includes(data.music_tone as any)
-          ? data.music_tone as MusicRequest['music_tone']
-          : undefined;
-          
-        const voiceType = data.voice_type && validVoiceTypes.includes(data.voice_type as any)
-          ? data.voice_type as MusicRequest['voice_type']
-          : undefined;
-          
-        const status = validStatusTypes.includes(data.status as any)
-          ? data.status as MusicRequest['status']
-          : 'pending';
-          
-        const paymentStatus = data.payment_status && validPaymentStatusTypes.includes(data.payment_status as any)
-          ? data.payment_status as 'pending' | 'completed'
-          : 'pending';
-        
-        // Criar objeto tipado corretamente
-        const typedRequest: MusicRequest = {
-          ...data,
-          relationship_type: relationshipType,
-          music_genre: musicGenre,
-          music_tone: musicTone,
-          voice_type: voiceType,
-          status: status,
-          payment_status: paymentStatus
-        };
-        
-        setRequestData(typedRequest);
+        // Usar a função utilitária para validar os tipos enumerados
+        const validatedRequest = validateMusicRequest(data);
+        setRequestData(validatedRequest);
       }
     } catch (err) {
       console.error("Erro ao buscar dados do pedido:", err);

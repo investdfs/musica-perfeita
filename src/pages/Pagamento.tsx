@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest, UserProfile } from "@/types/database.types";
@@ -9,6 +8,7 @@ import { Check, Music, ShieldCheck, CreditCard, Clock, Lock, Headphones, Calenda
 import { toast } from "@/hooks/use-toast";
 import { formatDate } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { validateMusicRequest } from "@/utils/validationUtils";
 
 interface PagamentoProps {
   userProfile: UserProfile | null;
@@ -21,37 +21,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
   const [musicRequest, setMusicRequest] = useState<MusicRequest | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Funções auxiliares para validar que os valores correspondem aos tipos enumerados esperados
-  const validateRelationshipType = (value: string): MusicRequest['relationship_type'] => {
-    const validTypes = ['esposa', 'noiva', 'namorada', 'amigo_especial', 'partner', 'friend', 'family', 'colleague', 'mentor', 'child', 'sibling', 'parent', 'other'];
-    return validTypes.includes(value) ? value as MusicRequest['relationship_type'] : 'other';
-  };
-  
-  const validateMusicGenre = (value: string): MusicRequest['music_genre'] => {
-    const validGenres = ['romantic', 'mpb', 'classical', 'jazz', 'hiphop', 'rock', 'country', 'reggae', 'electronic', 'samba', 'folk', 'pop'];
-    return validGenres.includes(value) ? value as MusicRequest['music_genre'] : 'pop';
-  };
-  
-  const validateMusicTone = (value: string): MusicRequest['music_tone'] => {
-    const validTones = ['happy', 'romantic', 'nostalgic', 'fun', 'melancholic', 'energetic', 'peaceful', 'inspirational', 'dramatic', 'uplifting', 'reflective', 'mysterious'];
-    return validTones.includes(value) ? value as MusicRequest['music_tone'] : 'happy';
-  };
-  
-  const validateVoiceType = (value: string): MusicRequest['voice_type'] => {
-    const validVoices = ['male', 'female', 'male_romantic', 'female_romantic', 'male_folk', 'female_folk', 'male_deep', 'female_powerful', 'male_soft', 'female_sweet', 'male_jazzy', 'female_jazzy', 'male_rock', 'female_rock', 'male_country', 'female_country'];
-    return validVoices.includes(value) ? value as MusicRequest['voice_type'] : 'male';
-  };
-  
-  const validateStatus = (value: string): MusicRequest['status'] => {
-    const validStatuses = ['pending', 'in_production', 'completed'];
-    return validStatuses.includes(value) ? value as MusicRequest['status'] : 'pending';
-  };
-  
-  const validatePaymentStatus = (value: string): 'pending' | 'completed' => {
-    return value === 'completed' ? 'completed' : 'pending';
-  };
-  
-  // Função para verificar se o usuário tem permissão para acessar este pedido
   const verifyUserAccess = async (requestId: string, userId?: string) => {
     if (!userId) return false;
     
@@ -79,11 +48,9 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
       setIsLoading(true);
       
       try {
-        // Tentar obter dados do state da navegação
         if (location.state?.musicRequest) {
           console.log("Dados da música recebidos do state:", location.state.musicRequest);
           
-          // Verificar permissão se tivermos ID do usuário
           if (userProfile?.id) {
             const hasAccess = await verifyUserAccess(
               location.state.musicRequest.id, 
@@ -102,20 +69,9 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
             }
           }
           
-          // Validar os tipos enumerados do estado de navegação
-          const validatedRequest: MusicRequest = {
-            ...location.state.musicRequest,
-            relationship_type: validateRelationshipType(location.state.musicRequest.relationship_type),
-            music_genre: validateMusicGenre(location.state.musicRequest.music_genre),
-            music_tone: location.state.musicRequest.music_tone ? validateMusicTone(location.state.musicRequest.music_tone) : undefined,
-            voice_type: location.state.musicRequest.voice_type ? validateVoiceType(location.state.musicRequest.voice_type) : undefined,
-            status: validateStatus(location.state.musicRequest.status),
-            payment_status: location.state.musicRequest.payment_status ? validatePaymentStatus(location.state.musicRequest.payment_status) : null
-          };
-          
+          const validatedRequest = validateMusicRequest(location.state.musicRequest);
           setMusicRequest(validatedRequest);
         } 
-        // Tentar recuperar do localStorage como fallback
         else {
           const savedRequest = localStorage.getItem("current_music_request");
           
@@ -123,7 +79,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
             const parsedRequest = JSON.parse(savedRequest);
             console.log("Dados da música recuperados do localStorage:", parsedRequest);
             
-            // Verificar permissão
             if (userProfile?.id) {
               const hasAccess = await verifyUserAccess(parsedRequest.id, userProfile.id);
               
@@ -139,20 +94,9 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
               }
             }
             
-            // Validar os tipos enumerados
-            const validatedRequest: MusicRequest = {
-              ...parsedRequest,
-              relationship_type: validateRelationshipType(parsedRequest.relationship_type),
-              music_genre: validateMusicGenre(parsedRequest.music_genre),
-              music_tone: parsedRequest.music_tone ? validateMusicTone(parsedRequest.music_tone) : undefined,
-              voice_type: parsedRequest.voice_type ? validateVoiceType(parsedRequest.voice_type) : undefined,
-              status: validateStatus(parsedRequest.status),
-              payment_status: parsedRequest.payment_status ? validatePaymentStatus(parsedRequest.payment_status) : null
-            };
-            
+            const validatedRequest = validateMusicRequest(parsedRequest);
             setMusicRequest(validatedRequest);
           } else {
-            // Se não temos dados nem no state nem no localStorage, buscar do banco
             if (userProfile?.id) {
               console.log("Buscando pedidos do usuário do banco de dados");
               const { data, error } = await supabase
@@ -172,17 +116,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
               } else if (data && data.length > 0) {
                 console.log("Pedido encontrado no banco:", data[0]);
                 
-                // Validar os tipos enumerados
-                const validatedRequest: MusicRequest = {
-                  ...data[0],
-                  relationship_type: validateRelationshipType(data[0].relationship_type),
-                  music_genre: validateMusicGenre(data[0].music_genre),
-                  music_tone: data[0].music_tone ? validateMusicTone(data[0].music_tone) : undefined,
-                  voice_type: data[0].voice_type ? validateVoiceType(data[0].voice_type) : undefined,
-                  status: validateStatus(data[0].status),
-                  payment_status: data[0].payment_status ? validatePaymentStatus(data[0].payment_status) : null
-                };
-                
+                const validatedRequest = validateMusicRequest(data[0]);
                 setMusicRequest(validatedRequest);
               } else {
                 console.error("Nenhum pedido encontrado para este usuário");
@@ -231,23 +165,17 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     
     setIsProcessing(true);
     
-    // IDs para identificação no retorno do pagamento
     const requestId = musicRequest.id;
     const userId = userProfile?.id || 'guest';
     
-    // URL para retorno após pagamento (com parâmetros de identificação)
     const successUrl = `${window.location.origin}/confirmacao?request_id=${requestId}&user_id=${userId}&status=success`;
     const failureUrl = `${window.location.origin}/confirmacao?request_id=${requestId}&user_id=${userId}&status=failure`;
     
-    // Log das URLs para debug
     console.log("URL de sucesso:", successUrl);
     console.log("URL de falha:", failureUrl);
     
-    // Abre o link do Mercado Pago em nova janela
-    // Nota: No Mercado Pago, você precisará configurar estas URLs como back_urls
     window.open("https://mpago.la/2WyrDAe", "_blank");
     
-    // Simulating payment process
     setTimeout(() => {
       toast({
         title: "Pagamento iniciado!",
@@ -256,7 +184,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
       
       setIsProcessing(false);
       
-      // Armazenar dados para página de confirmação
       localStorage.setItem("payment_pending_request", JSON.stringify({
         requestId,
         userId,
@@ -356,7 +283,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
       <Header />
       
-      {/* Formas decorativas no fundo */}
       <div className="animated-shapes opacity-50">
         <div className="shape shape-1"></div>
         <div className="shape shape-2"></div>
@@ -381,7 +307,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 gap-10">
-              {/* Cartão de resumo do pedido */}
               <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-purple-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                 <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6">
                   <h2 className="text-2xl font-bold text-white flex items-center">
@@ -393,9 +318,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                 <div className="p-6">
                   {musicRequest ? (
                     <div className="space-y-5">
-                      {/* Seção de imagem e informações principais */}
                       <div className="flex flex-col md:flex-row gap-4 pb-4 border-b border-gray-100">
-                        {/* Imagem de capa, se disponível */}
                         <div className="w-full md:w-1/3 aspect-square rounded-lg overflow-hidden bg-purple-50 border border-purple-100 relative flex-shrink-0">
                           {musicRequest.cover_image_url ? (
                             <img 
@@ -410,7 +333,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                           )}
                         </div>
                         
-                        {/* Informações principais */}
                         <div className="flex-1">
                           <div className="flex items-start mb-3">
                             <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
@@ -461,9 +383,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                         </div>
                       </div>
                       
-                      {/* Seção de história e detalhes adicionais */}
                       <div className="space-y-4">
-                        {/* História */}
                         {musicRequest.story && (
                           <div className="bg-indigo-50 p-4 rounded-lg">
                             <div className="flex items-center mb-2">
@@ -476,7 +396,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                           </div>
                         )}
                         
-                        {/* Inclui nomes? */}
                         {musicRequest.include_names && musicRequest.names_to_include && (
                           <div className="bg-pink-50 p-4 rounded-lg">
                             <div className="flex items-center mb-2">
@@ -487,7 +406,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                           </div>
                         )}
                         
-                        {/* Foco da música (se disponível) */}
                         {musicRequest.music_focus && (
                           <div className="bg-purple-50 p-4 rounded-lg">
                             <div className="flex items-center mb-2">
@@ -497,8 +415,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                             <p className="text-sm text-gray-700">{musicRequest.music_focus}</p>
                           </div>
                         )}
-
-                        {/* Memórias felizes (se disponível) */}
+                        
                         {musicRequest.happy_memory && (
                           <div className="bg-green-50 p-4 rounded-lg">
                             <div className="flex items-center mb-2">
@@ -508,8 +425,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                             <p className="text-sm text-gray-700">{musicRequest.happy_memory}</p>
                           </div>
                         )}
-
-                        {/* Memórias tristes (se disponível) */}
+                        
                         {musicRequest.sad_memory && (
                           <div className="bg-blue-50 p-4 rounded-lg">
                             <div className="flex items-center mb-2">
@@ -551,7 +467,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                 </div>
               </div>
               
-              {/* Cartão de pagamento */}
               <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-purple-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                 <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-6">
                   <h2 className="text-2xl font-bold text-white flex items-center">
@@ -624,7 +539,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
             </div>
           )}
           
-          {/* Seção de depoimentos/benefícios */}
           <div className="mt-16 bg-white rounded-2xl shadow-lg p-8 border border-purple-100">
             <h3 className="text-xl font-bold text-center mb-8 text-gray-800">Por que escolher a Música Perfeita?</h3>
             

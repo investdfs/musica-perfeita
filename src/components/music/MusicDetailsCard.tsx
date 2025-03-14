@@ -54,7 +54,7 @@ const MusicDetailsCard = ({ requestData }: MusicDetailsCardProps) => {
               <p className="text-sm text-gray-400">Relacionamento</p>
             </div>
             <p className="text-gray-200 font-medium">
-              {requestData?.relationship_type === 'custom' 
+              {requestData?.relationship_type === 'other' 
                 ? requestData?.custom_relationship 
                 : requestData?.relationship_type || "Não especificado"}
             </p>

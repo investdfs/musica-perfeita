@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import supabase from "@/lib/supabase";
@@ -330,6 +329,7 @@ export const useMusicRequests = (userProfile: UserProfile | null) => {
     handleRequestSubmitted,
     handleCreateNewRequest,
     fetchUserRequests,
-    setUserRequests
+    setUserRequests,
+    setShowNewRequestForm
   };
 };

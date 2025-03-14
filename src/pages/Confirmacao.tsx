@@ -1,386 +1,252 @@
+
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { MusicRequest, UserProfile } from "@/types/database.types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CheckCircle2, XCircle, ArrowRight, Music, Download, Home } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { MusicRequest, UserProfile } from "@/types/database.types";
-import supabase from "@/lib/supabase";
-import { isDevelopmentOrPreview } from "@/lib/environment";
-import { Download, Share2, Play, User, ShieldAlert, ExternalLink } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-const Confirmacao = () => {
-  const [showTerms, setShowTerms] = useState(true);
-  const [countdown, setCountdown] = useState(15);
-  const [canAgree, setCanAgree] = useState(false);
-  const [agreed, setAgreed] = useState(false);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [musicRequest, setMusicRequest] = useState<MusicRequest | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+interface ConfirmacaoProps {
+  userProfile: UserProfile | null;
+}
+
+const Confirmacao = ({ userProfile }: ConfirmacaoProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const [musicRequest, setMusicRequest] = useState<MusicRequest | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [paymentStatus, setPaymentStatus] = useState<'success' | 'failure' | 'pending'>('pending');
 
   useEffect(() => {
-    const checkUserAuth = async () => {
+    const fetchData = async () => {
       setIsLoading(true);
-      
-      const storedUser = localStorage.getItem("musicaperfeita_user");
-      
-      if (!storedUser && !isDevelopmentOrPreview()) {
-        toast({
-          title: "Acesso restrito",
-          description: "Você precisa fazer login para acessar esta página",
-          variant: "destructive",
-        });
-        navigate("/login");
-        return;
-      }
-      
-      const userInfo = storedUser ? JSON.parse(storedUser) : null;
-      setUserProfile(userInfo);
-      
-      const stateRequest = location.state?.musicRequest as MusicRequest | undefined;
-      
-      if (stateRequest) {
-        setMusicRequest(stateRequest);
-        setIsLoading(false);
-        return;
-      }
-      
-      if (userInfo?.id) {
-        try {
+      try {
+        // Verificar se temos parâmetros de URL de retorno do Mercado Pago
+        const requestId = searchParams.get('request_id');
+        const status = searchParams.get('status');
+        
+        // Se temos informações de retorno do pagamento, processar
+        if (requestId && status) {
+          console.log(`Retorno do Mercado Pago: request_id=${requestId}, status=${status}`);
+          
+          // Definir status com base no parâmetro da URL
+          setPaymentStatus(status === 'success' ? 'success' : 'failure');
+          
+          // Buscar dados do pedido no banco
           const { data, error } = await supabase
             .from('music_requests')
             .select('*')
-            .eq('user_id', userInfo.id)
-            .eq('payment_status', 'completed')
+            .eq('id', requestId)
+            .single();
+            
+          if (error) {
+            console.error("Erro ao buscar pedido:", error);
+            toast({
+              title: "Erro",
+              description: "Não foi possível carregar os detalhes do pedido",
+              variant: "destructive",
+            });
+          } else if (data) {
+            setMusicRequest(data);
+            
+            // Se o pagamento foi bem-sucedido, atualizar o status no banco
+            if (status === 'success') {
+              const { error: updateError } = await supabase
+                .from('music_requests')
+                .update({ payment_status: 'completed' })
+                .eq('id', requestId);
+                
+              if (updateError) {
+                console.error("Erro ao atualizar status de pagamento:", updateError);
+              } else {
+                console.log("Status de pagamento atualizado com sucesso");
+                // Atualizar localmente o objeto musicRequest
+                setMusicRequest(prev => prev ? {...prev, payment_status: 'completed'} : null);
+              }
+            }
+          }
+        } 
+        // Caso contrário, verificar dados do estado da navegação
+        else if (location.state?.musicRequest) {
+          console.log("Usando dados do state da navegação:", location.state.musicRequest);
+          setMusicRequest(location.state.musicRequest);
+          
+          // Verificar se temos dados de pagamento pendente no localStorage
+          const pendingPayment = localStorage.getItem("payment_pending_request");
+          if (pendingPayment) {
+            // Assumimos que o usuário está voltando após iniciar o pagamento
+            console.log("Dados de pagamento pendente encontrados:", pendingPayment);
+            setPaymentStatus('pending');
+          }
+        } 
+        // Último recurso: buscar o último pedido do usuário
+        else if (userProfile?.id) {
+          console.log("Buscando último pedido do usuário");
+          const { data, error } = await supabase
+            .from('music_requests')
+            .select('*')
+            .eq('user_id', userProfile.id)
             .order('created_at', { ascending: false })
             .limit(1);
             
           if (error) {
-            throw error;
+            console.error("Erro ao buscar pedido:", error);
+          } else if (data && data.length > 0) {
+            console.log("Pedido encontrado:", data[0]);
+            setMusicRequest(data[0]);
+            
+            // Definir status com base no status de pagamento do pedido
+            if (data[0].payment_status === 'completed') {
+              setPaymentStatus('success');
+            } else {
+              setPaymentStatus('pending');
+            }
           }
-          
-          if (data && data.length > 0) {
-            setMusicRequest(data[0] as MusicRequest);
-          } else {
-            toast({
-              title: "Nenhuma música encontrada",
-              description: "Você ainda não possui músicas com pagamento confirmado",
-              variant: "destructive",
-            });
-            navigate("/dashboard");
-          }
-        } catch (error) {
-          console.error('Error fetching music request:', error);
-          toast({
-            title: "Erro ao carregar dados",
-            description: "Não foi possível carregar suas informações",
-            variant: "destructive",
-          });
         }
-      }
-      
-      setIsLoading(false);
-    };
-    
-    checkUserAuth();
-  }, [navigate, location.state]);
-
-  useEffect(() => {
-    if (countdown > 0 && showTerms) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (countdown === 0) {
-      setCanAgree(true);
-    }
-  }, [countdown, showTerms]);
-
-  const handleAgree = () => {
-    setAgreed(true);
-    setShowTerms(false);
-    toast({
-      title: "Termos aceitos",
-      description: "Você agora pode baixar e compartilhar sua música!",
-    });
-  };
-
-  const handleDownload = () => {
-    if (!musicRequest?.full_song_url) {
-      toast({
-        title: "Link indisponível",
-        description: "O link para download não está disponível no momento",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (musicRequest.full_song_url.includes('soundcloud.com')) {
-      window.open(musicRequest.full_song_url, '_blank');
-      
-      toast({
-        title: "Redirecionando para o SoundCloud",
-        description: "Abrindo sua música no SoundCloud...",
-      });
-    } else {
-      const link = document.createElement('a');
-      link.href = musicRequest.full_song_url;
-      link.download = `Musica_para_${musicRequest.honoree_name}.mp3`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast({
-        title: "Download iniciado",
-        description: "Sua música está sendo baixada...",
-      });
-    }
-  };
-
-  const handleShare = () => {
-    if (navigator.share && musicRequest) {
-      navigator.share({
-        title: `Música personalizada para ${musicRequest.honoree_name}`,
-        text: 'Ouça essa música personalizada que eu criei!',
-        url: window.location.href,
-      })
-      .then(() => {
+      } catch (error) {
+        console.error("Erro ao processar confirmação:", error);
         toast({
-          title: "Compartilhado com sucesso",
-          description: "Sua música foi compartilhada",
-        });
-      })
-      .catch((error) => {
-        console.error('Error sharing:', error);
-        toast({
-          title: "Erro ao compartilhar",
-          description: "Não foi possível compartilhar sua música",
+          title: "Erro",
+          description: "Houve um problema ao processar a confirmação",
           variant: "destructive",
         });
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast({
-        title: "Link copiado",
-        description: "O link para sua música foi copiado para a área de transferência",
-      });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [searchParams, location.state, userProfile]);
+
+  const renderStatusMessage = () => {
+    switch (paymentStatus) {
+      case 'success':
+        return (
+          <div className="text-center mb-10">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="h-12 w-12 text-green-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Pagamento Confirmado!</h2>
+            <p className="text-lg text-gray-600 max-w-md mx-auto">
+              Seu pagamento foi processado com sucesso. Agora você tem acesso à versão completa da sua música personalizada.
+            </p>
+          </div>
+        );
+      case 'failure':
+        return (
+          <div className="text-center mb-10">
+            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <XCircle className="h-12 w-12 text-red-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Pagamento Não Concluído</h2>
+            <p className="text-lg text-gray-600 max-w-md mx-auto">
+              Parece que houve um problema com o seu pagamento. Você pode tentar novamente ou entrar em contato com nosso suporte.
+            </p>
+          </div>
+        );
+      case 'pending':
+      default:
+        return (
+          <div className="text-center mb-10">
+            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Music className="h-12 w-12 text-yellow-600" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Processando Pagamento</h2>
+            <p className="text-lg text-gray-600 max-w-md mx-auto">
+              Estamos aguardando a confirmação do seu pagamento. Assim que for aprovado, você terá acesso à versão completa da sua música.
+            </p>
+          </div>
+        );
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Carregando sua música...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!musicRequest) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white">
-        <Header />
-        <main className="py-16 px-6">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-3xl md:text-4xl font-bold mb-6 text-gray-800">
-              Nenhuma música encontrada
-            </h1>
-            <p className="mb-8 text-gray-600">
-              Você ainda não possui músicas com pagamento confirmado.
-            </p>
-            <Button onClick={() => navigate("/dashboard")}>
-              Voltar ao Dashboard
-            </Button>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
-
-  const isSoundCloudEmbed = musicRequest?.preview_url?.includes('soundcloud.com') || 
-                            musicRequest?.preview_url?.includes('w.soundcloud.com');
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-pink-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
       <Header />
-      <main className="py-16 px-6">
+      
+      {/* Formas decorativas no fundo */}
+      <div className="animated-shapes opacity-50">
+        <div className="shape shape-1"></div>
+        <div className="shape shape-2"></div>
+        <div className="shape shape-3"></div>
+      </div>
+      
+      <main className="py-16 px-6 relative z-10">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl md:text-4xl font-bold text-center mb-10 bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">
-            Pagamento Confirmado! Aproveite sua música!
-          </h1>
-          
-          <div className="bg-white rounded-lg shadow-md p-8 text-center mb-8">
-            {userProfile && (
-              <div className="mb-6 flex items-center justify-center">
-                <div className="bg-purple-100 p-3 rounded-full">
-                  <User className="h-6 w-6 text-purple-600" />
+          {isLoading ? (
+            <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
+              <div className="animate-spin w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-6"></div>
+              <p className="text-gray-600 text-lg">Carregando informações...</p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+              {renderStatusMessage()}
+              
+              <div className="border-t border-gray-100 pt-8 mt-8">
+                <h3 className="text-xl font-semibold mb-6 text-center text-gray-800">Próximos Passos</h3>
+                
+                <div className="grid gap-4 md:grid-cols-2">
+                  {paymentStatus === 'success' ? (
+                    <>
+                      <Button 
+                        onClick={() => navigate('/music-player-full', { state: { musicRequest } })}
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                      >
+                        <Music className="h-5 w-5" />
+                        Ouvir Música Completa
+                      </Button>
+                      
+                      {musicRequest?.full_song_url && (
+                        <Button 
+                          className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                          onClick={() => window.open(musicRequest.full_song_url, '_blank')}
+                        >
+                          <Download className="h-5 w-5" />
+                          Baixar Música
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        onClick={() => navigate('/pagamento', { state: { musicRequest } })}
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                      >
+                        <ArrowRight className="h-5 w-5" />
+                        Tentar Pagamento Novamente
+                      </Button>
+                      
+                      <Button 
+                        onClick={() => navigate('/music-player', { state: { musicRequest } })}
+                        className="bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2"
+                        variant="outline"
+                      >
+                        <Music className="h-5 w-5" />
+                        Ouvir Prévia Novamente
+                      </Button>
+                    </>
+                  )}
                 </div>
-                <div className="ml-3 text-left">
-                  <p className="text-sm text-gray-500">Personalizado para</p>
-                  <p className="font-medium">{userProfile.name}</p>
+                
+                <div className="mt-8 text-center">
+                  <Button 
+                    onClick={() => navigate('/dashboard')}
+                    variant="ghost" 
+                    className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 flex items-center gap-2 mx-auto"
+                  >
+                    <Home className="h-4 w-4" />
+                    Voltar ao Dashboard
+                  </Button>
                 </div>
               </div>
-            )}
-            
-            <h2 className="text-2xl font-semibold mb-6">
-              Sua música para {musicRequest.honoree_name} está pronta!
-            </h2>
-            
-            <div className="mb-8">
-              {isSoundCloudEmbed ? (
-                <div className="aspect-video w-full mb-4">
-                  <iframe 
-                    width="100%" 
-                    height="166"
-                    scrolling="no" 
-                    frameBorder="no" 
-                    src={musicRequest.preview_url || ''}
-                    allow="autoplay"
-                    className="rounded-lg"
-                  ></iframe>
-                </div>
-              ) : (
-                <audio 
-                  controls 
-                  className="w-full mb-4"
-                  src={musicRequest.full_song_url || musicRequest.preview_url || '#'} 
-                >
-                  Seu navegador não suporta áudio HTML5.
-                </audio>
-              )}
-              <p className="text-sm text-gray-500">
-                Música no estilo {musicRequest.music_genre}, criada especialmente para {musicRequest.honoree_name}
-              </p>
             </div>
-            
-            <div className="flex justify-center gap-4 mb-10">
-              {!isSoundCloudEmbed && (
-                <Button 
-                  className="flex items-center bg-purple-600 hover:bg-purple-700"
-                  onClick={() => {
-                    const audioElement = document.querySelector('audio');
-                    if (audioElement) {
-                      audioElement.play();
-                    }
-                  }}
-                >
-                  <Play className="mr-2 h-4 w-4" />
-                  Ouvir
-                </Button>
-              )}
-              
-              <Button 
-                onClick={handleDownload} 
-                disabled={!agreed}
-                className={`flex items-center ${isSoundCloudEmbed ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'} ${!agreed ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                {isSoundCloudEmbed ? (
-                  <>
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Abrir no SoundCloud
-                  </>
-                ) : (
-                  <>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                  </>
-                )}
-              </Button>
-              
-              <Button 
-                onClick={handleShare}
-                disabled={!agreed}
-                className={`flex items-center bg-blue-600 hover:bg-blue-700 ${!agreed ? "opacity-50 cursor-not-allowed" : ""}`}
-              >
-                <Share2 className="mr-2 h-4 w-4" />
-                Compartilhar
-              </Button>
-            </div>
-            
-            <div className="mb-10">
-              <h3 className="text-xl font-semibold mb-4">Como usar sua música?</h3>
-              <ul className="text-left space-y-2">
-                <li className="flex items-start">
-                  <span className="text-pink-500 mr-2">•</span>
-                  <span>Entregue em um convite especial para um evento.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-pink-500 mr-2">•</span>
-                  <span>Grave em canecas ou brindes personalizados.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-pink-500 mr-2">•</span>
-                  <span>Toque em um jantar romântico ou festa familiar.</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <Button 
-              onClick={() => navigate("/dashboard")}
-              variant="outline"
-              className="w-full"
-            >
-              Voltar ao Dashboard
-            </Button>
-          </div>
+          )}
         </div>
       </main>
-      
-      <Dialog open={showTerms} onOpenChange={setShowTerms}>
-        <DialogContent className="max-w-md bg-white p-6 rounded-lg shadow-lg">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-red-600 flex items-center">
-              <ShieldAlert className="mr-2 h-5 w-5" />
-              Aviso Importante
-            </DialogTitle>
-            <DialogDescription className="text-base">
-              Esta música é uma criação personalizada para uso individual, entre amigos e familiares. 
-              Não possui direitos autorais, sendo estritamente proibida sua comercialização, 
-              monetização ou distribuição em plataformas públicas. Respeite os termos para 
-              preservar a essência pessoal desta obra.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="mt-6 space-y-4">
-            <div className="p-3 bg-red-50 border border-red-200 rounded text-center">
-              <span className="font-medium">Aguarde {countdown} segundos</span>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="terms" 
-                disabled={!canAgree} 
-                checked={canAgree && agreed}
-                onCheckedChange={() => setAgreed(!agreed)}
-              />
-              <label 
-                htmlFor="terms" 
-                className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
-                  !canAgree ? 'text-gray-400' : ''
-                }`}
-              >
-                Concordo com os termos
-              </label>
-            </div>
-            
-            <Button 
-              className="w-full" 
-              disabled={!canAgree || !agreed}
-              onClick={handleAgree}
-            >
-              Concordo com os Termos
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-      
       <Footer />
     </div>
   );

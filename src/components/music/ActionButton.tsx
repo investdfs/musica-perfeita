@@ -21,8 +21,24 @@ const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
       return;
     }
     
-    console.log("Navegando para pagamento com dados:", musicRequest);
-    navigate("/pagamento", { state: { musicRequest } });
+    // Armazenar os dados do pedido no localStorage para recuperação em caso de perda durante a navegação
+    try {
+      localStorage.setItem("current_music_request", JSON.stringify(musicRequest));
+      console.log("Navegando para pagamento com dados:", musicRequest);
+      
+      // Usar navigate com replace para evitar problemas de histórico de navegação
+      navigate("/pagamento", { 
+        state: { musicRequest },
+        replace: true 
+      });
+    } catch (error) {
+      console.error("Erro ao processar navegação:", error);
+      toast({
+        title: "Erro de navegação",
+        description: "Houve um problema ao redirecionar. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

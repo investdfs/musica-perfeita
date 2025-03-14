@@ -53,7 +53,25 @@ const MusicPlayer = () => {
       if (error) {
         console.error("Erro ao buscar dados do pedido:", error);
       } else if (data) {
-        setRequestData(data);
+        // Garantir que relationship_type seja um dos valores permitidos
+        const validRelationshipTypes = [
+          'esposa', 'noiva', 'namorada', 'amigo_especial', 'partner', 
+          'friend', 'family', 'colleague', 'mentor', 'child', 
+          'sibling', 'parent', 'other'
+        ] as const;
+        
+        // Verificar se o valor recebido é um dos valores válidos
+        const relationshipType = validRelationshipTypes.includes(data.relationship_type as any) 
+          ? data.relationship_type as MusicRequest['relationship_type']
+          : 'other'; // fallback para 'other' se o valor não for válido
+        
+        // Criar objeto tipado corretamente
+        const typedRequest: MusicRequest = {
+          ...data,
+          relationship_type: relationshipType
+        };
+        
+        setRequestData(typedRequest);
       }
     } catch (err) {
       console.error("Erro ao buscar dados do pedido:", err);
@@ -136,7 +154,7 @@ const MusicPlayer = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="p-4 rounded-lg border border-gray-700 bg-red-800">
+                <div className="p-4 rounded-lg border border-gray-700 bg-gray-900/90">
                   <div className="flex items-center mb-2">
                     <Clock className="h-4 w-4 text-indigo-400 mr-2" />
                     <p className="text-sm text-gray-400">Duração</p>

@@ -1,101 +1,134 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Music, Users, Heart, Music2 } from "lucide-react";
-import ScrollToTopButton from "@/components/ui/scroll-to-top";
 
 const Sobre = () => {
-  const navigate = useNavigate();
-
   return (
-    <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex flex-col min-h-screen">
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
       <Header />
-      <main className="flex-grow py-12 px-6">
+      <main className="py-16 px-6">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center p-2 bg-indigo-100 rounded-full mb-4">
-              <Users className="h-8 w-8 text-indigo-600" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Sobre Nós</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Conheça mais sobre o projeto Música Perfeita e nossa missão de 
-              criar emoções através da música personalizada.
+          <h1 className="text-3xl md:text-4xl font-bold text-center mb-6 bg-gradient-to-r from-yellow-400 via-pink-500 to-green-400 bg-clip-text text-transparent">
+            Sobre o Projeto Música Perfeita
+          </h1>
+          
+          <p className="text-center text-gray-600 mb-10 max-w-3xl mx-auto">
+            Criamos músicas personalizadas com inteligência artificial que emocionam e transformam momentos em memórias inesquecíveis
+          </p>
+          
+          <div className="bg-white p-8 rounded-lg shadow-md">
+            <h2 className="text-2xl font-semibold mb-4 text-pink-600">Nossa História</h2>
+            <p className="text-gray-700 mb-6">
+              O <strong>Música Perfeita</strong> nasceu da paixão por unir tecnologia, música e emoção. Percebemos como presentes personalizados 
+              tocam profundamente as pessoas, e decidimos criar um serviço que transforma histórias de amor, 
+              amizade e carinho em canções únicas que ficarão para sempre na memória. Utilizando <strong>inteligência artificial avançada</strong>, 
+              conseguimos criar composições musicais que capturam a essência dos relacionamentos e momentos especiais.
             </p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-lg p-8 mb-12">
-            <div className="flex items-center mb-6">
-              <Music className="h-6 w-6 text-indigo-600 mr-3" />
-              <h2 className="text-2xl font-bold text-gray-800">Sobre o Projeto Música Perfeita</h2>
-            </div>
-            <div className="prose prose-indigo max-w-none">
-              <p>
-                O Música Perfeita nasceu da ideia de que cada momento especial merece uma trilha sonora única. 
-                Nossa equipe dedicada trabalha para transformar histórias pessoais em canções exclusivas que 
-                capturam a essência dos relacionamentos e sentimentos.
-              </p>
-              
-              <p>
-                Utilizamos técnicas avançadas de composição que nos permitem criar músicas totalmente 
-                personalizadas. Nossa abordagem combina recursos de produção musical de ponta com 
-                uma profunda compreensão das narrativas pessoais compartilhadas por nossos clientes.
-              </p>
-              
-              <p>
-                Cada composição é única, criada especificamente para capturar os sentimentos, momentos
-                e conexões importantes para você. Nossa equipe trabalha meticulosamente para garantir que
-                cada nota ressoe com a história que você compartilha conosco.
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            <div className="bg-gradient-to-br from-indigo-500 to-indigo-700 text-white rounded-xl p-8">
-              <div className="flex items-center mb-4">
-                <Heart className="h-6 w-6 mr-3" />
-                <h3 className="text-xl font-bold">Nossa Missão</h3>
+            
+            <h2 className="text-2xl font-semibold mb-4 text-pink-600">Como Funciona</h2>
+            <div className="space-y-4 mb-6">
+              <div className="flex items-start gap-4">
+                <div className="bg-yellow-100 rounded-full p-3 text-xl">1</div>
+                <div>
+                  <h3 className="text-lg font-medium">Cadastro Simples</h3>
+                  <p className="text-gray-700">
+                    Crie uma conta em menos de 1 minuto, sem necessidade de cartão de crédito. 
+                    Nossa plataforma é segura e de fácil navegação, projetada para facilitar seu processo de criação musical.
+                  </p>
+                </div>
               </div>
-              <p className="mb-4">
-                Transformar histórias pessoais em experiências musicais emocionantes que possam ser 
-                apreciadas e compartilhadas, criando memórias duradouras através de canções personalizadas.
-              </p>
-              <p>
-                Acreditamos que cada relacionamento é único e merece uma banda sonora personalizada
-                que capture sua essência especial.
-              </p>
-            </div>
-
-            <div className="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-xl p-8">
-              <div className="flex items-center mb-4">
-                <Music2 className="h-6 w-6 mr-3" />
-                <h3 className="text-xl font-bold">Como Funciona</h3>
+              
+              <div className="flex items-start gap-4">
+                <div className="bg-pink-100 rounded-full p-3 text-xl">2</div>
+                <div>
+                  <h3 className="text-lg font-medium">Conte sua História</h3>
+                  <p className="text-gray-700">
+                    Compartilhe os detalhes importantes, sentimentos e memórias para inspirar a composição.
+                    Quanto mais detalhes você fornecer, mais personalizada e significativa será sua <strong>música exclusiva</strong>.
+                  </p>
+                </div>
               </div>
-              <p className="mb-4">
-                Nosso processo é simples: você nos conta sua história, escolhe o estilo musical 
-                de sua preferência, e nossa equipe transforma essas informações em uma música 
-                personalizada feita especialmente para você.
-              </p>
-              <p>
-                Cada detalhe da sua história é cuidadosamente considerado para criar uma composição 
-                que ressoe verdadeiramente com sua experiência pessoal.
+              
+              <div className="flex items-start gap-4">
+                <div className="bg-green-100 rounded-full p-3 text-xl">3</div>
+                <div>
+                  <h3 className="text-lg font-medium">Ouça e Aprove</h3>
+                  <p className="text-gray-700">
+                    Você receberá uma prévia para aprovar antes de qualquer pagamento. Nossa <strong>inteligência artificial musical</strong> 
+                    criará uma amostra para você avaliar a qualidade e o estilo da composição.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <div className="bg-purple-100 rounded-full p-3 text-xl">4</div>
+                <div>
+                  <h3 className="text-lg font-medium">Receba sua Música</h3>
+                  <p className="text-gray-700">
+                    Após o pagamento, você receberá a <strong>música personalizada completa</strong> para download e compartilhamento.
+                    Ideal para presentes em <strong>aniversários</strong>, <strong>casamentos</strong>, <strong>declarações de amor</strong> e momentos especiais.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <h2 className="text-2xl font-semibold mb-4 text-pink-600">Nossa Missão</h2>
+            <p className="text-gray-700 mb-6">
+              Acreditamos que cada relacionamento tem uma trilha sonora única. Nossa missão é capturar a essência 
+              dos seus sentimentos e transformá-los em uma <strong>experiência musical personalizada</strong> que será lembrada e celebrada por anos.
+              Com <strong>inteligência artificial</strong> e dedicação humana, criamos músicas que tocam corações.
+            </p>
+            
+            <h2 className="text-2xl font-semibold mb-4 text-pink-600">Diferenciais da Nossa Tecnologia</h2>
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              <div className="bg-yellow-50 p-4 rounded-lg">
+                <h3 className="font-medium text-yellow-800 mb-2">IA Musical Avançada</h3>
+                <p className="text-gray-700 text-sm">
+                  Utilizamos algoritmos avançados de inteligência artificial para compor melodias harmonicamente ricas e emocionalmente impactantes.
+                </p>
+              </div>
+              <div className="bg-pink-50 p-4 rounded-lg">
+                <h3 className="font-medium text-pink-800 mb-2">Personalização Profunda</h3>
+                <p className="text-gray-700 text-sm">
+                  Nossa tecnologia captura não apenas nomes e datas, mas contextos emocionais e narrativas pessoais em cada composição.
+                </p>
+              </div>
+              <div className="bg-purple-50 p-4 rounded-lg">
+                <h3 className="font-medium text-purple-800 mb-2">Produção Profissional</h3>
+                <p className="text-gray-700 text-sm">
+                  Cada música é mixada e masterizada com padrões de alta qualidade, garantindo um resultado digno de estúdio.
+                </p>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg">
+                <h3 className="font-medium text-green-800 mb-2">Versatilidade de Estilos</h3>
+                <p className="text-gray-700 text-sm">
+                  Nossa IA é treinada em diversos gêneros musicais, permitindo criar desde baladas românticas até batidas modernas.
+                </p>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-yellow-100 via-pink-100 to-green-100 p-6 rounded-lg mb-8">
+              <h2 className="text-xl font-semibold mb-3 text-center">Inteligência Artificial a Serviço da Emoção</h2>
+              <p className="text-gray-700 text-center mb-4">
+                A <strong>Música Perfeita</strong> utiliza tecnologia de ponta em inteligência artificial para criar composições musicais 
+                que expressam sentimentos humanos de forma genuína e tocante. Nossa tecnologia aprende e evolui constantemente 
+                para oferecer experiências musicais cada vez mais personalizadas.
               </p>
             </div>
-          </div>
-
-          <div className="text-center">
-            <Button 
-              onClick={() => navigate("/dashboard")} 
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg transition-all"
-            >
-              Crie Sua Música Personalizada
-            </Button>
+            
+            <div className="text-center">
+              <Link to="/cadastro">
+                <Button size="lg" className="bg-pink-500 hover:bg-pink-600 text-white">
+                  Crie Sua Música Personalizada
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </main>
       <Footer />
-      <ScrollToTopButton />
     </div>
   );
 };

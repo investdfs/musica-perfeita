@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from "react";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import RequestDetails from "./RequestDetails";
@@ -7,7 +6,6 @@ import { useRequestManagement } from "./useRequestManagement";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
 import RequestsList from "./requests/RequestsList";
-import TechnicalDetailsDialog from "./requests/TechnicalDetailsDialog";
 
 interface RequestsManagementProps {
   requests: MusicRequest[];
@@ -26,7 +24,6 @@ const RequestsManagement = ({
 }: RequestsManagementProps) => {
   const {
     selectedRequest,
-    setSelectedRequest,
     showDetails,
     setShowDetails,
     audioFile,
@@ -44,7 +41,6 @@ const RequestsManagement = ({
     handleSaveMusicLink
   } = useRequestManagement(requests, setRequests);
 
-  const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
   const realtimeChannelRef = useRef<any>(null);
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [localRequests, setLocalRequests] = useState<MusicRequest[]>([]);
@@ -87,8 +83,8 @@ const RequestsManagement = ({
         
         if (data && data.length > 0) {
           console.log('[RequestsManagement] Pedidos encontrados:', data.length);
-          setRequests(data as MusicRequest[]);
-          setLocalRequests(data as MusicRequest[]);
+          setRequests(data);
+          setLocalRequests(data);
         } else {
           console.log('[RequestsManagement] Nenhum pedido encontrado');
         }
@@ -166,42 +162,6 @@ const RequestsManagement = ({
     }, 1000);
   };
 
-  const handleEditTechnicalDetails = (request: MusicRequest) => {
-    setSelectedRequest(request);
-    setShowTechnicalDetails(true);
-  };
-
-  const handleSaveTechnicalDetails = async (requestId: string, details: string) => {
-    try {
-      console.log('[RequestsManagement] Salvando detalhes técnicos para o pedido:', requestId);
-      
-      const { error } = await supabase
-        .from('music_requests')
-        .update({ technical_details: details })
-        .eq('id', requestId);
-      
-      if (error) throw error;
-      
-      // Atualizar a lista local
-      const updatedRequests = requests.map(req => 
-        req.id === requestId 
-          ? { ...req, technical_details: details } 
-          : req
-      );
-      
-      setRequests(updatedRequests as MusicRequest[]);
-      setLocalRequests(updatedRequests as MusicRequest[]);
-      
-      // Se o pedido atualmente selecionado for o que foi atualizado, atualizar também
-      if (selectedRequest && selectedRequest.id === requestId) {
-        setSelectedRequest({ ...selectedRequest, technical_details: details });
-      }
-    } catch (error) {
-      console.error('[RequestsManagement] Erro ao salvar detalhes técnicos:', error);
-      throw error;
-    }
-  };
-
   return (
     <>
       <RequestsList
@@ -216,7 +176,6 @@ const RequestsManagement = ({
         isUploading={isUploading}
         selectedRequestId={selectedRequest?.id || null}
         onSaveMusicLink={handleSaveMusicLink}
-        onEditTechnicalDetails={handleEditTechnicalDetails}
       />
 
       <RequestDetails 
@@ -234,13 +193,6 @@ const RequestsManagement = ({
         handleSendEmail={handleSendEmail}
         getUserName={getUserName}
         getUserEmail={getUserEmail}
-      />
-
-      <TechnicalDetailsDialog
-        isOpen={showTechnicalDetails}
-        onClose={() => setShowTechnicalDetails(false)}
-        request={selectedRequest}
-        onSave={handleSaveTechnicalDetails}
       />
     </>
   );

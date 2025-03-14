@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import * as SliderPrimitive from "@radix-ui/react-slider"
 
@@ -14,7 +13,6 @@ const Slider = React.forwardRef<
       "relative flex w-full touch-none select-none items-center",
       className
     )}
-    disabled={true} // Adicionado disabled=true para impedir interações
     {...props}
   >
     <SliderPrimitive.Track className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">

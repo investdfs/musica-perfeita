@@ -3,22 +3,19 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { formatTime } from "@/lib/formatTime";
 
 interface SoundCloudPlayerProps {
   musicUrl: string;
   downloadUrl?: string;
   limitPlayTime?: boolean;
   playTimeLimit?: number;
-  technicalDetails?: string | null;
 }
 
 const SoundCloudPlayer = ({
   musicUrl,
   downloadUrl,
   limitPlayTime = false,
-  playTimeLimit = 40000,
-  technicalDetails
+  playTimeLimit = 60000
 }: SoundCloudPlayerProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
@@ -31,12 +28,18 @@ const SoundCloudPlayer = ({
   const timeoutRef = useRef<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [audioLoaded, setAudioLoaded] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
 
   const isDirectFile = musicUrl.includes('drive.google.com') || 
                        musicUrl.includes('.mp3') || 
                        musicUrl.includes('.wav') ||
                        musicUrl.includes('wp.novaenergiamg.com.br');
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "00:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -163,12 +166,6 @@ const SoundCloudPlayer = ({
     const offsetX = e.clientX - rect.left;
     const newProgress = (offsetX / rect.width) * 100;
     
-    // Limitar o clique até o ponto máximo permitido na prévia
-    if (limitPlayTime) {
-      const previewLimitPercent = (playTimeLimit / 1000 / (audioRef.current.duration || 1)) * 100;
-      if (newProgress > previewLimitPercent) return;
-    }
-    
     if (newProgress >= 0 && newProgress <= 100) {
       const newTime = (newProgress / 100) * audioRef.current.duration;
       audioRef.current.currentTime = newTime;
@@ -204,18 +201,9 @@ const SoundCloudPlayer = ({
 
   const forward = () => {
     if (!audioRef.current) return;
-    
-    // Se estiver no modo de limite de tempo, limitar o avanço
-    if (limitPlayTime) {
-      const maxTime = playTimeLimit / 1000;
-      const newTime = Math.min(audioRef.current.currentTime + 10, maxTime);
-      audioRef.current.currentTime = newTime;
-      setCurrentTime(newTime);
-    } else {
-      const newTime = Math.min(audioRef.current.currentTime + 10, audioRef.current.duration);
-      audioRef.current.currentTime = newTime;
-      setCurrentTime(newTime);
-    }
+    const newTime = Math.min(audioRef.current.currentTime + 10, audioRef.current.duration);
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
   };
 
   const handleDownload = (downloadUrl: string) => {
@@ -225,14 +213,6 @@ const SoundCloudPlayer = ({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  };
-
-  // Calculando o ponto limitador para a prévia de 40 segundos
-  const calculatePreviewLimitPosition = () => {
-    if (!limitPlayTime || !audioRef.current || !audioRef.current.duration) return "100%";
-    const previewSeconds = playTimeLimit / 1000;
-    const limitPosition = (previewSeconds / audioRef.current.duration) * 100;
-    return `${limitPosition}%`;
   };
 
   if (isDirectFile) {
@@ -259,15 +239,7 @@ const SoundCloudPlayer = ({
             <div className="absolute top-0 left-0 right-0 p-2 bg-gradient-to-r from-indigo-100/80 to-transparent">
               <h3 className="text-gray-700 text-sm font-medium">Música Personalizada</h3>
               {limitPlayTime && (
-                <p className="text-xs text-indigo-500">Prévia limitada a 40 segundos</p>
-              )}
-              {technicalDetails && (
-                <button 
-                  onClick={() => setShowDetails(!showDetails)}
-                  className="text-xs text-purple-600 underline mt-1"
-                >
-                  Ver detalhes técnicos
-                </button>
+                <p className="text-xs text-indigo-500">Prévia limitada a 60 segundos</p>
               )}
             </div>
           </div>
@@ -286,45 +258,20 @@ const SoundCloudPlayer = ({
             </div>
           )}
 
-          {showDetails && technicalDetails && (
-            <div className="bg-purple-50 border border-purple-200 p-3 mb-4 rounded-lg text-sm">
-              <h4 className="font-medium text-purple-800 mb-1">Detalhes técnicos da composição</h4>
-              <p className="text-gray-700 whitespace-pre-wrap">{technicalDetails}</p>
-            </div>
-          )}
-
-          <div className="relative">
+          <div 
+            ref={progressRef}
+            className="w-full h-2 bg-gray-200 rounded-full cursor-pointer overflow-hidden mb-2"
+            onClick={handleProgressClick}
+          >
             <div 
-              ref={progressRef}
-              className="w-full h-2 bg-gray-200 rounded-full cursor-pointer overflow-hidden mb-2 relative"
-              onClick={handleProgressClick}
-            >
-              <div 
-                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
-                style={{ width: `${progress}%` }}
-              />
-              
-              {/* Marcador de limite de 40 segundos */}
-              {limitPlayTime && audioLoaded && (
-                <div 
-                  className="absolute top-0 bottom-0 w-1 bg-red-500 z-10"
-                  style={{ 
-                    left: calculatePreviewLimitPosition(),
-                    boxShadow: '0 0 5px rgba(239, 68, 68, 0.7)'
-                  }}
-                />
-              )}
-            </div>
+              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
 
-            <div className="flex justify-between text-xs text-gray-500 mb-4">
-              <div>{formatTime(currentTime)}</div>
-              <div>
-                {limitPlayTime ? "00:40" : formatTime(duration)}
-                {limitPlayTime && (
-                  <span className="text-red-500 ml-1 animate-pulse">*</span>
-                )}
-              </div>
-            </div>
+          <div className="flex justify-between text-xs text-gray-500 mb-4">
+            <div>{formatTime(currentTime)}</div>
+            <div>{limitPlayTime ? "01:00" : formatTime(duration)}</div>
           </div>
 
           <div className="flex items-center justify-center space-x-4 mb-6">
@@ -381,7 +328,7 @@ const SoundCloudPlayer = ({
             
             {limitPlayTime && (
               <div className="text-xs text-indigo-500 animate-pulse">
-                Prévia de 40 segundos
+                Prévia de 60 segundos
               </div>
             )}
             
@@ -401,7 +348,7 @@ const SoundCloudPlayer = ({
         
         {limitPlayTime && (
           <div className="text-center text-sm bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-gray-700 w-full max-w-md">
-            <p>Esta é uma prévia limitada a 40 segundos. Adquira a versão completa para ouvir a música inteira.</p>
+            <p>Esta é uma prévia limitada a 60 segundos. Adquira a versão completa para ouvir a música inteira.</p>
           </div>
         )}
       </div>
@@ -424,25 +371,9 @@ const SoundCloudPlayer = ({
           ></iframe>
         </div>
         
-        {technicalDetails && (
-          <div 
-            className="w-full p-4 bg-purple-50 border border-purple-200 rounded-lg text-sm text-gray-700 cursor-pointer"
-            onClick={() => setShowDetails(!showDetails)}
-          >
-            <div className="flex items-center justify-between">
-              <h4 className="font-medium text-purple-800">Detalhes técnicos da composição</h4>
-              <span className="text-purple-600">{showDetails ? "▼" : "▶"}</span>
-            </div>
-            
-            {showDetails && (
-              <p className="mt-2 whitespace-pre-wrap">{technicalDetails}</p>
-            )}
-          </div>
-        )}
-        
         {limitPlayTime && (
           <div className="text-center text-sm bg-gradient-to-r from-purple-900/30 to-indigo-900/30 p-3 rounded-lg backdrop-blur-sm border border-purple-800/30 text-indigo-200 w-full max-w-md">
-            <p>Esta é uma prévia limitada a 40 segundos. Adquira a versão completa para ouvir a música inteira.</p>
+            <p>Esta é uma prévia limitada a 30 segundos. Adquira a versão completa para ouvir a música inteira.</p>
           </div>
         )}
         

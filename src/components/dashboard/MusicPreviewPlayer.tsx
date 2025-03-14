@@ -1,30 +1,26 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Music, PlayCircle, PauseCircle, ExternalLink, Lock, FileText } from "lucide-react";
+import { Download, Music, PlayCircle, PauseCircle, ExternalLink, Lock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface MusicPreviewPlayerProps {
   previewUrl: string;
   fullSongUrl: string | null;
   isCompleted: boolean;
   paymentStatus?: string;
-  technicalDetails?: string | null;
 }
 
 const MusicPreviewPlayer = ({ 
   previewUrl, 
   fullSongUrl, 
   isCompleted,
-  paymentStatus = 'pending',
-  technicalDetails
+  paymentStatus = 'pending'
 }: MusicPreviewPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [isSoundCloud, setIsSoundCloud] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
   const navigate = useNavigate();
   
   const isPaid = paymentStatus === 'completed';
@@ -69,8 +65,7 @@ const MusicPreviewPlayer = ({
         state: { 
           musicUrl: previewUrl,
           downloadUrl: isCompleted && isPaid ? fullSongUrl : undefined,
-          paymentStatus: paymentStatus,
-          technicalDetails: technicalDetails
+          paymentStatus: paymentStatus
         } 
       });
     } else if (audioElement) {
@@ -97,8 +92,7 @@ const MusicPreviewPlayer = ({
           state: { 
             musicUrl: fullSongUrl, 
             downloadUrl: isPaid ? fullSongUrl : undefined,
-            paymentStatus: paymentStatus,
-            technicalDetails: technicalDetails
+            paymentStatus: paymentStatus
           } 
         });
       } else {
@@ -139,23 +133,12 @@ const MusicPreviewPlayer = ({
                     ? isPaid 
                       ? 'Música completa disponível' 
                       : 'Música pronta - Aguardando pagamento'
-                    : 'Prévia de 40 segundos disponível'}
+                    : 'Prévia de 30 segundos disponível'}
                 </p>
               </div>
             </div>
             
             <div className="flex space-x-2">
-              {technicalDetails && (
-                <Button 
-                  variant="outline" 
-                  className="flex items-center gap-1 text-purple-600 border-purple-200"
-                  onClick={() => setShowDetails(true)}
-                >
-                  <FileText className="h-4 w-4" />
-                  Detalhes
-                </Button>
-              )}
-              
               <Button 
                 variant="outline" 
                 className="flex items-center gap-1"
@@ -200,17 +183,6 @@ const MusicPreviewPlayer = ({
             </div>
             
             <div className="flex space-x-2">
-              {technicalDetails && (
-                <Button 
-                  variant="outline" 
-                  className="flex items-center gap-1 text-purple-600 border-purple-200"
-                  onClick={() => setShowDetails(true)}
-                >
-                  <FileText className="h-4 w-4" />
-                  Detalhes
-                </Button>
-              )}
-              
               <Button 
                 variant="outline" 
                 className="flex items-center gap-1"
@@ -263,48 +235,23 @@ const MusicPreviewPlayer = ({
               </div>
             </div>
             
-            <div className="flex space-x-2">
-              {technicalDetails && (
-                <Button 
-                  variant="outline" 
-                  className="flex items-center gap-1 text-purple-600 border-purple-200"
-                  onClick={() => setShowDetails(true)}
-                >
-                  <FileText className="h-4 w-4" />
-                  Detalhes
-                </Button>
-              )}
-            
-              {isCompleted && (
-                <Button 
-                  variant="outline" 
-                  className="flex items-center gap-1"
-                  onClick={handleAccessFullSong}
-                >
-                  {isPaid ? (
-                    <Download className="h-4 w-4" />
-                  ) : (
-                    <Lock className="h-4 w-4" />
-                  )}
-                  Acessar
-                </Button>
-              )}
-            </div>
+            {isCompleted && (
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-1"
+                onClick={handleAccessFullSong}
+              >
+                {isPaid ? (
+                  <Download className="h-4 w-4" />
+                ) : (
+                  <Lock className="h-4 w-4" />
+                )}
+                Acessar
+              </Button>
+            )}
           </div>
         </div>
       )}
-
-      {/* Dialog de detalhes técnicos */}
-      <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-purple-800">Detalhes Técnicos da Composição</DialogTitle>
-          </DialogHeader>
-          <div className="mt-4 whitespace-pre-wrap text-gray-700 bg-purple-50 p-4 rounded-lg border border-purple-100">
-            {technicalDetails || "Detalhes técnicos não disponíveis para esta música."}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

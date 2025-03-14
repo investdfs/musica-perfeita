@@ -1,156 +1,150 @@
 
-import { useState } from "react";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { MusicRequest } from "@/types/database.types";
-import { ChevronDown, ChevronUp, Clock, Play, Music, CheckCircle, DollarSign } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { formatDate } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { 
+  Clock, 
+  Music, 
+  Heart, 
+  HeartPulse,
+  CheckCircle, 
+  AlertCircle,
+  Hourglass
+} from "lucide-react";
+import MusicPreviewPlayer from "./MusicPreviewPlayer";
+import TechnicalDetailsViewer from "../music/TechnicalDetailsViewer";
 
 interface OrderCardProps {
   request: MusicRequest;
 }
 
 const OrderCard = ({ request }: OrderCardProps) => {
-  const [expanded, setExpanded] = useState(false);
-  const navigate = useNavigate();
-  
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR });
-  };
-
-  const getStatusBadge = () => {
+  // Determinar o status do pedido para exibição
+  const getStatusInfo = () => {
     switch (request.status) {
       case 'pending':
-        return (
-          <div className="flex items-center px-2 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-medium">
-            <Clock className="w-3 h-3 mr-1" />
-            Pendente
-          </div>
-        );
+        return {
+          label: 'Pendente',
+          icon: <AlertCircle className="h-4 w-4 mr-1 text-yellow-500" />,
+          description: 'Seu pedido está em análise pela nossa equipe.',
+          color: 'text-yellow-600'
+        };
       case 'in_production':
-        return (
-          <div className="flex items-center px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-            <svg className="animate-spin w-3 h-3 mr-1" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Em Produção
-          </div>
-        );
+        return {
+          label: 'Em Produção',
+          icon: <Hourglass className="h-4 w-4 mr-1 text-blue-500" />,
+          description: 'Sua música está sendo produzida! Em breve você receberá uma prévia.',
+          color: 'text-blue-600'
+        };
       case 'completed':
-        return (
-          <div className="flex items-center px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Concluído
-          </div>
-        );
+        return {
+          label: 'Concluído',
+          icon: <CheckCircle className="h-4 w-4 mr-1 text-green-500" />,
+          description: request.payment_status === 'completed' 
+            ? 'Sua música está pronta e disponível para download!'
+            : 'Sua música está pronta! Faça o pagamento para baixar a versão completa.',
+          color: 'text-green-600'
+        };
       default:
-        return null;
+        return {
+          label: 'Desconhecido',
+          icon: <AlertCircle className="h-4 w-4 mr-1 text-gray-500" />,
+          description: 'Status desconhecido.',
+          color: 'text-gray-600'
+        };
     }
   };
 
-  const getPaymentBadge = () => {
-    switch (request.payment_status) {
-      case 'pending':
-        return (
-          <div className="flex items-center px-2 py-1 rounded-full bg-red-100 text-red-700 text-xs font-medium">
-            <DollarSign className="w-3 h-3 mr-1" />
-            Não Pago
-          </div>
-        );
-      case 'completed':
-        return (
-          <div className="flex items-center px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-            <CheckCircle className="w-3 h-3 mr-1" />
-            Pago
-          </div>
-        );
-      default:
-        return null;
+  const getPaymentStatusInfo = () => {
+    if (request.payment_status === 'completed') {
+      return {
+        label: 'Pago',
+        icon: <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
+      };
+    } else {
+      return {
+        label: 'Aguardando Pagamento',
+        icon: <AlertCircle className="h-4 w-4 mr-1 text-red-500" />
+      };
     }
   };
 
-  const showPreviewButton = request.status === 'completed' && request.preview_url;
+  const statusInfo = getStatusInfo();
+  const paymentStatusInfo = getPaymentStatusInfo();
 
   return (
-    <Card className="border-blue-100 hover:shadow-md transition-all duration-200 overflow-hidden mb-3">
-      <CardContent className="p-0">
-        <div className="p-4">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-            <div>
-              <h3 className="font-medium text-gray-900 truncate">
-                Para: {request.honoree_name}
-              </h3>
-              <p className="text-sm text-gray-500">
-                Criado em: {formatDate(request.created_at)}
-              </p>
-            </div>
-            
-            <div className="flex gap-2">
-              {getStatusBadge()}
-              {getPaymentBadge()}
+    <div className="border border-blue-100 rounded-lg overflow-hidden mb-4 bg-white shadow">
+      <div className="p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+          <div>
+            <h3 className="font-bold text-lg text-gray-900 mb-1">
+              Música para {request.honoree_name}
+            </h3>
+            <div className="flex flex-wrap items-center text-sm text-gray-500 gap-3 mb-2">
+              <span className="flex items-center">
+                <Clock className="h-4 w-4 mr-1 text-blue-500" />
+                {formatDate(request.created_at)}
+              </span>
+              <span className="flex items-center">
+                <Heart className="h-4 w-4 mr-1 text-pink-500" />
+                {request.relationship_type === 'other' 
+                  ? request.custom_relationship 
+                  : request.relationship_type}
+              </span>
+              <span className="flex items-center">
+                <Music className="h-4 w-4 mr-1 text-purple-500" />
+                {request.music_genre}
+              </span>
+              {request.music_tone && (
+                <span className="flex items-center">
+                  <HeartPulse className="h-4 w-4 mr-1 text-indigo-500" />
+                  {request.music_tone}
+                </span>
+              )}
             </div>
           </div>
-          
-          {showPreviewButton && (
-            <div className="mt-3 flex justify-center">
-              <Button 
-                onClick={() => navigate("/music-player", { state: { musicRequest: request } })}
-                className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-              >
-                <Play className="mr-2 h-4 w-4" />
-                Ouvir Prévia
-              </Button>
-            </div>
-          )}
-          
-          <button 
-            onClick={() => setExpanded(!expanded)}
-            className="mt-3 w-full flex items-center justify-center text-gray-500 hover:text-gray-700 text-sm"
-          >
-            {expanded ? (
-              <>Mostrar menos <ChevronUp className="h-4 w-4 ml-1" /></>
-            ) : (
-              <>Ver detalhes <ChevronDown className="h-4 w-4 ml-1" /></>
+          <div className="flex flex-col sm:items-end gap-2">
+            <Badge variant={request.status === 'completed' ? 'success' : request.status === 'in_production' ? 'info' : 'warning'} className="text-xs">
+              <div className="flex items-center">
+                {statusInfo.icon}
+                {statusInfo.label}
+              </div>
+            </Badge>
+            {request.status === 'completed' && (
+              <Badge variant={request.payment_status === 'completed' ? 'success' : 'destructive'} className="text-xs">
+                <div className="flex items-center">
+                  {paymentStatusInfo.icon}
+                  {paymentStatusInfo.label}
+                </div>
+              </Badge>
             )}
-          </button>
+          </div>
         </div>
         
-        {expanded && (
-          <div className="px-4 pb-4 pt-1 border-t border-gray-100">
-            <div className="grid grid-cols-2 gap-2 text-sm mb-2">
-              <div>
-                <p className="font-medium text-gray-700">Relacionamento</p>
-                <p className="text-gray-600">{request.relationship_type}</p>
-              </div>
-              <div>
-                <p className="font-medium text-gray-700">Gênero</p>
-                <p className="text-gray-600">{request.music_genre}</p>
-              </div>
-              {request.music_tone && (
-                <div>
-                  <p className="font-medium text-gray-700">Tom</p>
-                  <p className="text-gray-600">{request.music_tone}</p>
-                </div>
-              )}
-              {request.voice_type && (
-                <div>
-                  <p className="font-medium text-gray-700">Voz</p>
-                  <p className="text-gray-600">{request.voice_type.replace('_', ' ')}</p>
-                </div>
-              )}
-            </div>
-            <div>
-              <p className="font-medium text-gray-700 mb-1">História</p>
-              <p className="text-gray-600 text-sm line-clamp-3">{request.story}</p>
-            </div>
+        <p className={`text-sm ${statusInfo.color} mb-4`}>
+          {statusInfo.description}
+        </p>
+        
+        {/* Player de música de prévia, se disponível */}
+        {(request.preview_url || request.full_song_url) && (
+          <div className="mb-4">
+            <MusicPreviewPlayer 
+              previewUrl={request.preview_url || request.full_song_url || ''}
+              fullSongUrl={request.full_song_url}
+              isCompleted={request.status === 'completed'}
+              paymentStatus={request.payment_status}
+            />
           </div>
         )}
-      </CardContent>
-    </Card>
+        
+        {/* Detalhes técnicos, se disponíveis */}
+        {request.has_technical_details && (
+          <div className="mt-4">
+            <TechnicalDetailsViewer request={request} variant="inline" />
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

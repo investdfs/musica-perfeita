@@ -52,6 +52,7 @@ export type Database = {
           custom_relationship: string | null
           full_song_url: string | null
           happy_memory: string | null
+          has_technical_details: boolean | null
           honoree_name: string
           id: string
           include_names: boolean
@@ -65,6 +66,7 @@ export type Database = {
           sad_memory: string | null
           status: string
           story: string
+          technical_details: string | null
           user_id: string
           voice_type: string | null
         }
@@ -74,6 +76,7 @@ export type Database = {
           custom_relationship?: string | null
           full_song_url?: string | null
           happy_memory?: string | null
+          has_technical_details?: boolean | null
           honoree_name: string
           id?: string
           include_names?: boolean
@@ -87,6 +90,7 @@ export type Database = {
           sad_memory?: string | null
           status?: string
           story: string
+          technical_details?: string | null
           user_id: string
           voice_type?: string | null
         }
@@ -96,6 +100,7 @@ export type Database = {
           custom_relationship?: string | null
           full_song_url?: string | null
           happy_memory?: string | null
+          has_technical_details?: boolean | null
           honoree_name?: string
           id?: string
           include_names?: boolean
@@ -109,6 +114,7 @@ export type Database = {
           sad_memory?: string | null
           status?: string
           story?: string
+          technical_details?: string | null
           user_id?: string
           voice_type?: string | null
         }

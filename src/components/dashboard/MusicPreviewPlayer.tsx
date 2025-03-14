@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Music, PlayCircle, PauseCircle, ExternalLink, Lock } from "lucide-react";
@@ -32,12 +31,10 @@ const MusicPreviewPlayer = ({
   );
 
   useEffect(() => {
-    // Verifica se é um link do SoundCloud
     if (previewUrl && (previewUrl.includes('soundcloud.com') || previewUrl.includes('api.soundcloud.com'))) {
       setIsSoundCloud(true);
     } else {
       setIsSoundCloud(false);
-      // Se não for SoundCloud, cria elemento de áudio para arquivos regulares
       if (previewUrl && !previewUrl.startsWith('temp:') && isDirectFileLink) {
         const audio = new Audio(previewUrl);
         audio.addEventListener('ended', () => setIsPlaying(false));
@@ -56,10 +53,8 @@ const MusicPreviewPlayer = ({
     if (!audioElement && !isSoundCloud && !isDirectFileLink) return;
     
     if (isSoundCloud) {
-      // Se for SoundCloud, abrir no player dedicado
       navigate("/music-player", { state: { musicUrl: previewUrl } });
     } else if (isDirectFileLink) {
-      // Se for link direto, abrir no player completo
       const playerUrl = isCompleted ? "/music-player-full" : "/music-player";
       navigate(playerUrl, { 
         state: { 
@@ -121,7 +116,6 @@ const MusicPreviewPlayer = ({
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       {isSoundCloud ? (
-        // Para URLs do SoundCloud, oferecemos botões de ação em vez de embutir o player aqui
         <div className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -133,7 +127,7 @@ const MusicPreviewPlayer = ({
                     ? isPaid 
                       ? 'Música completa disponível' 
                       : 'Música pronta - Aguardando pagamento'
-                    : 'Prévia de 30 segundos disponível'}
+                    : 'Prévia de 40 segundos disponível'}
                 </p>
               </div>
             </div>
@@ -165,7 +159,6 @@ const MusicPreviewPlayer = ({
           </div>
         </div>
       ) : isDirectFileLink ? (
-        // Para links diretos de arquivo
         <div className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -177,7 +170,7 @@ const MusicPreviewPlayer = ({
                     ? isPaid 
                       ? 'Música completa disponível' 
                       : 'Música pronta - Aguardando pagamento'
-                    : 'Prévia disponível'}
+                    : 'Prévia de 40 segundos disponível'}
                 </p>
               </div>
             </div>
@@ -210,7 +203,6 @@ const MusicPreviewPlayer = ({
           </div>
         </div>
       ) : (
-        // Player customizado para arquivos de áudio regulares
         <div className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -230,7 +222,7 @@ const MusicPreviewPlayer = ({
                     ? isPaid 
                       ? 'Música completa disponível' 
                       : 'Música pronta - Aguardando pagamento para liberar música completa'
-                    : 'Aguardando produção da música'}
+                    : 'Aguardando produção da música - Prévia de 40 segundos'}
                 </p>
               </div>
             </div>

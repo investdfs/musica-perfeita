@@ -32,4 +32,6 @@ export type MusicRequest = {
   music_focus?: string | null;
   happy_memory?: string | null;
   sad_memory?: string | null;
+  technical_details?: string | null;
+  has_technical_details?: boolean;
 };

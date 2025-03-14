@@ -1,87 +1,80 @@
-
+import { useState, useEffect, lazy, Suspense } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { UserProfile } from "@/types/database.types";
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import Home from "./pages/Home";
-import Cadastro from "./pages/Cadastro";
-import Login from "./pages/Login";
-import Sobre from "./pages/Sobre";
-import Dashboard from "./pages/Dashboard";
-import Pagamento from "./pages/Pagamento";
-import Confirmacao from "./pages/Confirmacao";
-import Admin from "./pages/Admin";
-import AdminLogin from "./pages/AdminLogin";
-import NotFound from "./pages/NotFound";
-import MusicPlayer from "./pages/MusicPlayer";
-import MusicPlayerFull from "./pages/MusicPlayerFull";
-import NossasMusicas from "./pages/NossasMusicas";
-import Depoimentos from "./pages/Depoimentos";
-import FAQ from "./pages/FAQ";
-import TermosCondicoes from "./pages/TermosCondicoes";
-import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
-import AuthGuard from "./components/auth/AuthGuard";
-import { ThemeProvider } from "./components/theme/ThemeProvider";
-import FakeNotifications from "./components/home/FakeNotifications";
-import { useEffect } from "react";
+import ScrollToTopButton from "@/components/ui/scroll-to-top-button";
+import Loading from "@/components/Loading";
 
-const queryClient = new QueryClient();
+// Páginas carregadas diretamente
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
-// Componente para lidar com redirecionamentos de 404
-const RedirectHandler = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
-  
+// Páginas carregadas com lazy loading
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const AdminPage = lazy(() => import("./pages/AdminPage"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const MusicCatalogPage = lazy(() => import("./pages/MusicCatalogPage"));
+const MusicPlayer = lazy(() => import("./pages/MusicPlayer"));
+const MusicPlayerFull = lazy(() => import("./pages/MusicPlayerFull"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+
+function App() {
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
   useEffect(() => {
-    // Verifica se há um caminho armazenado no sessionStorage
-    const redirectPath = sessionStorage.getItem('redirectPath');
-    if (redirectPath) {
-      // Remove do sessionStorage para não redirecionar novamente
-      sessionStorage.removeItem('redirectPath');
-      // Navega para o caminho armazenado
-      navigate(redirectPath);
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
-  }, [navigate]);
-  
-  return <>{children}</>;
-};
+    setLoading(false);
+  }, []);
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter basename="/">
-          <RedirectHandler>
-            <FakeNotifications />
-            <AuthGuard>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/cadastro" element={<Cadastro />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/sobre" element={<Sobre />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/pagamento" element={<Pagamento />} />
-                <Route path="/confirmacao" element={<Confirmacao />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/admin-login" element={<AdminLogin />} />
-                <Route path="/music-player" element={<MusicPlayer />} />
-                <Route path="/music-player-full" element={<MusicPlayerFull />} />
-                <Route path="/nossas-musicas" element={<NossasMusicas />} />
-                <Route path="/depoimentos" element={<Depoimentos />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/termos-condicoes" element={<TermosCondicoes />} />
-                <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AuthGuard>
-          </RedirectHandler>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
-);
+  const handleLogin = (user: UserProfile) => {
+    setUser(user);
+    localStorage.setItem("user", JSON.stringify(user));
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
+
+  return (
+    <Router>
+      <Suspense fallback={<Loading />}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+          <Route path="/cadastro" element={<RegisterPage onRegister={handleLogin} />} />
+          <Route path="/dashboard" element={
+            user ? <DashboardPage userProfile={user} onLogout={handleLogout} /> : <Navigate to="/login" />
+          } />
+          <Route path="/admin" element={
+            user?.is_admin ? <AdminPage userProfile={user} onLogout={handleLogout} /> : <Navigate to="/login" />
+          } />
+          <Route path="/pagamento" element={<CheckoutPage userProfile={user} />} />
+          <Route path="/sobre" element={<AboutPage />} />
+          <Route path="/contato" element={<ContactPage />} />
+          <Route path="/nossas-musicas" element={<MusicCatalogPage />} />
+          <Route path="/music-player" element={<MusicPlayer />} />
+          <Route path="/music-player-full" element={<MusicPlayerFull />} />
+          <Route path="/privacidade" element={<PrivacyPage />} />
+          <Route path="/termos" element={<TermsPage />} />
+          <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
+      <ScrollToTopButton />
+      <Toaster />
+    </Router>
+  );
+}
 
 export default App;

@@ -3,19 +3,22 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Play, Pause, Volume2, VolumeX, SkipBack, SkipForward } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Slider } from "@/components/ui/slider";
 
 interface SoundCloudPlayerProps {
   musicUrl: string;
   downloadUrl?: string;
   limitPlayTime?: boolean;
   playTimeLimit?: number;
+  isInteractive?: boolean;
 }
 
 const SoundCloudPlayer = ({
   musicUrl,
   downloadUrl,
   limitPlayTime = false,
-  playTimeLimit = 60000
+  playTimeLimit = 40000, // Alterado para 40 segundos como padrão
+  isInteractive = true
 }: SoundCloudPlayerProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
@@ -56,6 +59,15 @@ const SoundCloudPlayer = ({
 
     const updateProgress = () => {
       if (!audio || audio.duration === 0) return;
+      
+      // Se tiver limite de tempo e o tempo atual ultrapassar o limite, pausar o áudio
+      if (limitPlayTime && (audio.currentTime * 1000) >= playTimeLimit) {
+        audio.pause();
+        setIsPlaying(false);
+        console.log(`Limite de tempo de ${playTimeLimit/1000} segundos atingido. Pausando automaticamente.`);
+        return;
+      }
+      
       const currentProgress = (audio.currentTime / audio.duration) * 100;
       setProgress(currentProgress);
       setCurrentTime(audio.currentTime);
@@ -97,35 +109,9 @@ const SoundCloudPlayer = ({
         window.clearTimeout(timeoutRef.current);
       }
     };
-  }, [musicUrl, volume, isMuted]);
+  }, [musicUrl, volume, isMuted, limitPlayTime, playTimeLimit]);
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (timeoutRef.current) {
-      window.clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-
-    if (limitPlayTime && isPlaying) {
-      console.log(`Configurando limite de tempo: ${playTimeLimit/1000} segundos`);
-      
-      timeoutRef.current = window.setTimeout(() => {
-        if (audio) {
-          console.log(`Tempo limite atingido (${playTimeLimit/1000} segundos). Pausando...`);
-          audio.pause();
-          setIsPlaying(false);
-        }
-      }, playTimeLimit);
-    }
-
-    return () => {
-      if (timeoutRef.current) {
-        window.clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [isPlaying, limitPlayTime, playTimeLimit]);
+  // Removido o useEffect para timeout, pois agora controlamos no timeupdate
 
   const togglePlay = () => {
     const audio = audioRef.current;
@@ -159,12 +145,22 @@ const SoundCloudPlayer = ({
   };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!audioRef.current || !progressRef.current) return;
+    // Se não for interativo, não permitir cliques na barra de progresso
+    if (!isInteractive || !audioRef.current || !progressRef.current) return;
     
     const progressBar = progressRef.current;
     const rect = progressBar.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
     const newProgress = (offsetX / rect.width) * 100;
+    
+    // Se tiver limite de tempo, não permitir avançar além do limite
+    if (limitPlayTime) {
+      const limitPercentage = (playTimeLimit / 1000 / audioRef.current.duration) * 100;
+      if (newProgress > limitPercentage) {
+        console.log(`Não é possível avançar além do limite de ${playTimeLimit/1000} segundos.`);
+        return;
+      }
+    }
     
     if (newProgress >= 0 && newProgress <= 100) {
       const newTime = (newProgress / 100) * audioRef.current.duration;
@@ -182,14 +178,14 @@ const SoundCloudPlayer = ({
     setIsMuted(newMutedState);
   };
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value);
+  const handleVolumeChange = (newVolume: number[]) => {
+    const volumeValue = newVolume[0];
     if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-      audioRef.current.muted = newVolume === 0;
+      audioRef.current.volume = volumeValue;
+      audioRef.current.muted = volumeValue === 0;
     }
-    setVolume(newVolume);
-    setIsMuted(newVolume === 0);
+    setVolume(volumeValue);
+    setIsMuted(volumeValue === 0);
   };
 
   const restart = () => {
@@ -201,6 +197,15 @@ const SoundCloudPlayer = ({
 
   const forward = () => {
     if (!audioRef.current) return;
+    
+    // Se tiver limite de tempo, não permitir avançar além do limite
+    if (limitPlayTime) {
+      const maxTime = Math.min(audioRef.current.currentTime + 10, playTimeLimit / 1000);
+      audioRef.current.currentTime = maxTime;
+      setCurrentTime(maxTime);
+      return;
+    }
+    
     const newTime = Math.min(audioRef.current.currentTime + 10, audioRef.current.duration);
     audioRef.current.currentTime = newTime;
     setCurrentTime(newTime);
@@ -213,6 +218,12 @@ const SoundCloudPlayer = ({
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // Calcular onde deve ficar o marcador de limite de tempo
+  const calculateLimitPosition = () => {
+    if (!limitPlayTime || !duration) return 0;
+    return (playTimeLimit / 1000 / duration) * 100;
   };
 
   if (isDirectFile) {
@@ -239,7 +250,7 @@ const SoundCloudPlayer = ({
             <div className="absolute top-0 left-0 right-0 p-2 bg-gradient-to-r from-indigo-100/80 to-transparent">
               <h3 className="text-gray-700 text-sm font-medium">Música Personalizada</h3>
               {limitPlayTime && (
-                <p className="text-xs text-indigo-500">Prévia limitada a 60 segundos</p>
+                <p className="text-xs text-indigo-500">Prévia limitada a 40 segundos</p>
               )}
             </div>
           </div>
@@ -260,18 +271,30 @@ const SoundCloudPlayer = ({
 
           <div 
             ref={progressRef}
-            className="w-full h-2 bg-gray-200 rounded-full cursor-pointer overflow-hidden mb-2"
-            onClick={handleProgressClick}
+            className={`w-full h-2 bg-gray-200 rounded-full ${isInteractive ? 'cursor-pointer' : 'cursor-not-allowed'} overflow-hidden mb-2 relative`}
+            onClick={isInteractive ? handleProgressClick : undefined}
           >
             <div 
               className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
               style={{ width: `${progress}%` }}
             />
+            
+            {/* Marcador de limite de tempo */}
+            {limitPlayTime && (
+              <div 
+                className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10"
+                style={{ 
+                  left: `${calculateLimitPosition()}%`,
+                  boxShadow: '0 0 4px rgba(239, 68, 68, 0.8)'
+                }}
+                title={`Limite de prévia: ${playTimeLimit/1000} segundos`}
+              />
+            )}
           </div>
 
           <div className="flex justify-between text-xs text-gray-500 mb-4">
             <div>{formatTime(currentTime)}</div>
-            <div>{limitPlayTime ? "01:00" : formatTime(duration)}</div>
+            <div>{limitPlayTime ? formatTime(playTimeLimit/1000) : formatTime(duration)}</div>
           </div>
 
           <div className="flex items-center justify-center space-x-4 mb-6">
@@ -314,21 +337,19 @@ const SoundCloudPlayer = ({
               </button>
 
               <div className="w-24">
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={isMuted ? 0 : volume}
-                  onChange={handleVolumeChange}
-                  className="w-full accent-indigo-500"
+                <Slider
+                  defaultValue={[volume]}
+                  max={1}
+                  step={0.01}
+                  onValueChange={handleVolumeChange}
+                  className="w-full"
                 />
               </div>
             </div>
             
             {limitPlayTime && (
               <div className="text-xs text-indigo-500 animate-pulse">
-                Prévia de 60 segundos
+                Prévia de 40 segundos
               </div>
             )}
             
@@ -348,7 +369,7 @@ const SoundCloudPlayer = ({
         
         {limitPlayTime && (
           <div className="text-center text-sm bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-gray-700 w-full max-w-md">
-            <p>Esta é uma prévia limitada a 60 segundos. Adquira a versão completa para ouvir a música inteira.</p>
+            <p>Esta é uma prévia limitada a 40 segundos. Adquira a versão completa para ouvir a música inteira.</p>
           </div>
         )}
       </div>
@@ -373,7 +394,7 @@ const SoundCloudPlayer = ({
         
         {limitPlayTime && (
           <div className="text-center text-sm bg-gradient-to-r from-purple-900/30 to-indigo-900/30 p-3 rounded-lg backdrop-blur-sm border border-purple-800/30 text-indigo-200 w-full max-w-md">
-            <p>Esta é uma prévia limitada a 30 segundos. Adquira a versão completa para ouvir a música inteira.</p>
+            <p>Esta é uma prévia limitada a 40 segundos. Adquira a versão completa para ouvir a música inteira.</p>
           </div>
         )}
         

@@ -23,10 +23,12 @@ import {
   ExternalLink, 
   MoreHorizontal, 
   CheckCircle, 
-  AlertTriangle 
+  AlertTriangle,
+  FileText
 } from "lucide-react";
 import { MusicRequest } from "@/types/database.types";
 import { toast } from "@/hooks/use-toast";
+import TechnicalDetailsPopup from "./TechnicalDetailsPopup";
 
 interface RequestRowProps {
   request: MusicRequest;
@@ -56,6 +58,7 @@ const RequestRow = ({
   const [musicLink, setMusicLink] = useState<string>('');
   const [errorState, setErrorState] = useState<string>('');
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -168,10 +171,27 @@ const RequestRow = ({
               </span>
             )}
           </Button>
+          
+          {/* Botão para abrir o popup de detalhes técnicos */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowTechnicalDetails(true)}
+            className="h-8 ml-1 text-purple-600 hover:text-purple-800 hover:bg-purple-50"
+            title="Detalhes Técnicos"
+          >
+            <FileText className="w-4 h-4" />
+          </Button>
         </div>
         {request.full_song_url && (
           <div className="mt-1 text-xs text-green-600 truncate">
             ✓ Música disponível: {request.full_song_url.substring(0, 40)}...
+          </div>
+        )}
+        {request.has_technical_details && (
+          <div className="mt-1 text-xs text-purple-600 truncate flex items-center">
+            <FileText className="w-3 h-3 mr-1" />
+            ✓ Detalhes técnicos disponíveis
           </div>
         )}
       </TableCell>
@@ -219,6 +239,11 @@ const RequestRow = ({
                 Ver Detalhes
               </DropdownMenuItem>
               
+              <DropdownMenuItem onClick={() => setShowTechnicalDetails(true)}>
+                <FileText className="w-4 h-4 mr-2" />
+                Editar Detalhes Técnicos
+              </DropdownMenuItem>
+              
               <DropdownMenuSeparator />
               <DropdownMenuLabel>Alterar Status</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => onUpdateStatus(request.id, 'pending')}>
@@ -243,6 +268,13 @@ const RequestRow = ({
           </DropdownMenu>
         </div>
       </TableCell>
+      
+      {/* Popup de detalhes técnicos */}
+      <TechnicalDetailsPopup
+        request={request}
+        open={showTechnicalDetails}
+        onOpenChange={setShowTechnicalDetails}
+      />
     </TableRow>
   );
 };

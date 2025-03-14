@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest, UserProfile } from "@/types/database.types";
@@ -44,8 +45,6 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     }
   };
   
-  const defaultCoverImage = "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/a-cinematic-shot-of-a-daughter-holding-h_CRjW0yhLQoKwfgKKygkP_w_AsXzu3rcQRq-8GRcUwb_kA.webp";
-
   useEffect(() => {
     const loadMusicRequestData = async () => {
       setIsLoading(true);
@@ -171,6 +170,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     const requestId = musicRequest.id;
     const userId = userProfile?.id || 'guest';
     
+    // URLs completas para configurar no Mercado Pago
     const baseUrl = window.location.origin;
     const successUrl = `${baseUrl}/confirmacao?request_id=${requestId}&user_id=${userId}&status=success`;
     const failureUrl = `${baseUrl}/confirmacao?request_id=${requestId}&user_id=${userId}&status=failure`;
@@ -179,6 +179,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     console.log("URL de sucesso:", successUrl);
     console.log("URL de falha:", failureUrl);
     
+    // Mostra as URLs para o usuário configurar
     toast({
       title: "URLs para configurar no Mercado Pago",
       description: `Configure as seguintes URLs no painel do Mercado Pago:
@@ -341,11 +342,9 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <img 
-                            src={defaultCoverImage} 
-                            alt="Capa padrão da música" 
-                            className="w-full h-full object-cover"
-                          />
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
+                            <Music className="h-16 w-16 text-purple-300" />
+                          </div>
                         )}
                       </div>
                       

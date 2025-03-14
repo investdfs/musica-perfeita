@@ -8,7 +8,7 @@ import { validateMusicRequest } from "@/utils/validationUtils";
 
 interface ActionButtonProps {
   navigate: NavigateFunction;
-  musicRequest: MusicRequest | null;
+  musicRequest?: MusicRequest;
 }
 
 const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
@@ -19,15 +19,14 @@ const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
         description: "Não foi possível obter os detalhes da música",
         variant: "destructive",
       });
-      console.error("Tentativa de navegação com musicRequest vazio:", musicRequest);
       return;
     }
     
+    // Validar os tipos enumerados antes de armazenar/navegar usando a função utilitária
+    const validatedRequest = validateMusicRequest(musicRequest);
+    
+    // Armazenar os dados do pedido no localStorage para recuperação em caso de perda durante a navegação
     try {
-      // Validar os tipos enumerados antes de armazenar/navegar
-      const validatedRequest = validateMusicRequest(musicRequest);
-      
-      // Armazenar os dados do pedido no localStorage para recuperação em caso de perda durante a navegação
       localStorage.setItem("current_music_request", JSON.stringify(validatedRequest));
       console.log("Navegando para pagamento com dados:", validatedRequest);
       
@@ -46,18 +45,11 @@ const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
     }
   };
 
-  console.log("Estado do botão:", { 
-    disabled: !musicRequest, 
-    musicRequestExists: !!musicRequest,
-    musicRequestData: musicRequest ? JSON.stringify(musicRequest).substring(0, 100) + "..." : "null"
-  });
-
   return (
     <div className="flex justify-center mb-8">
       <Button 
         onClick={handleNavigation} 
         className="group relative bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg overflow-hidden"
-        disabled={!musicRequest}
       >
         <span className="flex items-center relative z-10">
           Liberar Música Completa

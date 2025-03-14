@@ -5,14 +5,19 @@ export const useRequestStatus = (userRequests: MusicRequest[]) => {
   // Verificar se temos qualquer pedido
   const hasAnyRequest = Array.isArray(userRequests) && userRequests.length > 0;
   
+  // Obter o pedido mais recente (o primeiro da lista ordenada)
+  const latestRequest = hasAnyRequest ? userRequests[0] : null;
+  
   // Verificar se o pedido mais recente está completo
-  const hasCompletedRequest = hasAnyRequest && userRequests[0]?.status === 'completed';
+  const hasCompletedRequest = hasAnyRequest && latestRequest?.status === 'completed';
   
   // Verificar se o pedido mais recente tem uma URL de prévia
-  const hasPreviewUrl = hasAnyRequest && Boolean(userRequests[0]?.preview_url);
+  const hasPreviewUrl = hasAnyRequest && Boolean(latestRequest?.preview_url);
   
   // Verificar se o pedido mais recente foi pago
-  const hasPaidRequest = hasAnyRequest && userRequests[0]?.payment_status === 'completed';
+  const hasPaidRequest = hasAnyRequest && 
+                        latestRequest?.status === 'completed' && 
+                        latestRequest?.payment_status === 'completed';
 
   // Verificações adicionais para garantir consistência
   if (hasCompletedRequest && !hasPreviewUrl) {
@@ -23,6 +28,7 @@ export const useRequestStatus = (userRequests: MusicRequest[]) => {
     hasCompletedRequest,
     hasPreviewUrl,
     hasAnyRequest,
-    hasPaidRequest
+    hasPaidRequest,
+    latestRequest
   };
 };

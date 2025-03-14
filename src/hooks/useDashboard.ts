@@ -17,7 +17,8 @@ export const useDashboard = () => {
     hasCompletedRequest,
     hasPreviewUrl,
     hasAnyRequest,
-    hasPaidRequest
+    hasPaidRequest,
+    latestRequest
   } = useRequestStatus(userRequests);
 
   // Função para ordenar os pedidos conforme a prioridade especificada
@@ -29,11 +30,11 @@ export const useDashboard = () => {
       const dateComparison = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       
       // Prioridade 1: Pedidos concluídos pendentes de pagamento
-      if (a.status === 'completed' && a.payment_status === 'pending' && 
+      if (a.status === 'completed' && a.payment_status !== 'completed' && 
           (b.status !== 'completed' || b.payment_status === 'completed')) {
         return -1;
       }
-      if (b.status === 'completed' && b.payment_status === 'pending' && 
+      if (b.status === 'completed' && b.payment_status !== 'completed' && 
           (a.status !== 'completed' || a.payment_status === 'completed')) {
         return 1;
       }
@@ -188,6 +189,7 @@ export const useDashboard = () => {
     hasPreviewUrl,
     hasAnyRequest,
     hasPaidRequest,
+    latestRequest,
     handleRequestSubmitted,
     handleCreateNewRequest,
     handleUserLogout

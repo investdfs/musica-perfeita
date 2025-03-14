@@ -1,13 +1,14 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, RefreshCcw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import supabase from "@/lib/supabase";
+import Loading from "@/components/Loading";
 
 interface PagamentoProps {
   userProfile: UserProfile | null;
@@ -15,46 +16,121 @@ interface PagamentoProps {
 
 const Pagamento = ({ userProfile }: PagamentoProps) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [mercadoPagoLoaded, setMercadoPagoLoaded] = useState(false);
+  const [scriptError, setScriptError] = useState(false);
+  const mpContainerRef = useRef<HTMLDivElement>(null);
+  
   const navigate = useNavigate();
   const location = useLocation();
   const musicRequest = location.state?.musicRequest as MusicRequest | undefined;
 
+  // Função para atualizar o status do pagamento no banco de dados
+  const updatePaymentStatus = async (requestId: string) => {
+    try {
+      console.log("Atualizando status de pagamento para:", requestId);
+      const { error } = await supabase
+        .from('music_requests')
+        .update({ payment_status: 'completed' })
+        .eq('id', requestId);
+
+      if (error) {
+        console.error("Erro ao atualizar status de pagamento:", error);
+        throw new Error("Não foi possível atualizar o status de pagamento");
+      }
+      
+      console.log("Status de pagamento atualizado com sucesso");
+    } catch (err) {
+      console.error("Erro ao processar atualização:", err);
+      throw err;
+    }
+  };
+
+  // Função simulada para processar o pagamento
+  const processPayment = async (formData: any) => {
+    // Simular um delay de processamento
+    return new Promise((resolve) => {
+      setTimeout(resolve, 2000);
+    });
+  };
+
+  // Efeito para carregar o SDK do Mercado Pago
   useEffect(() => {
-    // Carregar o SDK do Mercado Pago
-    const script = document.createElement('script');
-    script.src = 'https://sdk.mercadopago.com/js/v2';
-    script.onload = () => {
-      setMercadoPagoLoaded(true);
-      setIsLoading(false);
+    if (!musicRequest) {
+      console.error("Nenhum pedido de música encontrado no estado de navegação");
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar os detalhes do pedido.",
+        variant: "destructive",
+      });
+      navigate("/dashboard");
+      return;
+    }
+
+    let scriptElement: HTMLScriptElement | null = null;
+    
+    const loadMercadoPago = () => {
+      // Remover qualquer script anterior, se existir
+      const existingScript = document.getElementById("mercadopago-script");
+      if (existingScript) {
+        document.body.removeChild(existingScript);
+      }
+      
+      console.log("Carregando SDK do Mercado Pago...");
+      scriptElement = document.createElement('script');
+      scriptElement.id = "mercadopago-script";
+      scriptElement.src = 'https://sdk.mercadopago.com/js/v2';
+      scriptElement.async = true;
+      scriptElement.onload = () => {
+        console.log("SDK do Mercado Pago carregado com sucesso");
+        setMercadoPagoLoaded(true);
+        setIsLoading(false);
+        setScriptError(false);
+      };
+      scriptElement.onerror = (e) => {
+        console.error("Erro ao carregar SDK do Mercado Pago:", e);
+        setIsLoading(false);
+        setScriptError(true);
+        setMercadoPagoLoaded(false);
+      };
+      document.body.appendChild(scriptElement);
     };
-    document.body.appendChild(script);
+
+    loadMercadoPago();
 
     return () => {
       // Remover o script quando o componente for desmontado
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
+      if (scriptElement && document.body.contains(scriptElement)) {
+        document.body.removeChild(scriptElement);
       }
     };
-  }, []);
+  }, [navigate, musicRequest]);
 
+  // Efeito para renderizar o formulário de pagamento após o SDK ser carregado
   useEffect(() => {
-    if (!mercadoPagoLoaded || !musicRequest) return;
+    if (!mercadoPagoLoaded || !musicRequest || !mpContainerRef.current) return;
 
     try {
-      // Inicializar o Mercado Pago com a Public Key de testes
-      const mp = new window.MercadoPago('TEST-bf8cace7-cef5-4a9b-90b1-2d639ca50868', {
+      console.log("Inicializando formulário de pagamento do Mercado Pago...");
+      const mpInstance = new window.MercadoPago('TEST-bf8cace7-cef5-4a9b-90b1-2d639ca50868', {
         locale: 'pt-BR',
       });
 
-      // Renderizar o formulário de pagamento
-      const bricksBuilder = mp.bricks();
+      const bricksBuilder = mpInstance.bricks();
+      
       const renderPaymentBrick = async () => {
         try {
+          // Limpar o container antes de renderizar
+          if (mpContainerRef.current) {
+            mpContainerRef.current.innerHTML = '';
+          }
+          
           await bricksBuilder.create("payment", "mercadopago-payment-container", {
             initialization: {
               amount: 79.90,
-              preferenceId: '',
+              payer: {
+                email: userProfile?.email || "cliente@teste.com",
+              },
             },
             customization: {
               visual: {
@@ -68,18 +144,21 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
             callbacks: {
               onReady: () => {
                 console.log("Formulário de pagamento pronto");
+                setIsLoading(false);
               },
               onSubmit: async (formData) => {
                 // Esta função é chamada quando o usuário clica em "Pagar"
                 console.log("Dados do formulário:", formData);
-                setIsLoading(true);
+                setPaymentProcessing(true);
 
                 try {
                   // Simulando processamento do pagamento
+                  console.log("Processando pagamento...");
                   await processPayment(formData);
 
                   // Atualizar o status do pagamento no banco de dados
                   if (musicRequest?.id) {
+                    console.log("Atualizando status de pagamento para o pedido:", musicRequest.id);
                     await updatePaymentStatus(musicRequest.id);
                   }
 
@@ -97,7 +176,7 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                     description: "Ocorreu um erro ao processar seu pagamento. Tente novamente.",
                     variant: "destructive",
                   });
-                  setIsLoading(false);
+                  setPaymentProcessing(false);
                 }
               },
               onError: (error) => {
@@ -107,41 +186,36 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                   description: "Ocorreu um erro ao carregar o formulário de pagamento. Tente novamente.",
                   variant: "destructive",
                 });
+                setScriptError(true);
                 setIsLoading(false);
               },
             },
           });
         } catch (error) {
           console.error("Erro ao renderizar o brick de pagamento:", error);
+          setScriptError(true);
+          setIsLoading(false);
         }
       };
 
       renderPaymentBrick();
     } catch (error) {
       console.error("Erro ao inicializar o Mercado Pago:", error);
+      setScriptError(true);
       setIsLoading(false);
     }
-  }, [mercadoPagoLoaded, musicRequest, navigate]);
+  }, [mercadoPagoLoaded, musicRequest, navigate, userProfile]);
 
-  // Função simulada para processar o pagamento
-  const processPayment = async (formData: any) => {
-    // Simular um delay de processamento
-    return new Promise((resolve) => {
-      setTimeout(resolve, 2000);
-    });
-  };
-
-  // Função para atualizar o status do pagamento no banco de dados
-  const updatePaymentStatus = async (requestId: string) => {
-    const { error } = await supabase
-      .from('music_requests')
-      .update({ payment_status: 'completed' })
-      .eq('id', requestId);
-
-    if (error) {
-      console.error("Erro ao atualizar status de pagamento:", error);
-      throw new Error("Não foi possível atualizar o status de pagamento");
+  const handleRetry = () => {
+    setIsLoading(true);
+    setScriptError(false);
+    setMercadoPagoLoaded(false);
+    // Forçar recarregamento do SDK
+    const script = document.getElementById("mercadopago-script");
+    if (script) {
+      document.body.removeChild(script);
     }
+    window.location.reload();
   };
 
   return (
@@ -164,11 +238,11 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                       <span className="text-gray-600">Música para</span>
                       <span className="font-medium">{musicRequest.honoree_name}</span>
                     </div>
-                    <div className="flex justify-between py-2">
+                    <div className="flex justify-between py-2 border-t border-gray-100">
                       <span className="text-gray-600">Gênero</span>
                       <span>{musicRequest.music_genre}</span>
                     </div>
-                    <div className="flex justify-between py-2">
+                    <div className="flex justify-between py-2 border-t border-gray-100">
                       <span className="text-gray-600">Status</span>
                       <span className={musicRequest.status === 'completed' ? 'text-green-600' : 'text-yellow-600'}>
                         {musicRequest.status === 'completed' ? 'Concluída' : 'Em produção'}
@@ -206,19 +280,27 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                   <div className="w-12 h-12 border-4 border-t-blue-500 border-blue-200 rounded-full animate-spin mb-4"></div>
                   <p className="text-gray-600">Carregando formulário de pagamento...</p>
                 </div>
+              ) : scriptError ? (
+                <div className="flex flex-col items-center justify-center h-64 space-y-4">
+                  <p className="text-red-500 text-center">
+                    Não foi possível carregar o formulário de pagamento.
+                  </p>
+                  <Button 
+                    onClick={handleRetry} 
+                    className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700"
+                  >
+                    <RefreshCcw className="h-4 w-4" />
+                    <span>Tentar novamente</span>
+                  </Button>
+                </div>
+              ) : paymentProcessing ? (
+                <Loading message="Processando seu pagamento..." />
               ) : (
-                <>
-                  <div id="mercadopago-payment-container" className="mb-6"></div>
-                  
-                  {!mercadoPagoLoaded && (
-                    <Button 
-                      onClick={() => window.location.reload()} 
-                      className="w-full bg-gray-500 hover:bg-gray-600 mb-6 h-12 text-base"
-                    >
-                      Recarregar Página
-                    </Button>
-                  )}
-                </>
+                <div 
+                  id="mercadopago-payment-container" 
+                  ref={mpContainerRef}
+                  className="min-h-[300px]" 
+                />
               )}
             </div>
           </div>

@@ -1,28 +1,37 @@
+
 import { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { UserProfile } from "@/types/database.types";
 import { Toaster } from "@/components/ui/toaster";
 import ScrollToTopButton from "@/components/ui/scroll-to-top-button";
-import Loading from "@/components/Loading";
+import { Loader2 } from "lucide-react";
+
+// Componente de Loading
+const Loading = () => (
+  <div className="flex items-center justify-center h-screen w-full">
+    <Loader2 className="h-12 w-12 text-purple-600 animate-spin" />
+    <span className="ml-2 text-lg text-gray-700">Carregando...</span>
+  </div>
+);
 
 // Páginas carregadas diretamente
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import NotFoundPage from "./pages/NotFoundPage";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Cadastro from "./pages/Cadastro";
+import NotFound from "./pages/NotFound";
 
 // Páginas carregadas com lazy loading
-const DashboardPage = lazy(() => import("./pages/DashboardPage"));
-const AdminPage = lazy(() => import("./pages/AdminPage"));
-const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
-const AboutPage = lazy(() => import("./pages/AboutPage"));
-const ContactPage = lazy(() => import("./pages/ContactPage"));
-const MusicCatalogPage = lazy(() => import("./pages/MusicCatalogPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Admin = lazy(() => import("./pages/Admin"));
+const Pagamento = lazy(() => import("./pages/Pagamento"));
+const Sobre = lazy(() => import("./pages/Sobre"));
+const Contato = lazy(() => import("./pages/Contato"));
+const NossasMusicas = lazy(() => import("./pages/NossasMusicas"));
 const MusicPlayer = lazy(() => import("./pages/MusicPlayer"));
 const MusicPlayerFull = lazy(() => import("./pages/MusicPlayerFull"));
-const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
-const TermsPage = lazy(() => import("./pages/TermsPage"));
-const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const PoliticaPrivacidade = lazy(() => import("./pages/PoliticaPrivacidade"));
+const TermosCondicoes = lazy(() => import("./pages/TermosCondicoes"));
+const RecuperarSenha = lazy(() => import("./pages/RecuperarSenha"));
 
 function App() {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -50,25 +59,25 @@ function App() {
     <Router>
       <Suspense fallback={<Loading />}>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
-          <Route path="/cadastro" element={<RegisterPage onRegister={handleLogin} />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login onLogin={handleLogin} />} />
+          <Route path="/cadastro" element={<Cadastro onRegister={handleLogin} />} />
           <Route path="/dashboard" element={
-            user ? <DashboardPage userProfile={user} onLogout={handleLogout} /> : <Navigate to="/login" />
+            user ? <Dashboard userProfile={user} onLogout={handleLogout} /> : <Navigate to="/login" />
           } />
           <Route path="/admin" element={
-            user?.is_admin ? <AdminPage userProfile={user} onLogout={handleLogout} /> : <Navigate to="/login" />
+            user?.is_admin ? <Admin userProfile={user} onLogout={handleLogout} /> : <Navigate to="/login" />
           } />
-          <Route path="/pagamento" element={<CheckoutPage userProfile={user} />} />
-          <Route path="/sobre" element={<AboutPage />} />
-          <Route path="/contato" element={<ContactPage />} />
-          <Route path="/nossas-musicas" element={<MusicCatalogPage />} />
+          <Route path="/pagamento" element={<Pagamento userProfile={user} />} />
+          <Route path="/sobre" element={<Sobre />} />
+          <Route path="/contato" element={<Contato />} />
+          <Route path="/nossas-musicas" element={<NossasMusicas />} />
           <Route path="/music-player" element={<MusicPlayer />} />
           <Route path="/music-player-full" element={<MusicPlayerFull />} />
-          <Route path="/privacidade" element={<PrivacyPage />} />
-          <Route path="/termos" element={<TermsPage />} />
-          <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path="/privacidade" element={<PoliticaPrivacidade />} />
+          <Route path="/termos" element={<TermosCondicoes />} />
+          <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
       <ScrollToTopButton />

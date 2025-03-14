@@ -27,10 +27,20 @@ const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
       console.log("Navegando para pagamento com dados:", musicRequest);
       
       // Validar os tipos enumerados se possível
-      const validatedRequest = validateMusicRequest(musicRequest);
+      let validatedRequest;
+      try {
+        validatedRequest = validateMusicRequest(musicRequest);
+      } catch (error) {
+        console.error("Erro na validação do pedido, prosseguindo com dados parciais:", error);
+        validatedRequest = musicRequest;
+      }
       
       // Armazenar os dados do pedido no localStorage para recuperação
-      localStorage.setItem("current_music_request", JSON.stringify(validatedRequest));
+      try {
+        localStorage.setItem("current_music_request", JSON.stringify(validatedRequest));
+      } catch (error) {
+        console.error("Erro ao salvar no localStorage:", error);
+      }
       
       // Usar navigate com replace para evitar problemas de histórico de navegação
       navigate("/pagamento", { 

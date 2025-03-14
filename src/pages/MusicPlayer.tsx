@@ -84,8 +84,29 @@ const MusicPlayer = () => {
             variant: "default",
           });
           
-          // Usar os dados sem validação como fallback
-          setRequestData(data);
+          // Tentar uma nova abordagem: validar campos individualmente
+          // para evitar erros de tipo que possam impedir o funcionamento
+          setRequestData(null); // Limpar dados atuais
+          
+          // Aplicar tratamento de dados diretamente aqui
+          setTimeout(() => {
+            try {
+              // Usar validação individual de campos para garantir compatibilidade
+              const safeData = {
+                ...data,
+                relationship_type: validateMusicRequest(data).relationship_type,
+                music_genre: validateMusicRequest(data).music_genre,
+                status: validateMusicRequest(data).status,
+                payment_status: validateMusicRequest(data).payment_status
+              } as MusicRequest;
+              
+              setRequestData(safeData);
+            } catch (e) {
+              console.error("Falha na validação final:", e);
+              // Em último caso, definir como null para não bloquear o player
+              setRequestData(null);
+            }
+          }, 0);
         }
       } else {
         console.log("Nenhum dado encontrado para o pedido");

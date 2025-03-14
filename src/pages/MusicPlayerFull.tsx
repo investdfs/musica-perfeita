@@ -4,14 +4,67 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SoundCloudPlayer from "@/components/music/SoundCloudPlayer";
-import { CheckCircle, Clock, Music, Heart } from "lucide-react";
+import { CheckCircle, Clock, Music, Heart, AlertCircle } from "lucide-react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { MusicRequest } from "@/types/database.types";
+import MusicSelectorDialog from "@/components/music/MusicSelectorDialog";
+import supabase from "@/lib/supabase";
+import { useUserAuth } from "@/hooks/useUserAuth";
 
 const MusicPlayerFull = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { userProfile } = useUserAuth();
   const [musicUrl, setMusicUrl] = useState<string>("");
   const [downloadUrl, setDownloadUrl] = useState<string>("");
+  const [paidRequests, setPaidRequests] = useState<MusicRequest[]>([]);
+  const [showMusicSelector, setShowMusicSelector] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  useEffect(() => {
+    if (!userProfile?.id) return;
+    
+    // Buscar todas as músicas pagas do usuário
+    const fetchUserPaidRequests = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('music_requests')
+          .select('*')
+          .eq('user_id', userProfile.id)
+          .eq('status', 'completed')
+          .eq('payment_status', 'completed');
+        
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          console.log("[MusicPlayerFull] Músicas pagas encontradas:", data.length);
+          setPaidRequests(data);
+          
+          // Se vier da tela de confirmação de pagamento ou se tiver apenas uma música,
+          // não precisamos mostrar o seletor
+          const hasLocationState = location.state?.musicUrl;
+          
+          if (!hasLocationState && data.length > 1) {
+            setShowMusicSelector(true);
+          } else if (!hasLocationState && data.length === 1) {
+            // Se tiver apenas uma música e não vier de outra página, usar a única música disponível
+            setMusicUrl(data[0].full_song_url || "");
+            setDownloadUrl(data[0].full_song_url || "");
+          }
+        } else {
+          console.log("[MusicPlayerFull] Nenhuma música paga encontrada");
+          // Redirecionar para dashboard se usuário não tem músicas pagas
+          navigate("/dashboard");
+        }
+      } catch (error) {
+        console.error("[MusicPlayerFull] Erro ao buscar músicas pagas:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchUserPaidRequests();
+  }, [userProfile, navigate]);
   
   useEffect(() => {
     // Obter as URLs da música e do download dos parâmetros da URL ou do estado da rota
@@ -23,9 +76,6 @@ const MusicPlayerFull = () => {
       setMusicUrl(urlFromParams);
     } else if (location.state?.musicUrl) {
       setMusicUrl(location.state.musicUrl);
-    } else {
-      // URL padrão para caso não haja nenhuma música especificada
-      setMusicUrl("https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Rivers-End-1.wav");
     }
     
     if (downloadFromParams) {
@@ -37,6 +87,21 @@ const MusicPlayerFull = () => {
       setDownloadUrl(musicUrl);
     }
   }, [location, musicUrl]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header />
+        <main className="flex-grow flex items-center justify-center py-12 px-6 bg-gradient-to-b from-gray-900 to-indigo-950">
+          <div className="text-center">
+            <div className="animate-spin w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-white text-xl">Carregando sua música...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -120,6 +185,13 @@ const MusicPlayerFull = () => {
         </div>
       </main>
       <Footer />
+      
+      {/* Diálogo seletor de músicas */}
+      <MusicSelectorDialog 
+        open={showMusicSelector} 
+        onOpenChange={setShowMusicSelector}
+        musicRequests={paidRequests}
+      />
     </div>
   );
 };

@@ -28,6 +28,7 @@ const RecuperarSenha = lazy(() => import("./pages/RecuperarSenha"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const Depoimentos = lazy(() => import("./pages/Depoimentos"));
 const FAQ = lazy(() => import("./pages/FAQ"));
+const ConfirmacaoPagamento = lazy(() => import("./pages/ConfirmacaoPagamento"));
 
 function App() {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -69,6 +70,7 @@ function App() {
           <Route path="/termos-condicoes" element={<TermosCondicoes />} />
           <Route path="/recuperar-senha" element={<RecuperarSenha />} />
           <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/confirmacao-g4bytw2tub6cfk76iigyja4q35w9d8sseqbi5hnxsh8r6ikzx8cd6kc8ijxbx2726wwt777t4vfm64zhn" element={<ConfirmacaoPagamento />} />
           
           {/* Rotas protegidas */}
           <Route path="/dashboard" element={

@@ -2,6 +2,8 @@
 import { MusicRequest } from "@/types/database.types";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { 
   Clock, 
   Music, 
@@ -10,7 +12,9 @@ import {
   CheckCircle, 
   AlertCircle,
   Hourglass,
-  Hash
+  Hash,
+  ExternalLink,
+  Download
 } from "lucide-react";
 import MusicPreviewPlayer from "./MusicPreviewPlayer";
 import TechnicalDetailsViewer from "../music/TechnicalDetailsViewer";
@@ -20,6 +24,8 @@ interface OrderCardProps {
 }
 
 const OrderCard = ({ request }: OrderCardProps) => {
+  const navigate = useNavigate();
+  
   // Determinar o status do pedido para exibição
   const getStatusInfo = () => {
     switch (request.status) {
@@ -69,9 +75,20 @@ const OrderCard = ({ request }: OrderCardProps) => {
       };
     }
   };
+  
+  const handleAccessFullMusic = () => {
+    navigate("/music-player-full", { 
+      state: { 
+        musicUrl: request.full_song_url,
+        downloadUrl: request.full_song_url,
+        requestId: request.id
+      } 
+    });
+  };
 
   const statusInfo = getStatusInfo();
   const paymentStatusInfo = getPaymentStatusInfo();
+  const isPaid = request.payment_status === 'completed';
 
   return (
     <div className="border border-blue-100 rounded-lg overflow-hidden mb-4 bg-white shadow">
@@ -142,7 +159,21 @@ const OrderCard = ({ request }: OrderCardProps) => {
               fullSongUrl={request.full_song_url}
               isCompleted={request.status === 'completed'}
               paymentStatus={request.payment_status}
+              requestId={request.id}
             />
+          </div>
+        )}
+        
+        {/* Botão de acesso à música completa para pedidos pagos */}
+        {isPaid && request.full_song_url && (
+          <div className="flex justify-end mt-4">
+            <Button 
+              onClick={handleAccessFullMusic}
+              className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Acessar Música Completa
+            </Button>
           </div>
         )}
         

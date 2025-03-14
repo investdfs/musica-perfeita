@@ -30,11 +30,9 @@ const Dashboard = ({ userProfile, onLogout }: DashboardProps) => {
     handleCancelRequestForm
   } = useDashboard();
 
-  // Verificar que o pedido tem previewUrl e que tem uma string válida
-  const shouldShowPreview = hasPreviewUrl && 
-                           userRequests[0]?.preview_url && 
-                           typeof userRequests[0]?.preview_url === 'string' && 
-                           userRequests[0]?.preview_url.trim() !== '';
+  // Verificação rigorosa para determinar se devemos mostrar a prévia
+  // Removendo completamente a exibição do componente MusicPreviewPlayer conforme solicitado
+  const shouldShowPreview = false; // Desabilitando completamente esta funcionalidade
 
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
@@ -60,7 +58,7 @@ const Dashboard = ({ userProfile, onLogout }: DashboardProps) => {
             isLoading={isLoading}
           />
           
-          {/* Player de prévia de música, mostrado apenas se há uma prévia válida */}
+          {/* Player de prévia de música - agora nunca será exibido devido à condição shouldShowPreview = false */}
           {shouldShowPreview && !showNewRequestForm && (
             <MusicPreviewPlayer 
               previewUrl={userRequests[0]?.preview_url || ''} 

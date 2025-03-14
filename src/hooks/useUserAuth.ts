@@ -6,27 +6,45 @@ import { toast } from "@/hooks/use-toast";
 
 export const useUserAuth = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthChecked, setIsAuthChecked] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const checkUserAuth = useCallback(() => {
     const storedUser = localStorage.getItem("musicaperfeita_user");
     
     if (!storedUser) {
-      toast({
-        title: "Acesso restrito",
-        description: "Você precisa fazer login para acessar esta página",
-        variant: "destructive",
-      });
-      navigate("/login");
+      // Só redireciona se já verificamos a autenticação
+      if (isAuthChecked) {
+        toast({
+          title: "Acesso restrito",
+          description: "Você precisa fazer login para acessar esta página",
+          variant: "destructive",
+        });
+        navigate("/login");
+      }
+      setIsAuthenticated(false);
+      setIsAuthChecked(true);
       return;
     }
     
-    const userInfo = storedUser ? JSON.parse(storedUser) : null;
-    setUserProfile(userInfo);
-  }, [navigate]);
+    try {
+      const userInfo = JSON.parse(storedUser);
+      setUserProfile(userInfo);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error("Erro ao processar dados do usuário:", error);
+      localStorage.removeItem("musicaperfeita_user");
+      setIsAuthenticated(false);
+    } finally {
+      setIsAuthChecked(true);
+    }
+  }, [navigate, isAuthChecked]);
 
   const handleUserLogout = () => {
     localStorage.removeItem("musicaperfeita_user");
+    setUserProfile(null);
+    setIsAuthenticated(false);
     
     toast({
       title: "Logout realizado",
@@ -56,6 +74,8 @@ export const useUserAuth = () => {
 
   return {
     userProfile,
+    isAuthenticated,
+    isAuthChecked,
     checkUserAuth,
     handleUserLogout
   };

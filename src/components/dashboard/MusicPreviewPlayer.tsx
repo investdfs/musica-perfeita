@@ -24,15 +24,24 @@ const MusicPreviewPlayer = ({
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [isSoundCloud, setIsSoundCloud] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Use refs para evitar loops de atualização
+  const previewUrlRef = useRef<string>(previewUrl);
+  const isDirectFileLinkRef = useRef<boolean>(false);
   const navigate = useNavigate();
   
   const isPaid = paymentStatus === 'completed';
   
-  const isDirectFileLink = previewUrl && (
-    previewUrl.match(/\.(mp3|wav|ogg|m4a|flac)($|\?)/i) ||
-    previewUrl.includes('wp.novaenergiamg.com.br') ||
-    previewUrl.includes('drive.google.com')
-  );
+  // Calcular isso uma vez e guardar em ref para evitar recálculos desnecessários
+  useEffect(() => {
+    // Atualizar a ref quando o previewUrl mudar
+    previewUrlRef.current = previewUrl;
+    
+    isDirectFileLinkRef.current = previewUrl && (
+      previewUrl.match(/\.(mp3|wav|ogg|m4a|flac)($|\?)/i) ||
+      previewUrl.includes('wp.novaenergiamg.com.br') ||
+      previewUrl.includes('drive.google.com')
+    ) ? true : false;
+  }, [previewUrl]);
 
   useEffect(() => {
     if (!previewUrl) return;
@@ -44,11 +53,15 @@ const MusicPreviewPlayer = ({
       audioRef.current.removeEventListener('ended', () => setIsPlaying(false));
     }
     
+    // Verificar tipo de URL apenas uma vez e não dentro do efeito
     if (previewUrl.includes('soundcloud.com') || previewUrl.includes('api.soundcloud.com')) {
       setIsSoundCloud(true);
     } else {
       setIsSoundCloud(false);
-      if (previewUrl && !previewUrl.startsWith('temp:') && isDirectFileLink) {
+      
+      const isDirectFile = isDirectFileLinkRef.current;
+      
+      if (previewUrl && !previewUrl.startsWith('temp:') && isDirectFile) {
         const audio = new Audio(previewUrl);
         audio.addEventListener('ended', () => setIsPlaying(false));
         setAudioElement(audio);
@@ -61,22 +74,22 @@ const MusicPreviewPlayer = ({
         };
       }
     }
-  }, [previewUrl, isDirectFileLink]);
+  }, [previewUrl]); // Dependência simplificada
 
   const togglePlay = () => {
-    if (!audioElement && !isSoundCloud && !isDirectFileLink) return;
+    if (!audioElement && !isSoundCloud && !isDirectFileLinkRef.current) return;
     
     if (isSoundCloud) {
       navigate("/music-player", { 
         state: { 
-          musicUrl: previewUrl,
+          musicUrl: previewUrlRef.current,
           requestId: requestId 
         } 
       });
-    } else if (isDirectFileLink) {
+    } else if (isDirectFileLinkRef.current) {
       navigate("/music-player", { 
         state: { 
-          musicUrl: previewUrl,
+          musicUrl: previewUrlRef.current,
           requestId: requestId
         } 
       });
@@ -99,7 +112,7 @@ const MusicPreviewPlayer = ({
 
   const handleAccessFullSong = () => {
     if (fullSongUrl) {
-      if (isSoundCloud || isDirectFileLink) {
+      if (isSoundCloud || isDirectFileLinkRef.current) {
         navigate("/music-player-full", { 
           state: { 
             musicUrl: fullSongUrl, 

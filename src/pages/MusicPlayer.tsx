@@ -82,6 +82,11 @@ const MusicPlayer = () => {
           'pending', 'in_production', 'completed'
         ] as const;
         
+        // Garantir que payment_status seja um dos valores permitidos
+        const validPaymentStatusTypes = [
+          'pending', 'completed'
+        ] as const;
+        
         // Verificar se os valores recebidos são válidos
         const relationshipType = validRelationshipTypes.includes(data.relationship_type as any) 
           ? data.relationship_type as MusicRequest['relationship_type']
@@ -102,6 +107,10 @@ const MusicPlayer = () => {
         const status = validStatusTypes.includes(data.status as any)
           ? data.status as MusicRequest['status']
           : 'pending';
+          
+        const paymentStatus = data.payment_status && validPaymentStatusTypes.includes(data.payment_status as any)
+          ? data.payment_status as 'pending' | 'completed'
+          : 'pending';
         
         // Criar objeto tipado corretamente
         const typedRequest: MusicRequest = {
@@ -110,7 +119,8 @@ const MusicPlayer = () => {
           music_genre: musicGenre,
           music_tone: musicTone,
           voice_type: voiceType,
-          status: status
+          status: status,
+          payment_status: paymentStatus
         };
         
         setRequestData(typedRequest);

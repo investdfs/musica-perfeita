@@ -18,6 +18,27 @@ const MusicPlayer = () => {
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
+    // Verificar se temos dados no estado ou localStorage
+    const checkStoredData = () => {
+      const storedRequest = localStorage.getItem("current_music_request");
+      if (location.state?.musicRequest) {
+        console.log("Usando dados do state para o pedido:", location.state.musicRequest);
+        setRequestData(location.state.musicRequest);
+        return true;
+      } else if (storedRequest) {
+        try {
+          const parsedRequest = JSON.parse(storedRequest);
+          console.log("Recuperando dados do localStorage:", parsedRequest);
+          setRequestData(validateMusicRequest(parsedRequest));
+          return true;
+        } catch (e) {
+          console.error("Erro ao processar dados armazenados:", e);
+          localStorage.removeItem("current_music_request");
+        }
+      }
+      return false;
+    };
+    
     // Obter a URL da música dos parâmetros da URL ou do estado da rota
     const params = new URLSearchParams(location.search);
     const urlFromParams = params.get("url");
@@ -32,9 +53,14 @@ const MusicPlayer = () => {
       setMusicUrl("https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Rivers-End-1.wav");
     }
     
-    // Buscar dados do pedido se tiver o ID
-    if (requestIdFromParams || location.state?.requestId) {
+    // Primeiro tenta usar dados armazenados
+    const hasStoredData = checkStoredData();
+    
+    // Se não tiver dados armazenados e tiver ID do pedido, busca do banco
+    if (!hasStoredData && (requestIdFromParams || location.state?.requestId)) {
       fetchRequestData(requestIdFromParams || location.state?.requestId);
+    } else if (!hasStoredData) {
+      setLoading(false);
     } else {
       setLoading(false);
     }
@@ -42,6 +68,8 @@ const MusicPlayer = () => {
   
   const fetchRequestData = async (requestId: string) => {
     try {
+      console.log("Buscando dados do pedido ID:", requestId);
+      
       const { data, error } = await supabase
         .from('music_requests')
         .select('*')
@@ -51,9 +79,13 @@ const MusicPlayer = () => {
       if (error) {
         console.error("Erro ao buscar dados do pedido:", error);
       } else if (data) {
+        console.log("Dados do pedido recuperados:", data);
         // Usar a função utilitária para validar os tipos enumerados
         const validatedRequest = validateMusicRequest(data);
         setRequestData(validatedRequest);
+        
+        // Armazenar também no localStorage para recuperação em caso de recarregamento
+        localStorage.setItem("current_music_request", JSON.stringify(validatedRequest));
       }
     } catch (err) {
       console.error("Erro ao buscar dados do pedido:", err);

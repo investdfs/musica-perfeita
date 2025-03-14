@@ -8,7 +8,7 @@ import { validateMusicRequest } from "@/utils/validationUtils";
 
 interface ActionButtonProps {
   navigate: NavigateFunction;
-  musicRequest?: MusicRequest;
+  musicRequest: MusicRequest | null;
 }
 
 const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {

@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useMusicRequests } from "./useMusicRequests";
 import { useRequestStatus } from "./useRequestStatus";
 import { useUserAuth } from "./useUserAuth";
+import { toast } from "./use-toast";
 
 export const useDashboard = () => {
   const { userProfile, handleUserLogout } = useUserAuth();
@@ -15,7 +16,8 @@ export const useDashboard = () => {
     handleCreateNewRequest,
     fetchUserRequests,
     setUserRequests,
-    setShowNewRequestForm
+    setShowNewRequestForm,
+    handleCancelRequestForm
   } = useMusicRequests(userProfile);
 
   const {
@@ -25,18 +27,6 @@ export const useDashboard = () => {
     hasPaidRequest,
     latestRequest
   } = useRequestStatus(userRequests);
-
-  // Função para cancelar o formulário de pedido
-  const handleCancelRequestForm = () => {
-    // Apenas oculta o formulário
-    setShowNewRequestForm(false);
-    
-    // Notificar o usuário que o pedido foi cancelado
-    toast({
-      title: "Pedido cancelado",
-      description: "Você cancelou a criação do pedido de música.",
-    });
-  };
 
   return {
     userRequests,
@@ -54,6 +44,3 @@ export const useDashboard = () => {
     handleCancelRequestForm
   };
 };
-
-// Importando toast
-import { toast } from "./use-toast";

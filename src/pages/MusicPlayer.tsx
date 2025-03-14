@@ -66,6 +66,12 @@ const MusicPlayer = () => {
           'rock', 'country', 'reggae', 'electronic', 'samba', 'folk', 'pop'
         ] as const;
         
+        // Garantir que music_tone seja um dos valores permitidos
+        const validMusicTones = [
+          'happy', 'romantic', 'nostalgic', 'fun', 'melancholic', 'energetic', 
+          'peaceful', 'inspirational', 'dramatic', 'uplifting', 'reflective', 'mysterious'
+        ] as const;
+        
         // Verificar se os valores recebidos são válidos
         const relationshipType = validRelationshipTypes.includes(data.relationship_type as any) 
           ? data.relationship_type as MusicRequest['relationship_type']
@@ -74,12 +80,17 @@ const MusicPlayer = () => {
         const musicGenre = validMusicGenres.includes(data.music_genre as any) 
           ? data.music_genre as MusicRequest['music_genre']
           : 'pop';
+          
+        const musicTone = data.music_tone && validMusicTones.includes(data.music_tone as any)
+          ? data.music_tone as MusicRequest['music_tone']
+          : undefined;
         
         // Criar objeto tipado corretamente
         const typedRequest: MusicRequest = {
           ...data,
           relationship_type: relationshipType,
-          music_genre: musicGenre
+          music_genre: musicGenre,
+          music_tone: musicTone
         };
         
         setRequestData(typedRequest);

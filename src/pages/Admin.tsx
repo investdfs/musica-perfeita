@@ -8,8 +8,14 @@ import { AdminProvider } from "@/contexts/AdminContext";
 import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
 import supabase from "@/lib/supabase";
+import { UserProfile } from "@/types/database.types";
 
-const AdminPage = () => {
+interface AdminProps {
+  userProfile: UserProfile;
+  onLogout: () => void;
+}
+
+const AdminPage = ({ userProfile, onLogout }: AdminProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   
@@ -148,6 +154,12 @@ const AdminPage = () => {
               <h1 className="text-3xl font-bold text-gray-900">Painel do Administrador</h1>
               <div className="flex items-center gap-4">
                 <NotificationsPanel />
+                <button 
+                  onClick={onLogout}
+                  className="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md text-sm flex items-center"
+                >
+                  Sair
+                </button>
               </div>
             </div>
             

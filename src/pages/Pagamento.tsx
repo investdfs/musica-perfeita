@@ -1,14 +1,17 @@
-
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { MusicRequest } from "@/types/database.types";
+import { MusicRequest, UserProfile } from "@/types/database.types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Check, Music, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-const Pagamento = () => {
+interface PagamentoProps {
+  userProfile: UserProfile | null;
+}
+
+const Pagamento = ({ userProfile }: PagamentoProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();

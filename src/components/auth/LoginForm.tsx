@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,12 +11,16 @@ import supabase from "@/lib/supabase";
 import { UserProfile } from "@/types/database.types";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
+interface LoginFormProps {
+  onLogin: (user: UserProfile) => void;
+}
+
 const formSchema = z.object({
   email: z.string().email({ message: "Email inválido" }),
   password: z.string().min(6, { message: "Senha deve ter pelo menos 6 caracteres" }),
 });
 
-const LoginForm = () => {
+const LoginForm = ({ onLogin }: LoginFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -84,6 +87,9 @@ const LoginForm = () => {
         } else {
           navigate("/dashboard");
         }
+        
+        // Chamar a função de login passada como prop
+        onLogin(userProfile);
       } else {
         toast({
           title: "Credenciais inválidas",

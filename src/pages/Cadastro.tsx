@@ -3,8 +3,13 @@ import Header from "@/components/Header";
 import RegistrationForm from "@/components/cadastro/RegistrationForm";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
+import { UserProfile } from "@/types/database.types";
 
-const Cadastro = () => {
+interface CadastroProps {
+  onRegister: (user: UserProfile) => void;
+}
+
+const Cadastro = ({ onRegister }: CadastroProps) => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -22,7 +27,7 @@ const Cadastro = () => {
               para aniversários, casamentos e momentos especiais.
             </p>
             
-            <RegistrationForm />
+            <RegistrationForm onRegister={onRegister} />
             
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-500 mb-2">Já possui uma conta?</p>

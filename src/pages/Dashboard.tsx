@@ -7,10 +7,15 @@ import MusicRequestForm from "@/components/dashboard/MusicRequestForm";
 import OrderControlPanel from "@/components/dashboard/OrderControlPanel";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import { useDashboard } from "@/hooks/useDashboard";
+import { UserProfile } from "@/types/database.types";
 
-const Dashboard = () => {
+interface DashboardProps {
+  userProfile: UserProfile;
+  onLogout: () => void;
+}
+
+const Dashboard = ({ userProfile, onLogout }: DashboardProps) => {
   const {
-    userProfile,
     userRequests,
     currentProgress,
     showNewRequestForm,
@@ -35,7 +40,7 @@ const Dashboard = () => {
       <Header />
       <main className="py-12 px-6 relative z-10">
         <div className="max-w-4xl mx-auto">
-          <DashboardHeader userProfile={userProfile} onLogout={handleUserLogout} />
+          <DashboardHeader userProfile={userProfile} onLogout={onLogout} />
           
           <ProgressIndicator 
             currentProgress={currentProgress} 

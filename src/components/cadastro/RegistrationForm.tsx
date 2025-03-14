@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +12,10 @@ import { UserProfile } from "@/types/database.types";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { sendEmail, emailTemplates } from "@/lib/email";
 
+interface RegistrationFormProps {
+  onRegister: (user: UserProfile) => void;
+}
+
 const formSchema = z.object({
   name: z.string().min(3, { message: "Nome deve ter pelo menos 3 caracteres" }),
   email: z.string().email({ message: "Email inválido" }),
@@ -22,7 +25,7 @@ const formSchema = z.object({
   password: z.string().min(6, { message: "Senha deve ter pelo menos 6 caracteres" }),
 });
 
-const RegistrationForm = () => {
+const RegistrationForm = ({ onRegister }: RegistrationFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -116,6 +119,9 @@ const RegistrationForm = () => {
       });
       
       navigate("/dashboard");
+      
+      // Adicione a chamada para a função onRegister ao final do bloco try
+      onRegister(userProfile);
     } catch (error) {
       console.error('Erro ao criar usuário:', error);
       let errorMessage = "Ocorreu um erro ao criar sua conta. Tente novamente.";
@@ -135,7 +141,7 @@ const RegistrationForm = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [isSubmitting, navigate]);
+  }, [isSubmitting, navigate, onRegister]);
 
   const handleWhatsAppChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, "");

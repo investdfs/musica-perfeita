@@ -2,8 +2,13 @@
 import Header from "@/components/Header";
 import LoginForm from "@/components/auth/LoginForm";
 import Footer from "@/components/Footer";
+import { UserProfile } from "@/types/database.types";
 
-const Login = () => {
+interface LoginProps {
+  onLogin: (user: UserProfile) => void;
+}
+
+const Login = ({ onLogin }: LoginProps) => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -11,7 +16,7 @@ const Login = () => {
       <main className="grid grid-cols-1 md:grid-cols-2 min-h-[calc(100vh-64px)]">
         {/* Lado esquerdo - Formulário de Login */}
         <div className="flex items-center justify-center p-8 md:p-12 bg-gradient-to-b from-gray-50 to-white">
-          <LoginForm />
+          <LoginForm onLogin={onLogin} />
         </div>
         
         {/* Lado direito - Imagem */}

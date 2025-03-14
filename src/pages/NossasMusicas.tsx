@@ -6,9 +6,21 @@ import { useState } from "react";
 import { Music, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import ScrollToTopButton from "@/components/ui/scroll-to-top";
+import { Music as MusicType } from "@/types/music";
 
 const NossasMusicas = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPlaying, setCurrentPlaying] = useState<MusicType | null>(null);
+  
+  // Lista de exemplo de músicas
+  const musicList: MusicType[] = [
+    // Como exemplo, deixamos a lista vazia para ser preenchida posteriormente
+    // Quando o sistema tiver músicas reais, elas serão carregadas aqui
+  ];
+
+  const handlePlayMusic = (music: MusicType) => {
+    setCurrentPlaying(music);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex flex-col">
@@ -39,7 +51,11 @@ const NossasMusicas = () => {
             </div>
           </div>
 
-          <MusicList searchTerm={searchTerm} />
+          <MusicList 
+            musicList={musicList} 
+            onPlayMusic={handlePlayMusic} 
+            currentPlaying={currentPlaying} 
+          />
         </div>
       </main>
       <Footer />

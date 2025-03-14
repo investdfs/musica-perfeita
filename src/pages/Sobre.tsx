@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Music, Users, Heart, MusicNote } from "lucide-react";
+import { Music, Users, Heart, Music2 } from "lucide-react";
 import ScrollToTopButton from "@/components/ui/scroll-to-top";
 
 const Sobre = () => {
@@ -69,7 +69,7 @@ const Sobre = () => {
 
             <div className="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-xl p-8">
               <div className="flex items-center mb-4">
-                <MusicNote className="h-6 w-6 mr-3" />
+                <Music2 className="h-6 w-6 mr-3" />
                 <h3 className="text-xl font-bold">Como Funciona</h3>
               </div>
               <p className="mb-4">

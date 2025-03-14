@@ -20,17 +20,24 @@ import { submitMusicRequest } from "./utils/requestSubmission";
 import type { EnhancedError } from "./utils/errorHandling";
 import { toast } from "@/hooks/use-toast";
 import { showErrorToast } from "./utils/errorHandling";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface MusicRequestFormProps {
   userProfile: UserProfile;
   onRequestSubmitted: (newRequest: MusicRequest[]) => void;
   hasExistingRequest?: boolean;
+  onCancel?: () => void;
 }
 
 const audioExplanationUrl = "https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/ElevenLabs_2025-03-04T15_03_46_ScheilaSMTy_pvc_s86_sb98_se25_b_m2.mp3";
 
-const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest = false }: MusicRequestFormProps) => {
+const MusicRequestForm = ({ 
+  userProfile, 
+  onRequestSubmitted, 
+  hasExistingRequest = false,
+  onCancel 
+}: MusicRequestFormProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const submitAttemptRef = useRef(0);
@@ -135,7 +142,20 @@ const MusicRequestForm = ({ userProfile, onRequestSubmitted, hasExistingRequest 
   };
 
   return (
-    <div className="bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-lg p-8 border border-purple-100">
+    <div className="bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-lg p-8 border border-purple-100 relative">
+      {/* Botão de cancelar no canto superior direito */}
+      {onCancel && (
+        <Button 
+          onClick={onCancel}
+          variant="outline" 
+          size="sm"
+          className="absolute top-4 right-4 bg-white hover:bg-red-50 text-red-600 hover:text-red-700 border border-red-200 hover:border-red-300 flex items-center shadow-sm"
+        >
+          <X className="h-4 w-4 mr-1" />
+          Cancelar pedido
+        </Button>
+      )}
+      
       <FormIntroduction />
       
       <div className="mb-8 bg-white p-6 rounded-lg shadow-sm border border-purple-100">

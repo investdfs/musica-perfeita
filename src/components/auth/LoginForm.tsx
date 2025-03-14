@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import supabase from "@/lib/supabase";
 import { UserProfile } from "@/types/database.types";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -166,6 +167,15 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
             )}
           />
           
+          <div className="flex justify-end">
+            <Link 
+              to="/recuperar-senha" 
+              className="text-sm text-purple-600 hover:text-purple-800 transition-colors"
+            >
+              Esqueci minha senha
+            </Link>
+          </div>
+          
           <Button 
             type="submit" 
             className="w-full bg-pink-500 hover:bg-pink-600 transition-colors" 
@@ -186,9 +196,9 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
       <div className="mt-6">
         <p className="text-center text-sm text-gray-600">
           Ainda não tem uma conta?{" "}
-          <a href="/cadastro" className="font-medium text-pink-500 hover:text-pink-600">
+          <Link to="/cadastro" className="font-medium text-pink-500 hover:text-pink-600">
             Cadastre-se
-          </a>
+          </Link>
         </p>
       </div>
     </div>

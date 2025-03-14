@@ -26,7 +26,8 @@ const Dashboard = ({ userProfile, onLogout }: DashboardProps) => {
     hasPaidRequest,
     handleRequestSubmitted,
     handleCreateNewRequest,
-    handleUserLogout
+    handleUserLogout,
+    handleCancelRequestForm
   } = useDashboard();
 
   // Renderizar o painel de controle de pedidos sempre, conforme solicitado
@@ -70,6 +71,7 @@ const Dashboard = ({ userProfile, onLogout }: DashboardProps) => {
               userProfile={userProfile} 
               onRequestSubmitted={handleRequestSubmitted}
               hasExistingRequest={userRequests.length > 0}
+              onCancel={handleCancelRequestForm}
             />
           )}
         </div>

@@ -294,7 +294,10 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
                   </Button>
                 </div>
               ) : paymentProcessing ? (
-                <Loading message="Processando seu pagamento..." />
+                <div className="flex flex-col items-center justify-center h-64">
+                  <div className="w-12 h-12 border-4 border-t-blue-500 border-blue-200 rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-600">Processando seu pagamento...</p>
+                </div>
               ) : (
                 <div 
                   id="mercadopago-payment-container" 

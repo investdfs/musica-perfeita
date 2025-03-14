@@ -9,6 +9,7 @@ import MusicPlayerHeader from "@/components/music/MusicPlayerHeader";
 import MusicPlayerMain from "@/components/music/MusicPlayerMain";
 import ScrollToTopButton from "@/components/ui/scroll-to-top-button";
 import { validateMusicRequest } from "@/utils/validationUtils";
+import { toast } from "@/hooks/use-toast";
 
 const MusicPlayer = () => {
   const location = useLocation();

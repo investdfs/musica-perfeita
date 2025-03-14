@@ -19,6 +19,7 @@ const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
         description: "Não foi possível obter os detalhes da música",
         variant: "destructive",
       });
+      console.error("Tentativa de navegação com musicRequest vazio:", musicRequest);
       return;
     }
     
@@ -44,6 +45,12 @@ const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
       });
     }
   };
+
+  console.log("Estado do botão:", { 
+    disabled: !musicRequest, 
+    musicRequestExists: !!musicRequest,
+    musicRequestData: musicRequest ? JSON.stringify(musicRequest).substring(0, 100) + "..." : "null"
+  });
 
   return (
     <div className="flex justify-center mb-8">

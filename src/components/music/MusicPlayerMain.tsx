@@ -20,6 +20,8 @@ const MusicPlayerMain = ({
   loading, 
   navigate 
 }: MusicPlayerMainProps) => {
+  console.log("MusicPlayerMain recebeu requestData:", requestData ? "dados presentes" : "null/undefined");
+  
   return (
     <main className="flex-grow py-12 px-6 bg-gradient-to-b from-gray-900 to-indigo-950">
       <div className="max-w-4xl mx-auto">

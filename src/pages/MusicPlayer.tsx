@@ -23,7 +23,7 @@ const MusicPlayer = () => {
       const storedRequest = localStorage.getItem("current_music_request");
       if (location.state?.musicRequest) {
         console.log("Usando dados do state para o pedido:", location.state.musicRequest);
-        setRequestData(location.state.musicRequest);
+        setRequestData(validateMusicRequest(location.state.musicRequest));
         return true;
       } else if (storedRequest) {
         try {
@@ -45,11 +45,14 @@ const MusicPlayer = () => {
     const requestIdFromParams = params.get("requestId");
     
     if (urlFromParams) {
+      console.log("URL da música obtida dos parâmetros:", urlFromParams);
       setMusicUrl(urlFromParams);
     } else if (location.state?.musicUrl) {
+      console.log("URL da música obtida do state:", location.state.musicUrl);
       setMusicUrl(location.state.musicUrl);
     } else {
       // URL padrão para caso não haja nenhuma música especificada
+      console.log("Usando URL padrão da música");
       setMusicUrl("https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/Rivers-End-1.wav");
     }
     
@@ -60,8 +63,10 @@ const MusicPlayer = () => {
     if (!hasStoredData && (requestIdFromParams || location.state?.requestId)) {
       fetchRequestData(requestIdFromParams || location.state?.requestId);
     } else if (!hasStoredData) {
+      console.log("Nenhum dado disponível para o pedido, definindo loading como false");
       setLoading(false);
     } else {
+      console.log("Dados obtidos do armazenamento, definindo loading como false");
       setLoading(false);
     }
   }, [location]);
@@ -78,17 +83,44 @@ const MusicPlayer = () => {
         
       if (error) {
         console.error("Erro ao buscar dados do pedido:", error);
+        setLoading(false);
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar os detalhes da música",
+          variant: "destructive",
+        });
       } else if (data) {
         console.log("Dados do pedido recuperados:", data);
-        // Usar a função utilitária para validar os tipos enumerados
-        const validatedRequest = validateMusicRequest(data);
-        setRequestData(validatedRequest);
-        
-        // Armazenar também no localStorage para recuperação em caso de recarregamento
-        localStorage.setItem("current_music_request", JSON.stringify(validatedRequest));
+        try {
+          // Usar a função utilitária para validar os tipos enumerados
+          const validatedRequest = validateMusicRequest(data);
+          setRequestData(validatedRequest);
+          
+          // Armazenar também no localStorage para recuperação em caso de recarregamento
+          localStorage.setItem("current_music_request", JSON.stringify(validatedRequest));
+        } catch (err) {
+          console.error("Erro ao validar dados do pedido:", err);
+          toast({
+            title: "Erro nos dados",
+            description: "Os dados da música estão em formato incorreto",
+            variant: "destructive",
+          });
+        }
+      } else {
+        console.log("Nenhum dado encontrado para o ID do pedido:", requestId);
+        toast({
+          title: "Música não encontrada",
+          description: "Não foi possível encontrar a música solicitada",
+          variant: "destructive",
+        });
       }
     } catch (err) {
       console.error("Erro ao buscar dados do pedido:", err);
+      toast({
+        title: "Erro de conexão",
+        description: "Não foi possível conectar ao servidor",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

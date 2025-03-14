@@ -8,27 +8,29 @@ import { validateMusicRequest } from "@/utils/validationUtils";
 
 interface ActionButtonProps {
   navigate: NavigateFunction;
-  musicRequest?: MusicRequest;
+  musicRequest?: MusicRequest | null;
 }
 
 const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
   const handleNavigation = () => {
-    if (!musicRequest) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível obter os detalhes da música",
-        variant: "destructive",
-      });
+    // Verificar se temos um ID de pedido pelo menos, mesmo sem dados completos
+    if (!musicRequest?.id) {
+      console.log("Navegando para pagamento sem dados do pedido");
+      
+      // Permitir navegação mesmo sem os dados completos do pedido
+      navigate("/pagamento", { replace: true });
       return;
     }
     
-    // Validar os tipos enumerados antes de armazenar/navegar usando a função utilitária
-    const validatedRequest = validateMusicRequest(musicRequest);
-    
-    // Armazenar os dados do pedido no localStorage para recuperação em caso de perda durante a navegação
     try {
+      // Se tivermos os dados do pedido, vamos usá-los
+      console.log("Navegando para pagamento com dados:", musicRequest);
+      
+      // Validar os tipos enumerados se possível
+      const validatedRequest = validateMusicRequest(musicRequest);
+      
+      // Armazenar os dados do pedido no localStorage para recuperação
       localStorage.setItem("current_music_request", JSON.stringify(validatedRequest));
-      console.log("Navegando para pagamento com dados:", validatedRequest);
       
       // Usar navigate com replace para evitar problemas de histórico de navegação
       navigate("/pagamento", { 
@@ -38,10 +40,13 @@ const ActionButton = ({ navigate, musicRequest }: ActionButtonProps) => {
     } catch (error) {
       console.error("Erro ao processar navegação:", error);
       toast({
-        title: "Erro de navegação",
-        description: "Houve um problema ao redirecionar. Tente novamente.",
-        variant: "destructive",
+        title: "Aviso",
+        description: "Prosseguindo para a página de pagamento.",
+        variant: "default",
       });
+      
+      // Mesmo com erro, permitir a navegação para a página de pagamento
+      navigate("/pagamento", { replace: true });
     }
   };
 

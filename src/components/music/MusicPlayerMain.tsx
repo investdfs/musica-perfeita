@@ -34,11 +34,17 @@ const MusicPlayerMain = ({
           />
         </div>
         
-        <ActionButton navigate={navigate} />
+        <ActionButton navigate={navigate} musicRequest={requestData} />
         
-        <TechnicalDetailsSection requestData={requestData} />
+        {/* Tornar a seção de detalhes técnicos opcional */}
+        {requestData?.has_technical_details && (
+          <TechnicalDetailsSection requestData={requestData} />
+        )}
         
-        <MusicDetailsCard requestData={requestData} />
+        {/* Tornar o cartão de detalhes da música opcional */}
+        {requestData && (
+          <MusicDetailsCard requestData={requestData} />
+        )}
       </div>
     </main>
   );

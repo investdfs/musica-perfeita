@@ -8,7 +8,8 @@ interface TechnicalDetailsSectionProps {
 }
 
 const TechnicalDetailsSection = ({ requestData }: TechnicalDetailsSectionProps) => {
-  if (!requestData?.has_technical_details) {
+  // Se não houver dados ou não tiver detalhes técnicos, não renderiza nada
+  if (!requestData || !requestData.has_technical_details) {
     return null;
   }
 
@@ -19,13 +20,11 @@ const TechnicalDetailsSection = ({ requestData }: TechnicalDetailsSectionProps) 
           <FileText className="h-5 w-5 text-purple-400 mr-2" />
           <span className="text-purple-200 font-medium">Detalhes técnicos disponíveis para esta música</span>
         </div>
-        {requestData && (
-          <TechnicalDetailsViewer 
-            request={requestData} 
-            variant="dialog" 
-            className="text-purple-200 border-purple-400/50 hover:bg-purple-800/30"
-          />
-        )}
+        <TechnicalDetailsViewer 
+          request={requestData} 
+          variant="dialog" 
+          className="text-purple-200 border-purple-400/50 hover:bg-purple-800/30"
+        />
       </div>
     </div>
   );

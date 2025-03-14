@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { 
   Button 
@@ -134,15 +135,12 @@ const RequestRow = ({
     <TableRow>
       <TableCell className="font-medium truncate max-w-[150px] text-gray-900">
         {getUserName(request.user_id)}
-        <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-          <span>ID: {request.id.substring(0, 6)}...</span>
-          {request.order_number && (
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-1.5 py-0">
-              <Hash className="h-3 w-3 mr-0.5" />
-              {request.order_number}
-            </Badge>
-          )}
-        </div>
+        {request.order_number && (
+          <Badge variant="outline" className="mt-1 bg-blue-50 text-blue-700 border-blue-200 text-xs px-1.5 py-0 flex items-center w-fit">
+            <Hash className="h-3 w-3 mr-0.5" />
+            {request.order_number}
+          </Badge>
+        )}
       </TableCell>
       <TableCell className="truncate max-w-[150px] text-gray-900">{request.honoree_name}</TableCell>
       <TableCell>

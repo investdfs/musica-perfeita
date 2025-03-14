@@ -20,6 +20,43 @@ export const useDashboard = () => {
     hasPaidRequest
   } = useRequestStatus(userRequests);
 
+  // Função para ordenar os pedidos conforme a prioridade especificada
+  const sortRequests = (requests: MusicRequest[]): MusicRequest[] => {
+    if (!requests || requests.length === 0) return [];
+    
+    return [...requests].sort((a, b) => {
+      // Verificar data de criação para ordenar pedidos do mesmo tipo (mais recentes primeiro)
+      const dateComparison = new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      
+      // Prioridade 1: Pedidos concluídos pendentes de pagamento
+      if (a.status === 'completed' && a.payment_status === 'pending' && 
+          b.status !== 'completed' || b.payment_status === 'completed') {
+        return -1;
+      }
+      if (b.status === 'completed' && b.payment_status === 'pending' && 
+          a.status !== 'completed' || a.payment_status === 'completed') {
+        return 1;
+      }
+      
+      // Prioridade 2: Pedidos não concluídos
+      if (a.status !== 'completed' && b.status === 'completed' && b.payment_status === 'completed') {
+        return -1;
+      }
+      if (b.status !== 'completed' && a.status === 'completed' && a.payment_status === 'completed') {
+        return 1;
+      }
+      
+      // Prioridade 3: Pedidos concluídos e pagos (por último)
+      if (a.status === 'completed' && a.payment_status === 'completed' && 
+          b.status === 'completed' && b.payment_status === 'completed') {
+        return dateComparison;
+      }
+      
+      // Se todos os critérios de prioridade forem iguais, ordenar por data
+      return dateComparison;
+    });
+  };
+
   // Função para buscar os pedidos do usuário
   const fetchUserRequests = useCallback(async () => {
     if (!userProfile?.id) return;
@@ -40,11 +77,13 @@ export const useDashboard = () => {
       console.log('[useDashboard] Pedidos recebidos:', data);
       
       if (data) {
-        setUserRequests(data);
+        // Aplicar a ordenação personalizada
+        const sortedRequests = sortRequests(data);
+        setUserRequests(sortedRequests);
         
         // Atualizar o progresso com base no pedido mais recente
         if (data.length > 0) {
-          const latestRequest = data[0];
+          const latestRequest = sortedRequests[0];
           
           switch (latestRequest.status) {
             case 'pending':
@@ -92,8 +131,8 @@ export const useDashboard = () => {
         const newRequestIds = new Set(newRequests.map(r => r.id));
         const filteredPrevRequests = prevRequests.filter(r => !newRequestIds.has(r.id));
         
-        // Combinar os novos pedidos com os existentes
-        return [...newRequests, ...filteredPrevRequests];
+        // Combinar os novos pedidos com os existentes e reordenar
+        return sortRequests([...newRequests, ...filteredPrevRequests]);
       });
       
       // Atualizar o progresso para 25% (pedido enviado)

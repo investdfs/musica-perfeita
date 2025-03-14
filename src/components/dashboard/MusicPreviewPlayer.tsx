@@ -63,12 +63,9 @@ const MusicPreviewPlayer = ({
         } 
       });
     } else if (isDirectFileLink) {
-      const playerUrl = isCompleted ? "/music-player-full" : "/music-player";
-      navigate(playerUrl, { 
+      navigate("/music-player", { 
         state: { 
           musicUrl: previewUrl,
-          downloadUrl: isCompleted && isPaid ? fullSongUrl : undefined,
-          paymentStatus: paymentStatus,
           requestId: requestId
         } 
       });
@@ -156,13 +153,15 @@ const MusicPreviewPlayer = ({
                 <Button 
                   className={`flex items-center gap-1 ${isPaid ? 'bg-pink-500 hover:bg-pink-600' : 'bg-gray-400'}`}
                   onClick={handleAccessFullSong}
+                  disabled={!isPaid}
+                  title={isPaid ? 'Ouvir versão completa' : 'Aguardando pagamento para liberar'}
                 >
                   {isPaid ? (
                     <ExternalLink className="h-4 w-4" />
                   ) : (
                     <Lock className="h-4 w-4" />
                   )}
-                  Ouvir Completa
+                  Versão Completa
                 </Button>
               )}
             </div>
@@ -192,13 +191,14 @@ const MusicPreviewPlayer = ({
                 onClick={togglePlay}
               >
                 <PlayCircle className="h-4 w-4" />
-                Ouvir no Player
+                Ouvir Prévia
               </Button>
               
               {isCompleted && (
                 <Button 
                   className={`flex items-center gap-1 ${isPaid ? 'bg-pink-500 hover:bg-pink-600' : 'bg-gray-400'}`}
                   onClick={handleAccessFullSong}
+                  disabled={!isPaid}
                   title={isPaid ? 'Ouvir versão completa' : 'Aguardando pagamento para liberar'}
                 >
                   {isPaid ? (
@@ -242,6 +242,7 @@ const MusicPreviewPlayer = ({
                 variant="outline" 
                 className="flex items-center gap-1"
                 onClick={handleAccessFullSong}
+                disabled={!isPaid}
               >
                 {isPaid ? (
                   <Download className="h-4 w-4" />

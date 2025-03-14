@@ -3,7 +3,7 @@ import { MusicRequestFormValues } from "../formSchema";
 import { UserProfile } from "@/types/database.types";
 import { uploadCoverImage } from "./imageUpload";
 import { prepareRequestData } from "./requestData";
-import { insertMusicRequest } from "./databaseOperations";
+import { insertMusicRequest, getOrderNumber } from "./databaseOperations";
 import { processError, EnhancedError } from "./errorHandling";
 
 /**

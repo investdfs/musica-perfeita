@@ -34,4 +34,5 @@ export type MusicRequest = {
   sad_memory?: string | null;
   technical_details?: string | null;
   has_technical_details?: boolean;
+  order_number?: string | null; // Novo campo para número do pedido
 };

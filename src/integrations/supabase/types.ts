@@ -60,6 +60,7 @@ export type Database = {
           music_genre: string
           music_tone: string | null
           names_to_include: string | null
+          order_number: string | null
           payment_status: string | null
           preview_url: string | null
           relationship_type: string
@@ -84,6 +85,7 @@ export type Database = {
           music_genre: string
           music_tone?: string | null
           names_to_include?: string | null
+          order_number?: string | null
           payment_status?: string | null
           preview_url?: string | null
           relationship_type: string
@@ -108,6 +110,7 @@ export type Database = {
           music_genre?: string
           music_tone?: string | null
           names_to_include?: string | null
+          order_number?: string | null
           payment_status?: string | null
           preview_url?: string | null
           relationship_type?: string
@@ -127,6 +130,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      order_counters: {
+        Row: {
+          current_count: number
+          id: string
+          year: string
+        }
+        Insert: {
+          current_count?: number
+          id: string
+          year: string
+        }
+        Update: {
+          current_count?: number
+          id?: string
+          year?: string
+        }
+        Relationships: []
       }
       site_stats: {
         Row: {

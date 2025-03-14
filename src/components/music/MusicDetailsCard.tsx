@@ -1,5 +1,5 @@
 
-import { Music, Clock, Heart, AlertTriangle, User, Mic, Sparkles, Music2, BookOpen, Tag, Bookmark } from "lucide-react";
+import { Music, Clock, Heart, AlertTriangle, User, Mic, Sparkles, Music2, BookOpen, Tag, Bookmark, Hash } from "lucide-react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { MusicRequest } from "@/types/database.types";
 import { formatDate } from "@/lib/utils";
@@ -19,12 +19,20 @@ const MusicDetailsCard = ({ requestData }: MusicDetailsCardProps) => {
             <Music className="h-5 w-5 text-indigo-400 mr-2" />
             <CardTitle className="text-xl font-semibold text-gray-200">Detalhes da Música</CardTitle>
           </div>
-          {!isPaid && (
-            <div className="flex items-center bg-yellow-500/20 px-3 py-1 rounded-full">
-              <AlertTriangle className="h-4 w-4 text-yellow-400 mr-1" />
-              <span className="text-xs font-medium text-yellow-300">Prévia Limitada</span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {requestData?.order_number && (
+              <div className="flex items-center bg-blue-500/20 px-3 py-1 rounded-full">
+                <Hash className="h-4 w-4 text-blue-300 mr-1" />
+                <span className="text-xs font-medium text-blue-200">{requestData.order_number}</span>
+              </div>
+            )}
+            {!isPaid && (
+              <div className="flex items-center bg-yellow-500/20 px-3 py-1 rounded-full">
+                <AlertTriangle className="h-4 w-4 text-yellow-400 mr-1" />
+                <span className="text-xs font-medium text-yellow-300">Prévia Limitada</span>
+              </div>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent>

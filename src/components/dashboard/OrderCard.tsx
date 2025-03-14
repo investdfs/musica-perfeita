@@ -9,7 +9,8 @@ import {
   HeartPulse,
   CheckCircle, 
   AlertCircle,
-  Hourglass
+  Hourglass,
+  Hash
 } from "lucide-react";
 import MusicPreviewPlayer from "./MusicPreviewPlayer";
 import TechnicalDetailsViewer from "../music/TechnicalDetailsViewer";
@@ -77,9 +78,17 @@ const OrderCard = ({ request }: OrderCardProps) => {
       <div className="p-4 sm:p-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
           <div>
-            <h3 className="font-bold text-lg text-gray-900 mb-1">
-              Música para {request.honoree_name}
-            </h3>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <h3 className="font-bold text-lg text-gray-900">
+                Música para {request.honoree_name}
+              </h3>
+              {request.order_number && (
+                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                  <Hash className="h-3 w-3 mr-1" />
+                  {request.order_number}
+                </Badge>
+              )}
+            </div>
             <div className="flex flex-wrap items-center text-sm text-gray-500 gap-3 mb-2">
               <span className="flex items-center">
                 <Clock className="h-4 w-4 mr-1 text-blue-500" />

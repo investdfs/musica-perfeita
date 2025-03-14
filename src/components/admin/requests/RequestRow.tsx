@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { 
   Button 
@@ -25,7 +24,8 @@ import {
   CheckCircle, 
   AlertTriangle,
   FileText,
-  Play
+  Play,
+  Hash
 } from "lucide-react";
 import { MusicRequest } from "@/types/database.types";
 import { toast } from "@/hooks/use-toast";
@@ -71,7 +71,6 @@ const RequestRow = ({
   const handleMusicLinkChange = (value: string) => {
     setMusicLink(value);
     
-    // Limpar estado de erro quando o usuário começa a digitar novamente
     if (errorState) {
       setErrorState('');
     }
@@ -110,7 +109,6 @@ const RequestRow = ({
       setIsSaving(true);
       await onSaveMusicLink(request.id, musicLink);
       
-      // Limpa o campo após salvar com sucesso
       setMusicLink('');
       
       toast({
@@ -136,7 +134,15 @@ const RequestRow = ({
     <TableRow>
       <TableCell className="font-medium truncate max-w-[150px] text-gray-900">
         {getUserName(request.user_id)}
-        <div className="text-xs text-gray-500 mt-1">ID: {request.id.substring(0, 6)}...</div>
+        <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+          <span>ID: {request.id.substring(0, 6)}...</span>
+          {request.order_number && (
+            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-1.5 py-0">
+              <Hash className="h-3 w-3 mr-0.5" />
+              {request.order_number}
+            </Badge>
+          )}
+        </div>
       </TableCell>
       <TableCell className="truncate max-w-[150px] text-gray-900">{request.honoree_name}</TableCell>
       <TableCell>
@@ -192,7 +198,6 @@ const RequestRow = ({
             )}
           </Button>
           
-          {/* Botão para abrir o popup de detalhes técnicos */}
           <Button
             variant="ghost"
             size="sm"
@@ -203,7 +208,6 @@ const RequestRow = ({
             <FileText className="w-4 h-4" />
           </Button>
           
-          {/* Botão para ver prévia */}
           {request.preview_url && (
             <Button
               variant="ghost"
@@ -302,7 +306,6 @@ const RequestRow = ({
         </div>
       </TableCell>
       
-      {/* Popup de detalhes técnicos */}
       <TechnicalDetailsPopup
         request={request}
         open={showTechnicalDetails}

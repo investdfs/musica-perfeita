@@ -60,15 +60,26 @@ const MusicPlayer = () => {
           'sibling', 'parent', 'other'
         ] as const;
         
-        // Verificar se o valor recebido é um dos valores válidos
+        // Garantir que music_genre seja um dos valores permitidos
+        const validMusicGenres = [
+          'romantic', 'mpb', 'classical', 'jazz', 'hiphop', 
+          'rock', 'country', 'reggae', 'electronic', 'samba', 'folk', 'pop'
+        ] as const;
+        
+        // Verificar se os valores recebidos são válidos
         const relationshipType = validRelationshipTypes.includes(data.relationship_type as any) 
           ? data.relationship_type as MusicRequest['relationship_type']
-          : 'other'; // fallback para 'other' se o valor não for válido
+          : 'other';
+          
+        const musicGenre = validMusicGenres.includes(data.music_genre as any) 
+          ? data.music_genre as MusicRequest['music_genre']
+          : 'pop';
         
         // Criar objeto tipado corretamente
         const typedRequest: MusicRequest = {
           ...data,
-          relationship_type: relationshipType
+          relationship_type: relationshipType,
+          music_genre: musicGenre
         };
         
         setRequestData(typedRequest);

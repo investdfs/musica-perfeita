@@ -1,31 +1,18 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Hourglass } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 const ProcessandoPagamento = () => {
-  const [elapsedTime, setElapsedTime] = useState(0);
+  const [elapsedTime, setElapsedTime] = useState(50); // Fixar em 50% para mostrar que está em processamento
   const navigate = useNavigate();
-
-  // Simulando tempo de processamento para demonstração
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setElapsedTime((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          // Após atingir 100%, redirecionamos para a página de confirmação
-          navigate("/confirmacao-g4bytw2tub6cfk76iigyja4q35w9d8sseqbi5hnxsh8r6ikzx8cd6kc8ijxbx2726wwt777t4vfm64zhn");
-          return 100;
-        }
-        return prev + 1;
-      });
-    }, 200); // Incrementa a cada 200ms para demonstração
-
-    return () => clearInterval(timer);
-  }, [navigate]);
+  
+  const handleBackToDashboard = () => {
+    navigate("/dashboard");
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-indigo-50 to-white">
@@ -66,7 +53,15 @@ const ProcessandoPagamento = () => {
                   style={{ width: `${elapsedTime}%` }}
                 ></div>
               </div>
-              <p className="text-gray-500 text-sm">Por favor, não feche esta página</p>
+              <p className="text-gray-500 text-sm mb-6">Aguarde o processamento completo</p>
+              
+              <Button 
+                variant="outline" 
+                onClick={handleBackToDashboard}
+                className="mx-auto mt-6"
+              >
+                Voltar para o Dashboard
+              </Button>
             </div>
           </div>
         </div>

@@ -30,7 +30,12 @@ const Dashboard = ({ userProfile, onLogout }: DashboardProps) => {
     handleCancelRequestForm
   } = useDashboard();
 
-  // Renderizar o painel de controle de pedidos sempre, conforme solicitado
+  // Verificar que o pedido tem previewUrl e que tem uma string válida
+  const shouldShowPreview = hasPreviewUrl && 
+                           userRequests[0]?.preview_url && 
+                           typeof userRequests[0]?.preview_url === 'string' && 
+                           userRequests[0]?.preview_url.trim() !== '';
+
   return (
     <div className="min-h-screen bg-gradient-to-tr from-blue-50 via-indigo-50 to-white animate-gradient-background">
       <div className="animated-shapes">
@@ -55,13 +60,14 @@ const Dashboard = ({ userProfile, onLogout }: DashboardProps) => {
             isLoading={isLoading}
           />
           
-          {/* Player de prévia de música, mostrado apenas se há uma prévia */}
-          {hasPreviewUrl && !showNewRequestForm && (
+          {/* Player de prévia de música, mostrado apenas se há uma prévia válida */}
+          {shouldShowPreview && !showNewRequestForm && (
             <MusicPreviewPlayer 
               previewUrl={userRequests[0]?.preview_url || ''} 
               fullSongUrl={userRequests[0]?.full_song_url}
               isCompleted={hasCompletedRequest}
               paymentStatus={userRequests[0]?.payment_status || 'pending'}
+              requestId={userRequests[0]?.id}
             />
           )}
           

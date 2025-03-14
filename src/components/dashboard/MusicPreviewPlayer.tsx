@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Music, PlayCircle, PauseCircle, ExternalLink, Lock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -23,6 +23,7 @@ const MusicPreviewPlayer = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
   const [isSoundCloud, setIsSoundCloud] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const navigate = useNavigate();
   
   const isPaid = paymentStatus === 'completed';
@@ -34,7 +35,16 @@ const MusicPreviewPlayer = ({
   );
 
   useEffect(() => {
-    if (previewUrl && (previewUrl.includes('soundcloud.com') || previewUrl.includes('api.soundcloud.com'))) {
+    if (!previewUrl) return;
+    
+    // Limpar o efeito anterior
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = '';
+      audioRef.current.removeEventListener('ended', () => setIsPlaying(false));
+    }
+    
+    if (previewUrl.includes('soundcloud.com') || previewUrl.includes('api.soundcloud.com')) {
       setIsSoundCloud(true);
     } else {
       setIsSoundCloud(false);
@@ -42,6 +52,7 @@ const MusicPreviewPlayer = ({
         const audio = new Audio(previewUrl);
         audio.addEventListener('ended', () => setIsPlaying(false));
         setAudioElement(audio);
+        audioRef.current = audio;
   
         return () => {
           audio.pause();

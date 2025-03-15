@@ -15,7 +15,7 @@ export type ProductFormData = {
   name: string;
   description: string;
   price: number;
-  imageUrl?: string | null;
+  imageUrl: string | null;
   paymentLink: string;
   isActive: boolean;
 };

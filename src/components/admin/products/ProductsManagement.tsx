@@ -6,14 +6,10 @@ import {
   Link, ImageIcon, Check, X, ArrowUpDown
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -26,12 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { formatCurrency } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { Product, ProductFormData } from "@/types/product.types";
@@ -102,17 +92,22 @@ export const ProductsManagement = () => {
     try {
       setIsLoading(true);
 
+      // Preparar dados para o banco de dados
+      const dbData = {
+        name: productData.name,
+        description: productData.description,
+        price: productData.price,
+        image_url: productData.imageUrl,
+        payment_link: productData.paymentLink,
+        is_active: productData.isActive,
+      };
+
       if (currentProduct) {
         // Atualizar produto existente
         const { error } = await supabase
           .from("products")
           .update({
-            name: productData.name,
-            description: productData.description,
-            price: productData.price,
-            image_url: productData.imageUrl,
-            payment_link: productData.paymentLink,
-            is_active: productData.isActive,
+            ...dbData,
             updated_at: new Date().toISOString(),
           })
           .eq("id", currentProduct.id);
@@ -125,14 +120,9 @@ export const ProductsManagement = () => {
         });
       } else {
         // Adicionar novo produto
-        const { error } = await supabase.from("products").insert({
-          name: productData.name,
-          description: productData.description,
-          price: productData.price,
-          image_url: productData.imageUrl,
-          payment_link: productData.paymentLink,
-          is_active: productData.isActive,
-        });
+        const { error } = await supabase
+          .from("products")
+          .insert(dbData);
 
         if (error) throw error;
 
@@ -334,6 +324,9 @@ export const ProductsManagement = () => {
                               src={product.imageUrl}
                               alt={product.name}
                               className="h-full w-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = 'https://placehold.co/100x100?text=Imagem+não+disponível';
+                              }}
                             />
                           ) : (
                             <Package className="h-5 w-5 text-purple-500" />

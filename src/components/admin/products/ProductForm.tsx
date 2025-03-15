@@ -10,12 +10,11 @@ import {
   DollarSign, 
   Link2, 
   ImageIcon, 
-  Upload, 
   Loader2,
-  Check
+  Check,
+  ExternalLink
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Product, ProductFormData } from "@/types/product.types";
 
 interface ProductFormProps {
@@ -35,8 +34,6 @@ const ProductForm = ({ product, onSave, onCancel, isLoading }: ProductFormProps)
     isActive: true,
   });
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Inicializar formulário com dados do produto se estiver editando
@@ -50,7 +47,6 @@ const ProductForm = ({ product, onSave, onCancel, isLoading }: ProductFormProps)
         paymentLink: product.paymentLink,
         isActive: product.isActive,
       });
-      setImagePreview(product.imageUrl);
     }
   }, [product]);
 
@@ -89,81 +85,6 @@ const ProductForm = ({ product, onSave, onCancel, isLoading }: ProductFormProps)
       ...formData,
       isActive: checked,
     });
-  };
-
-  // Manipular upload de imagem
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Verificar tipo de arquivo
-    if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Tipo de arquivo inválido",
-        description: "Por favor, selecione uma imagem.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Verificar tamanho do arquivo (limite de 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Arquivo muito grande",
-        description: "A imagem deve ter no máximo 5MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsUploading(true);
-
-      // Criar preview da imagem
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-
-      // Upload para o Supabase Storage
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      const filePath = `products/${fileName}`;
-
-      const { data, error } = await supabase.storage
-        .from("images")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-      if (error) throw error;
-
-      // Obter URL pública
-      const { data: { publicUrl } } = supabase.storage
-        .from("images")
-        .getPublicUrl(data.path);
-
-      setFormData({
-        ...formData,
-        imageUrl: publicUrl,
-      });
-
-      toast({
-        title: "Imagem enviada",
-        description: "A imagem foi enviada com sucesso.",
-      });
-    } catch (error) {
-      console.error("Erro ao fazer upload da imagem:", error);
-      toast({
-        title: "Erro ao enviar imagem",
-        description: "Não foi possível fazer o upload da imagem.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUploading(false);
-    }
   };
 
   // Validação do formulário
@@ -316,62 +237,41 @@ const ProductForm = ({ product, onSave, onCancel, isLoading }: ProductFormProps)
         </p>
       </div>
 
-      {/* Upload de imagem */}
+      {/* Link da imagem */}
       <div className="space-y-2">
-        <Label className="flex items-center">
+        <Label htmlFor="imageUrl" className="flex items-center">
           <ImageIcon className="h-4 w-4 mr-2 text-indigo-500" />
-          Imagem do Produto
+          Link da Imagem do Produto
         </Label>
-        <div className="flex items-center gap-4">
-          <div
-            className={`h-24 w-24 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden ${
-              imagePreview ? "border-solid border-purple-300" : ""
-            }`}
-          >
-            {imagePreview ? (
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="h-full w-full object-cover"
+        <Input
+          id="imageUrl"
+          name="imageUrl"
+          value={formData.imageUrl || ""}
+          onChange={handleChange}
+          className="w-full"
+          placeholder="https://exemplo.com/imagem.jpg"
+          disabled={isLoading}
+        />
+        {formData.imageUrl && (
+          <div className="mt-2">
+            <p className="text-sm text-gray-500 mb-2">Prévia da imagem:</p>
+            <div className="w-24 h-24 border rounded-md overflow-hidden">
+              <img 
+                src={formData.imageUrl} 
+                alt="Prévia" 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://placehold.co/200x200?text=Erro+na+imagem';
+                }}
               />
-            ) : (
-              <ImageIcon className="h-8 w-8 text-gray-400" />
-            )}
-          </div>
-          <div className="flex-1">
-            <div className="relative">
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-                disabled={isLoading || isUploading}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => document.getElementById("image")?.click()}
-                disabled={isLoading || isUploading}
-                className="w-full justify-start"
-              >
-                {isUploading ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Upload className="h-4 w-4 mr-2" />
-                )}
-                {isUploading
-                  ? "Enviando..."
-                  : imagePreview
-                  ? "Alterar imagem"
-                  : "Fazer upload de imagem"}
-              </Button>
             </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Formatos aceitos: JPG, PNG. Tamanho máximo: 5MB
-            </p>
           </div>
-        </div>
+        )}
+        <p className="text-xs text-gray-500 flex items-center gap-1">
+          <ExternalLink className="h-3 w-3" />
+          Você pode usar sites como <a href="https://imgur.com" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">Imgur</a> ou 
+          <a href="https://postimages.org" target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">PostImages</a> para hospedar suas imagens gratuitamente.
+        </p>
       </div>
 
       {/* Status do produto */}
@@ -408,7 +308,7 @@ const ProductForm = ({ product, onSave, onCancel, isLoading }: ProductFormProps)
         <Button
           type="submit"
           className="bg-purple-600 hover:bg-purple-700"
-          disabled={isLoading || isUploading}
+          disabled={isLoading}
         >
           {isLoading ? (
             <>

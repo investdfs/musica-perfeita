@@ -191,7 +191,7 @@ const MusicPreviewPlayer = ({
             </div>
           </div>
         </div>
-      ) : isDirectFileLink ? (
+      ) : isDirectFileLinkRef.current ? (
         <div className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">

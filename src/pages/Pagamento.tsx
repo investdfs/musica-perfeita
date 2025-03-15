@@ -1,21 +1,25 @@
+
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MusicRequest, UserProfile } from "@/types/database.types";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Check, Music, ShieldCheck, CreditCard, Clock, Lock, Headphones, Calendar, Heart, Tag, Mic, Sparkles, UserRound, BookOpen } from "lucide-react";
+import { CreditCard, Lock, Loader2, ShieldCheck, ArrowLeft, ShoppingCart } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { formatDate } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { validateMusicRequest } from "@/utils/validationUtils";
-import TextDialog from "@/components/payment/TextDialog";
+import { useProducts } from "@/hooks/useProducts";
+import { Product } from "@/types/product.types";
+import { ProductCard } from "@/components/payment/ProductCard";
 
 interface PagamentoProps {
   userProfile: UserProfile | null;
 }
 
 const Pagamento = ({ userProfile }: PagamentoProps) => {
+  const { products, isLoading: isLoadingProducts, error: productsError } = useProducts();
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -154,11 +158,31 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     loadMusicRequestData();
   }, [location.state, navigate, userProfile]);
 
+  useEffect(() => {
+    // Seleciona automaticamente o primeiro produto quando a lista é carregada
+    if (products.length > 0 && !selectedProduct) {
+      setSelectedProduct(products[0]);
+    }
+  }, [products]);
+
+  const handleProductSelect = (product: Product) => {
+    setSelectedProduct(product);
+  };
+
   const handlePayment = () => {
     if (!musicRequest) {
       toast({
         title: "Erro",
         description: "Dados da música não disponíveis",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!selectedProduct) {
+      toast({
+        title: "Atenção",
+        description: "Por favor, selecione um produto para continuar",
         variant: "destructive",
       });
       return;
@@ -178,16 +202,13 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     console.log("URL de falha:", failureUrl);
     
     toast({
-      title: "URLs para configurar no Mercado Pago",
-      description: `Configure as seguintes URLs no painel do Mercado Pago:
-      
-      URL de Sucesso: ${successUrl}
-      
-      URL de Falha: ${failureUrl}`,
-      duration: 10000,
+      title: "Redirecionando para o pagamento",
+      description: "Você será redirecionado para a página de pagamento em instantes...",
+      duration: 3000,
     });
     
-    window.open("https://mpago.la/2WyrDAe", "_blank");
+    // Abre o link de pagamento do produto selecionado
+    window.open(selectedProduct.paymentLink, "_blank");
     
     setTimeout(() => {
       toast({
@@ -207,408 +228,108 @@ const Pagamento = ({ userProfile }: PagamentoProps) => {
     }, 2000);
   };
 
-  const getRelationshipLabel = (type: string, custom?: string | null) => {
-    const relationshipMap: Record<string, string> = {
-      'esposa': 'Esposa',
-      'noiva': 'Noiva',
-      'namorada': 'Namorada',
-      'amigo_especial': 'Amigo Especial',
-      'partner': 'Parceiro(a)',
-      'friend': 'Amigo(a)',
-      'family': 'Familiar',
-      'colleague': 'Colega',
-      'mentor': 'Mentor(a)',
-      'child': 'Filho(a)',
-      'sibling': 'Irmão/Irmã',
-      'parent': 'Pai/Mãe',
-      'other': custom || 'Outro'
-    };
-    
-    return relationshipMap[type] || type;
-  };
-
-  const getGenreLabel = (genre: string) => {
-    const genreMap: Record<string, string> = {
-      'romantic': 'Romântica',
-      'mpb': 'MPB',
-      'classical': 'Clássica',
-      'jazz': 'Jazz',
-      'hiphop': 'Hip Hop',
-      'rock': 'Rock',
-      'country': 'Country',
-      'reggae': 'Reggae',
-      'electronic': 'Eletrônica',
-      'samba': 'Samba',
-      'folk': 'Folk',
-      'pop': 'Pop'
-    };
-    
-    return genreMap[genre] || genre;
-  };
-
-  const getToneLabel = (tone?: string) => {
-    if (!tone) return 'Não especificado';
-    
-    const toneMap: Record<string, string> = {
-      'happy': 'Alegre',
-      'romantic': 'Romântica',
-      'nostalgic': 'Nostálgica',
-      'fun': 'Divertida',
-      'melancholic': 'Melancólica',
-      'energetic': 'Energética',
-      'peaceful': 'Tranquila',
-      'inspirational': 'Inspiradora',
-      'dramatic': 'Dramática',
-      'uplifting': 'Motivadora',
-      'reflective': 'Reflexiva',
-      'mysterious': 'Misteriosa'
-    };
-    
-    return toneMap[tone] || tone;
-  };
-
-  const getVoiceLabel = (voice?: string) => {
-    if (!voice) return 'Não especificado';
-    
-    const voiceMap: Record<string, string> = {
-      'male': 'Masculina',
-      'female': 'Feminina',
-      'male_romantic': 'Masculina Romântica',
-      'female_romantic': 'Feminina Romântica',
-      'male_folk': 'Masculina Folk',
-      'female_folk': 'Feminina Folk',
-      'male_deep': 'Masculina Profunda',
-      'female_powerful': 'Feminina Poderosa',
-      'male_soft': 'Masculina Suave',
-      'female_sweet': 'Feminina Doce',
-      'male_jazzy': 'Masculina Jazz',
-      'female_jazzy': 'Feminina Jazz',
-      'male_rock': 'Masculina Rock',
-      'female_rock': 'Feminina Rock',
-      'male_country': 'Masculina Country',
-      'female_country': 'Feminina Country'
-    };
-    
-    return voiceMap[voice] || voice;
+  const goBack = () => {
+    navigate("/dashboard");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50">
       <Header />
       
-      <div className="animated-shapes opacity-50">
+      <div className="animated-shapes opacity-20">
         <div className="shape shape-1"></div>
         <div className="shape shape-2"></div>
         <div className="shape shape-3"></div>
       </div>
       
       <main className="py-16 px-6 relative z-10">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold text-center mb-8 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-clip-text text-transparent animate-gradient-background">
-            Música Perfeita Aguarda Você!
+        <div className="max-w-5xl mx-auto">
+          <Button 
+            variant="ghost" 
+            onClick={goBack} 
+            className="mb-8 text-gray-600 hover:text-gray-900"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar ao Dashboard
+          </Button>
+          
+          <h1 className="text-4xl md:text-5xl font-bold text-center mb-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 bg-clip-text text-transparent animate-gradient-background">
+            Escolha seu Plano
           </h1>
           
           <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto text-lg">
-            Estamos a apenas um passo de criar sua música personalizada. 
-            Complete o pagamento para desbloquear sua experiência musical única.
+            Selecione o plano ideal para sua música personalizada e prepare-se para uma experiência musical única.
           </p>
           
-          {isLoading ? (
+          {isLoading || isLoadingProducts ? (
             <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
               <div className="animate-spin w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-              <p className="text-gray-600">Carregando detalhes do seu pedido...</p>
+              <p className="text-gray-600">Carregando opções de produtos...</p>
+            </div>
+          ) : productsError ? (
+            <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+              <p className="text-red-500 mb-4">{productsError}</p>
+              <Button onClick={goBack} variant="outline">Voltar ao Dashboard</Button>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+              <ShoppingCart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Nenhum produto disponível</h3>
+              <p className="text-gray-500 mb-4">No momento não há produtos disponíveis para compra.</p>
+              <Button onClick={goBack} variant="outline">Voltar ao Dashboard</Button>
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 gap-10">
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-purple-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6">
-                  <h2 className="text-2xl font-bold text-white flex items-center">
-                    <Music className="h-6 w-6 mr-3" />
-                    Resumo da Sua Música
-                  </h2>
-                </div>
-                
-                <div className="p-6">
-                  {musicRequest ? (
-                    <div className="space-y-5">
-                      <div className="w-full aspect-square max-w-[50%] mx-auto rounded-lg overflow-hidden bg-purple-50 border border-purple-100 relative flex-shrink-0 mb-4">
-                        {musicRequest.cover_image_url ? (
-                          <img 
-                            src={musicRequest.cover_image_url} 
-                            alt="Capa da música" 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-100 to-indigo-100">
-                            <Music className="h-16 w-16 text-purple-300" />
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-start mb-3">
-                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-3 flex-shrink-0">
-                          <Heart className="h-5 w-5 text-indigo-600" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium text-xl text-gray-800">Música Personalizada</h3>
-                          <p className="text-indigo-600 font-medium">Para: {musicRequest.honoree_name}</p>
-                          <p className="text-gray-500 text-sm mt-1">
-                            Relacionamento: {getRelationshipLabel(musicRequest.relationship_type, musicRequest.custom_relationship)}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-3 mt-4">
-                        <div className="flex items-center">
-                          <Tag className="h-4 w-4 text-indigo-500 mr-2 flex-shrink-0" />
-                          <span className="text-sm">
-                            <span className="text-gray-500">Gênero:</span> {' '}
-                            <span className="font-medium text-gray-700">{getGenreLabel(musicRequest.music_genre)}</span>
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center">
-                          <Mic className="h-4 w-4 text-indigo-500 mr-2 flex-shrink-0" />
-                          <span className="text-sm">
-                            <span className="text-gray-500">Voz:</span> {' '}
-                            <span className="font-medium text-gray-700">{getVoiceLabel(musicRequest.voice_type)}</span>
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center">
-                          <Sparkles className="h-4 w-4 text-indigo-500 mr-2 flex-shrink-0" />
-                          <span className="text-sm">
-                            <span className="text-gray-500">Tom:</span> {' '}
-                            <span className="font-medium text-gray-700">{getToneLabel(musicRequest.music_tone)}</span>
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center">
-                          <Calendar className="h-4 w-4 text-indigo-500 mr-2 flex-shrink-0" />
-                          <span className="text-sm">
-                            <span className="text-gray-500">Solicitado:</span> {' '}
-                            <span className="font-medium text-gray-700">{formatDate(musicRequest.created_at)}</span>
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-4 mt-4">
-                        {musicRequest.story && (
-                          <div className="bg-indigo-50 p-3 rounded-lg">
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="flex items-center">
-                                <BookOpen className="h-4 w-4 text-indigo-600 mr-2 flex-shrink-0" />
-                                <h4 className="font-medium text-indigo-800 text-sm">História</h4>
-                              </div>
-                              <TextDialog 
-                                title="História Completa" 
-                                content={musicRequest.story} 
-                              />
-                            </div>
-                            <p className="text-xs text-gray-700 line-clamp-1">
-                              {musicRequest.story}
-                            </p>
-                          </div>
-                        )}
-                        
-                        {musicRequest.include_names && musicRequest.names_to_include && (
-                          <div className="bg-pink-50 p-3 rounded-lg">
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="flex items-center">
-                                <UserRound className="h-4 w-4 text-pink-600 mr-2 flex-shrink-0" />
-                                <h4 className="font-medium text-pink-800 text-sm">Nomes incluídos</h4>
-                              </div>
-                              <TextDialog 
-                                title="Nomes Incluídos" 
-                                content={musicRequest.names_to_include} 
-                              />
-                            </div>
-                            <p className="text-xs text-gray-700 line-clamp-1">{musicRequest.names_to_include}</p>
-                          </div>
-                        )}
-                        
-                        {musicRequest.music_focus && (
-                          <div className="bg-purple-50 p-3 rounded-lg">
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="flex items-center">
-                                <Headphones className="h-4 w-4 text-purple-600 mr-2 flex-shrink-0" />
-                                <h4 className="font-medium text-purple-800 text-sm">Foco da música</h4>
-                              </div>
-                              <TextDialog 
-                                title="Foco da Música" 
-                                content={musicRequest.music_focus} 
-                              />
-                            </div>
-                            <p className="text-xs text-gray-700 line-clamp-1">{musicRequest.music_focus}</p>
-                          </div>
-                        )}
-                        
-                        {musicRequest.happy_memory && (
-                          <div className="bg-green-50 p-3 rounded-lg">
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="flex items-center">
-                                <Heart className="h-4 w-4 text-green-600 mr-2 flex-shrink-0" />
-                                <h4 className="font-medium text-green-800 text-sm">Memória Feliz</h4>
-                              </div>
-                              <TextDialog 
-                                title="Memória Feliz" 
-                                content={musicRequest.happy_memory} 
-                              />
-                            </div>
-                            <p className="text-xs text-gray-700 line-clamp-1">{musicRequest.happy_memory}</p>
-                          </div>
-                        )}
-                        
-                        {musicRequest.sad_memory && (
-                          <div className="bg-blue-50 p-3 rounded-lg">
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="flex items-center">
-                                <Heart className="h-4 w-4 text-blue-600 mr-2 flex-shrink-0" />
-                                <h4 className="font-medium text-blue-800 text-sm">Memória Triste</h4>
-                              </div>
-                              <TextDialog 
-                                title="Memória Triste" 
-                                content={musicRequest.sad_memory} 
-                              />
-                            </div>
-                            <p className="text-xs text-gray-700 line-clamp-1">{musicRequest.sad_memory}</p>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex justify-between items-center py-2 px-4 bg-yellow-50 rounded-lg border border-yellow-100">
-                        <div className="flex items-center">
-                          <Clock className="h-5 w-5 text-yellow-600 mr-2 flex-shrink-0" />
-                          <span className="text-sm font-medium text-yellow-800">
-                            Status: {musicRequest.payment_status === 'completed' ? 'Pagamento Confirmado' : 'Aguardando Pagamento'}
-                          </span>
-                        </div>
-                        <div className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                          Prévia disponível
-                        </div>
-                      </div>
-                    </div>
+            <>
+              <div className="grid gap-8 md:grid-cols-2 md:gap-10">
+                {products.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onSelect={handleProductSelect}
+                    isSelected={selectedProduct?.id === product.id}
+                  />
+                ))}
+              </div>
+              
+              <div className="mt-12 flex flex-col items-center">
+                <Button 
+                  onClick={handlePayment} 
+                  disabled={isProcessing || !selectedProduct}
+                  className="px-8 py-6 text-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-indigo-500/30"
+                >
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Processando...
+                    </>
                   ) : (
-                    <div className="py-6 text-center">
-                      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Music className="h-8 w-8 text-red-500" />
-                      </div>
-                      <p className="text-gray-500 mb-4">Detalhes da música não disponíveis.</p>
-                      <Button 
-                        onClick={() => navigate('/dashboard')} 
-                        variant="outline"
-                        className="mx-auto"
-                      >
-                        Voltar ao Dashboard
-                      </Button>
-                    </div>
+                    <>
+                      <Lock className="mr-2 h-5 w-5" />
+                      Prosseguir para o Pagamento
+                    </>
                   )}
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-purple-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                <div className="bg-gradient-to-r from-pink-500 to-purple-600 p-6">
-                  <h2 className="text-2xl font-bold text-white flex items-center">
-                    <CreditCard className="h-6 w-6 mr-3" />
-                    Finalizar Pagamento
-                  </h2>
-                </div>
+                </Button>
                 
-                <div className="p-6">
-                  <div className="mb-6">
-                    <h3 className="text-xl font-semibold mb-4 text-gray-800">Valor</h3>
-                    <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border border-gray-100">
-                      <span className="text-gray-700 font-medium">Total a pagar</span>
-                      <span className="text-2xl font-bold text-purple-700">R$ 79,90</span>
-                    </div>
-                    <p className="text-sm text-gray-500 mt-2 text-right">Pagamento único, sem assinaturas</p>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div className="relative overflow-hidden rounded-xl border border-gray-200 mb-8">
-                      <img 
-                        src="https://wp.novaenergiamg.com.br/wp-content/uploads/2025/03/chamada-pix-mercado-pago.jpg" 
-                        alt="Mercado Pago - Pagamento via PIX" 
-                        className="w-full h-auto object-cover transform hover:scale-105 transition-transform duration-300"
-                        style={{ maxHeight: "180px" }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent flex items-end">
-                        <p className="text-white p-3 font-medium text-sm">Pague via PIX ou cartão de crédito</p>
-                      </div>
-                    </div>
-                    
-                    <Button 
-                      onClick={handlePayment} 
-                      className="w-full h-14 text-lg bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-indigo-500/30 group"
-                      disabled={isProcessing || !musicRequest}
-                    >
-                      <Lock className="mr-2 h-5 w-5 text-indigo-200 group-hover:animate-pulse" />
-                      {isProcessing ? "Processando..." : "Pagar com Mercado Pago"}
-                    </Button>
-                    
-                    <div className="mt-6 space-y-3">
-                      <div className="flex items-start">
-                        <div className="bg-green-100 p-1 rounded-full mr-3 mt-1 flex-shrink-0">
-                          <Check className="h-4 w-4 text-green-600" />
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          Acesso instantâneo à sua música personalizada após confirmação do pagamento.
-                        </p>
-                      </div>
-                      
-                      <div className="flex items-start">
-                        <div className="bg-green-100 p-1 rounded-full mr-3 mt-1 flex-shrink-0">
-                          <Check className="h-4 w-4 text-green-600" />
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          Download em alta qualidade para ouvir quando e onde quiser.
-                        </p>
-                      </div>
-                      
-                      <div className="flex items-start">
-                        <ShieldCheck className="h-5 w-5 text-indigo-500 mr-3 mt-0.5 flex-shrink-0" />
-                        <p className="text-sm text-gray-600">
-                          Transação 100% segura. Satisfação garantida ou seu dinheiro de volta.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                <div className="flex items-center mt-6 text-sm text-gray-500">
+                  <ShieldCheck className="h-4 w-4 mr-2 text-green-600" />
+                  Pagamento seguro via Mercado Pago
                 </div>
               </div>
-            </div>
+              
+              <div className="mt-12 bg-white rounded-2xl shadow-md p-6 text-center">
+                <div className="flex items-center justify-center mb-4">
+                  <CreditCard className="h-6 w-6 text-purple-600 mr-3" />
+                  <h3 className="text-lg font-semibold text-gray-800">Formas de Pagamento Aceitas</h3>
+                </div>
+                <p className="text-gray-600 text-sm">
+                  Aceitamos PIX, cartões de crédito, débito e boleto bancário através do Mercado Pago.
+                </p>
+              </div>
+            </>
           )}
-          
-          <div className="mt-16 bg-white rounded-2xl shadow-lg p-8 border border-purple-100">
-            <h3 className="text-xl font-bold text-center mb-8 text-gray-800">Por que escolher a Música Perfeita?</h3>
-            
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="text-center p-4 hover:bg-purple-50 rounded-xl transition-colors duration-300">
-                <div className="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Music className="h-6 w-6 text-indigo-600" />
-                </div>
-                <h4 className="font-medium mb-2 text-gray-800">Qualidade Profissional</h4>
-                <p className="text-sm text-gray-600">Músicas compostas e produzidas por artistas experientes com estúdio profissional.</p>
-              </div>
-              
-              <div className="text-center p-4 hover:bg-purple-50 rounded-xl transition-colors duration-300">
-                <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Check className="h-6 w-6 text-purple-600" />
-                </div>
-                <h4 className="font-medium mb-2 text-gray-800">Entrega Rápida</h4>
-                <p className="text-sm text-gray-600">Sua música estará pronta e disponível para download imediatamente após o pagamento.</p>
-              </div>
-              
-              <div className="text-center p-4 hover:bg-purple-50 rounded-xl transition-colors duration-300">
-                <div className="w-14 h-14 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <ShieldCheck className="h-6 w-6 text-pink-600" />
-                </div>
-                <h4 className="font-medium mb-2 text-gray-800">Garantia de Satisfação</h4>
-                <p className="text-sm text-gray-600">Se não ficar satisfeito, devolvemos seu dinheiro sem questionamentos.</p>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
+      
       <Footer />
     </div>
   );

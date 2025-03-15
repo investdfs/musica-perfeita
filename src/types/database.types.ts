@@ -23,10 +23,10 @@ export type MusicRequest = {
   include_names: boolean;
   names_to_include: string | null;
   story: string;
-  status: 'pending' | 'in_production' | 'completed';
+  status: string; // Modificado de 'pending' | 'in_production' | 'completed' para string
   preview_url: string | null;
   full_song_url: string | null;
-  payment_status: 'pending' | 'completed' | null;
+  payment_status: string | null; // Modificado de 'pending' | 'completed' | null para string | null
   cover_image_url?: string | null;
   soundcloud_id?: string | null;
   music_focus?: string | null;

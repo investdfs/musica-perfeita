@@ -68,9 +68,6 @@ function App() {
   // Componente Home baseado no tipo de dispositivo
   const HomeComponent = isMobile ? HomeMobile : Home;
   
-  // Componente Dashboard baseado no tipo de dispositivo
-  const DashboardComponent = isMobile ? DashboardMobile : Dashboard;
-
   return (
     <Router>
       <Suspense fallback={<Loading />}>
@@ -95,7 +92,10 @@ function App() {
           {/* Rotas protegidas */}
           <Route path="/dashboard" element={
             <AuthGuard>
-              <DashboardComponent userProfile={user!} onLogout={handleLogout} />
+              {isMobile ? 
+                <DashboardMobile userProfile={user!} onLogout={handleLogout} /> :
+                <Dashboard userProfile={user!} onLogout={handleLogout} />
+              }
             </AuthGuard>
           } />
           <Route path="/admin" element={

@@ -9,50 +9,50 @@ import { MusicRequest } from "@/types/database.types";
 /**
  * Valida se o tipo de relacionamento está entre os valores permitidos
  */
-export const validateRelationshipType = (value?: string | null): MusicRequest['relationship_type'] => {
+export const validateRelationshipType = (value?: string | null): string => {
   if (!value) return 'other';
   
   const validTypes = [
     'esposa', 'noiva', 'namorada', 'amigo_especial', 'partner', 
     'friend', 'family', 'colleague', 'mentor', 'child', 
     'sibling', 'parent', 'other'
-  ] as const;
+  ];
   
-  return validTypes.includes(value as any) ? value as MusicRequest['relationship_type'] : 'other';
+  return validTypes.includes(value) ? value : 'other';
 };
 
 /**
  * Valida se o gênero musical está entre os valores permitidos
  */
-export const validateMusicGenre = (value?: string | null): MusicRequest['music_genre'] => {
+export const validateMusicGenre = (value?: string | null): string => {
   if (!value) return 'pop';
   
   const validGenres = [
     'romantic', 'mpb', 'classical', 'jazz', 'hiphop', 
     'rock', 'country', 'reggae', 'electronic', 'samba', 'folk', 'pop'
-  ] as const;
+  ];
   
-  return validGenres.includes(value as any) ? value as MusicRequest['music_genre'] : 'pop';
+  return validGenres.includes(value) ? value : 'pop';
 };
 
 /**
  * Valida se o tom musical está entre os valores permitidos
  */
-export const validateMusicTone = (value?: string | null): MusicRequest['music_tone'] | undefined => {
+export const validateMusicTone = (value?: string | null): string | undefined => {
   if (!value) return undefined;
   
   const validTones = [
     'happy', 'romantic', 'nostalgic', 'fun', 'melancholic', 'energetic', 
     'peaceful', 'inspirational', 'dramatic', 'uplifting', 'reflective', 'mysterious'
-  ] as const;
+  ];
   
-  return validTones.includes(value as any) ? value as MusicRequest['music_tone'] : undefined;
+  return validTones.includes(value) ? value : undefined;
 };
 
 /**
  * Valida se o tipo de voz está entre os valores permitidos
  */
-export const validateVoiceType = (value?: string | null): MusicRequest['voice_type'] | undefined => {
+export const validateVoiceType = (value?: string | null): string | undefined => {
   if (!value) return undefined;
   
   const validVoices = [
@@ -60,26 +60,26 @@ export const validateVoiceType = (value?: string | null): MusicRequest['voice_ty
     'male_folk', 'female_folk', 'male_deep', 'female_powerful', 
     'male_soft', 'female_sweet', 'male_jazzy', 'female_jazzy', 
     'male_rock', 'female_rock', 'male_country', 'female_country'
-  ] as const;
+  ];
   
-  return validVoices.includes(value as any) ? value as MusicRequest['voice_type'] : undefined;
+  return validVoices.includes(value) ? value : undefined;
 };
 
 /**
  * Valida se o status do pedido está entre os valores permitidos
  */
-export const validateStatus = (value?: string | null): MusicRequest['status'] => {
+export const validateStatus = (value?: string | null): string => {
   if (!value) return 'pending';
   
-  const validStatuses = ['pending', 'in_production', 'completed'] as const;
+  const validStatuses = ['pending', 'in_production', 'completed'];
   
-  return validStatuses.includes(value as any) ? value as MusicRequest['status'] : 'pending';
+  return validStatuses.includes(value) ? value : 'pending';
 };
 
 /**
  * Valida se o status de pagamento está entre os valores permitidos
  */
-export const validatePaymentStatus = (value?: string | null): 'pending' | 'completed' | null => {
+export const validatePaymentStatus = (value?: string | null): string | null => {
   if (!value) return null;
   
   return value === 'completed' ? 'completed' : 'pending';

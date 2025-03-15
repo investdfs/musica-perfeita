@@ -55,13 +55,32 @@ export const ProductsManagement = () => {
       const { data, error } = await supabase
         .from("products")
         .select("*")
-        .order(sortField, { ascending: sortDirection === "asc" });
+        .order(sortField === "createdAt" ? "created_at" : 
+               sortField === "updatedAt" ? "updated_at" : 
+               sortField === "imageUrl" ? "image_url" : 
+               sortField === "paymentLink" ? "payment_link" : 
+               sortField === "isActive" ? "is_active" : 
+               sortField, 
+               { ascending: sortDirection === "asc" });
 
       if (error) {
         throw error;
       }
 
-      setProducts(data || []);
+      // Mapear os campos do banco para o formato do tipo Product
+      const mappedProducts = data.map((item: any): Product => ({
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        imageUrl: item.image_url,
+        paymentLink: item.payment_link,
+        isActive: item.is_active,
+        createdAt: item.created_at,
+        updatedAt: item.updated_at
+      }));
+
+      setProducts(mappedProducts);
     } catch (error) {
       console.error("Erro ao buscar produtos:", error);
       toast({

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { 
@@ -24,7 +23,7 @@ import {
 } from "@/components/ui/table";
 import { formatCurrency } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
-import { Product, ProductFormData } from "@/types/product.types";
+import { Product, ProductFormData, ProductDatabaseMapping } from "@/types/product.types";
 import ProductForm from "./ProductForm";
 import DeleteConfirmDialog from "./DeleteConfirmDialog";
 
@@ -38,7 +37,6 @@ export const ProductsManagement = () => {
   const [sortField, setSortField] = useState<keyof Product>("createdAt");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
-  // Buscar produtos
   const fetchProducts = async () => {
     try {
       setIsLoading(true);
@@ -54,11 +52,11 @@ export const ProductsManagement = () => {
                { ascending: sortDirection === "asc" });
 
       if (error) {
+        console.error("Erro ao buscar produtos:", error);
         throw error;
       }
 
-      // Mapear os campos do banco para o formato do tipo Product
-      const mappedProducts = data.map((item: any): Product => ({
+      const mappedProducts = data.map((item: ProductDatabaseMapping): Product => ({
         id: item.id,
         name: item.name,
         description: item.description,
@@ -87,12 +85,11 @@ export const ProductsManagement = () => {
     fetchProducts();
   }, [sortField, sortDirection]);
 
-  // Adicionar ou atualizar produto
   const handleSaveProduct = async (productData: ProductFormData) => {
     try {
       setIsLoading(true);
+      console.log("Dados do formulário:", productData);
 
-      // Preparar dados para o banco de dados
       const dbData = {
         name: productData.name,
         description: productData.description,
@@ -102,29 +99,45 @@ export const ProductsManagement = () => {
         is_active: productData.isActive,
       };
 
+      console.log("Dados formatados para o banco:", dbData);
+
       if (currentProduct) {
-        // Atualizar produto existente
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("products")
           .update({
             ...dbData,
             updated_at: new Date().toISOString(),
           })
-          .eq("id", currentProduct.id);
+          .eq("id", currentProduct.id)
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Erro ao atualizar produto:", error);
+          throw error;
+        }
+
+        console.log("Resposta da atualização:", data);
 
         toast({
           title: "Produto atualizado",
           description: `O produto "${productData.name}" foi atualizado com sucesso.`,
         });
       } else {
-        // Adicionar novo produto
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("products")
-          .insert(dbData);
+          .insert({
+            ...dbData,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error("Erro ao inserir produto:", error);
+          throw error;
+        }
+
+        console.log("Resposta da inserção:", data);
 
         toast({
           title: "Produto adicionado",
@@ -132,15 +145,14 @@ export const ProductsManagement = () => {
         });
       }
 
-      // Fechar formulário e atualizar lista
       setIsProductFormOpen(false);
       setCurrentProduct(null);
       fetchProducts();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erro ao salvar produto:", error);
       toast({
         title: "Erro ao salvar produto",
-        description: "Não foi possível salvar as alterações do produto.",
+        description: error.message || "Não foi possível salvar as alterações do produto.",
         variant: "destructive",
       });
     } finally {
@@ -148,7 +160,6 @@ export const ProductsManagement = () => {
     }
   };
 
-  // Excluir produto
   const handleDeleteProduct = async () => {
     try {
       if (!productToDelete) return;
@@ -166,7 +177,6 @@ export const ProductsManagement = () => {
         description: `O produto "${productToDelete.name}" foi excluído com sucesso.`,
       });
 
-      // Fechar diálogo e atualizar lista
       setIsDeleteDialogOpen(false);
       setProductToDelete(null);
       fetchProducts();
@@ -182,19 +192,16 @@ export const ProductsManagement = () => {
     }
   };
 
-  // Abrir formulário para edição
   const handleEditProduct = (product: Product) => {
     setCurrentProduct(product);
     setIsProductFormOpen(true);
   };
 
-  // Abrir diálogo de confirmação de exclusão
   const handleConfirmDelete = (product: Product) => {
     setProductToDelete(product);
     setIsDeleteDialogOpen(true);
   };
 
-  // Função para ordenar a tabela
   const handleSort = (field: keyof Product) => {
     if (field === sortField) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -389,7 +396,6 @@ export const ProductsManagement = () => {
         </div>
       </CardContent>
 
-      {/* Diálogo de confirmação de exclusão */}
       <DeleteConfirmDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}

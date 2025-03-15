@@ -1,127 +1,104 @@
 
-import { MusicRequest } from "@/types/database.types";
-import { FileText, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle 
-} from "@/components/ui/dialog";
+import { FileText, InfoIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { MusicRequest } from "@/types/database.types";
 
 interface TechnicalDetailsViewerProps {
   request: MusicRequest;
-  variant?: "inline" | "card" | "modal" | "dialog";
+  variant?: 'inline' | 'dialog';
   className?: string;
 }
 
 const TechnicalDetailsViewer = ({ 
   request, 
-  variant = "inline",
-  className = ""
+  variant = 'inline',
+  className
 }: TechnicalDetailsViewerProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   
-  // Se não houver detalhes técnicos, não renderizar nada
-  if (!request.has_technical_details || !request.technical_details) {
+  if (!request.technical_details) {
     return null;
   }
   
-  // Formatar os detalhes técnicos para exibição, preservando quebras de linha
   const formattedDetails = request.technical_details
-    .split('\n')
-    .map((line, index) => (
-      <p key={index} className={index > 0 ? "mt-1" : ""}>
-        {line}
-      </p>
-    ));
-    
-  if (variant === "inline") {
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+  const renderDetailsContent = () => {
     return (
-      <div className={`border border-purple-200 rounded-md overflow-hidden ${className}`}>
-        <div 
-          className="flex items-center justify-between p-3 bg-purple-50 cursor-pointer"
-          onClick={() => setIsExpanded(!isExpanded)}
-        >
-          <div className="flex items-center text-purple-800">
-            <FileText className="w-4 h-4 mr-2" />
-            <span className="font-medium">Detalhes Técnicos da Música</span>
+      <div 
+        className="prose prose-sm max-w-none"
+        dangerouslySetInnerHTML={{ __html: formattedDetails }}
+      />
+    );
+  };
+  
+  if (variant === 'dialog') {
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className={cn("flex items-center gap-1", className)}
+          >
+            <InfoIcon className="h-4 w-4" />
+            Sobre a música
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
+              <FileText className="h-5 w-5" />
+              Sobre a música
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            {renderDetailsContent()}
           </div>
-          {isExpanded ? (
-            <ChevronUp className="w-5 h-5 text-purple-600" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-purple-600" />
-          )}
-        </div>
-        
-        {isExpanded && (
-          <div className="p-3 text-sm bg-white text-gray-700">
-            {formattedDetails}
-          </div>
-        )}
-      </div>
+        </DialogContent>
+      </Dialog>
     );
   }
   
-  if (variant === "card") {
-    return (
-      <div className={`border border-purple-200 rounded-md overflow-hidden shadow-sm ${className}`}>
-        <div className="p-3 bg-purple-50 border-b border-purple-200">
-          <div className="flex items-center text-purple-800">
-            <FileText className="w-4 h-4 mr-2" />
-            <span className="font-medium">Detalhes Técnicos da Música</span>
-          </div>
-        </div>
-        <div className="p-4 text-sm bg-white text-gray-700">
-          {formattedDetails}
-        </div>
-      </div>
-    );
-  }
-  
-  if (variant === "dialog") {
-    return (
-      <>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsDialogOpen(true)}
-          className={`flex items-center gap-1 text-purple-700 border-purple-200 hover:bg-purple-50 ${className}`}
-        >
-          <FileText className="w-4 h-4" />
-          <span>Ver Detalhes Técnicos</span>
-        </Button>
-        
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+  return (
+    <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-medium text-blue-900 flex items-center">
+          <FileText className="h-4 w-4 mr-2 text-blue-700" />
+          Sobre a música
+        </h3>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="ghost" size="sm" className="text-blue-700 h-8">
+              <InfoIcon className="h-4 w-4 mr-1" />
+              Ver detalhes
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-purple-600" />
-                Detalhes Técnicos da Música
+              <DialogTitle className="flex items-center gap-2 text-xl font-semibold">
+                <FileText className="h-5 w-5" />
+                Sobre a música
               </DialogTitle>
             </DialogHeader>
-            <div className="p-4 text-sm bg-white text-gray-700 border border-purple-100 rounded-md">
-              {formattedDetails}
+            <div className="mt-4">
+              {renderDetailsContent()}
             </div>
           </DialogContent>
         </Dialog>
-      </>
-    );
-  }
-  
-  // Modal variant - botão que abre um modal
-  return (
-    <Button
-      variant="outline"
-      size="sm"
-      onClick={() => setIsDialogOpen(true)}
-      className={`flex items-center gap-1 text-purple-700 border-purple-200 hover:bg-purple-50 ${className}`}
-    >
-      <FileText className="w-4 h-4" />
-      <span>Ver Detalhes Técnicos</span>
-    </Button>
+      </div>
+      
+      <div className="line-clamp-2 text-sm text-blue-700">
+        <div dangerouslySetInnerHTML={{ 
+          __html: formattedDetails.substring(0, 200) + (formattedDetails.length > 200 ? '...' : '') 
+        }} />
+      </div>
+    </div>
   );
 };
 

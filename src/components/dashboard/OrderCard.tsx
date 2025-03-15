@@ -12,9 +12,7 @@ import {
   CheckCircle, 
   AlertCircle,
   Hourglass,
-  Hash,
-  ExternalLink,
-  Download
+  Hash
 } from "lucide-react";
 import MusicPreviewPlayer from "./MusicPreviewPlayer";
 import TechnicalDetailsViewer from "../music/TechnicalDetailsViewer";
@@ -75,20 +73,9 @@ const OrderCard = ({ request }: OrderCardProps) => {
       };
     }
   };
-  
-  const handleAccessFullMusic = () => {
-    navigate("/music-player-full", { 
-      state: { 
-        musicUrl: request.full_song_url,
-        downloadUrl: request.full_song_url,
-        requestId: request.id
-      } 
-    });
-  };
 
   const statusInfo = getStatusInfo();
   const paymentStatusInfo = getPaymentStatusInfo();
-  const isPaid = request.payment_status === 'completed';
 
   return (
     <div className="border border-blue-100 rounded-lg overflow-hidden mb-4 bg-white shadow">
@@ -164,18 +151,7 @@ const OrderCard = ({ request }: OrderCardProps) => {
           </div>
         )}
         
-        {/* Botão de acesso à música completa para pedidos pagos */}
-        {isPaid && request.full_song_url && (
-          <div className="flex justify-end mt-4">
-            <Button 
-              onClick={handleAccessFullMusic}
-              className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white"
-            >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Acessar Música Completa
-            </Button>
-          </div>
-        )}
+        {/* Removido o botão de acesso à música completa para eliminar redundância */}
         
         {/* Detalhes técnicos, se disponíveis */}
         {request.has_technical_details && (

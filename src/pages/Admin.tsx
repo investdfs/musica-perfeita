@@ -4,11 +4,14 @@ import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import NotificationsPanel from "@/components/admin/NotificationsPanel";
 import AdminDashboard from "@/components/admin/AdminDashboard";
+import ProductsManagement from "@/components/admin/products/ProductsManagement";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { toast } from "@/hooks/use-toast";
 import { isDevelopmentOrPreview } from "@/lib/environment";
 import supabase from "@/lib/supabase";
 import { UserProfile } from "@/types/database.types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LayoutDashboard, Package, Users, Music } from "lucide-react";
 
 interface AdminProps {
   userProfile: UserProfile;
@@ -18,6 +21,7 @@ interface AdminProps {
 const AdminPage = ({ userProfile, onLogout }: AdminProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("dashboard");
   
   useEffect(() => {
     // Verify admin authentication on every page visit
@@ -163,7 +167,26 @@ const AdminPage = ({ userProfile, onLogout }: AdminProps) => {
               </div>
             </div>
             
-            <AdminDashboard />
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+              <TabsList className="bg-white border shadow-sm p-1 w-full max-w-md mx-auto">
+                <TabsTrigger value="dashboard" className="flex items-center gap-2 flex-1">
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
+                </TabsTrigger>
+                <TabsTrigger value="products" className="flex items-center gap-2 flex-1">
+                  <Package className="h-4 w-4" />
+                  Produtos
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="dashboard" className="mt-6">
+                <AdminDashboard />
+              </TabsContent>
+              
+              <TabsContent value="products" className="mt-6">
+                <ProductsManagement />
+              </TabsContent>
+            </Tabs>
           </div>
         </main>
         

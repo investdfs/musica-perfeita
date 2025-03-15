@@ -185,7 +185,7 @@ const MusicPreviewPlayer = ({
                   ) : (
                     <Lock className="h-4 w-4" />
                   )}
-                  Versão Completa
+                  Ouvir Música Completa
                 </Button>
               )}
             </div>
@@ -230,7 +230,7 @@ const MusicPreviewPlayer = ({
                   ) : (
                     <Lock className="h-4 w-4" />
                   )}
-                  Versão Completa
+                  Ouvir Música Completa
                 </Button>
               )}
             </div>

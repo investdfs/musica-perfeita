@@ -12,6 +12,21 @@ const NossasMusicas = () => {
       <Header />
       
       <main className="flex-grow container mx-auto px-3 sm:px-4 py-6 sm:py-8 pb-24">
+        <section className="mb-6 sm:mb-8">
+          <div className="w-full max-w-4xl mx-auto mt-4 sm:mt-8">
+            <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-center text-gray-800">
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">
+                Playlist - Exemplos de Músicas Personalizadas
+              </span>
+            </h3>
+            <p className="text-center text-sm sm:text-base text-gray-600 mb-4 max-w-3xl mx-auto px-4">
+              Ouça nossa seleção de músicas personalizadas criadas especialmente para diversas ocasiões.
+              Cada música conta uma história única e emocionante, criada com nossa tecnologia de inteligência artificial.
+            </p>
+            <NativePlaylist className="mb-4" />
+          </div>
+        </section>
+        
         <section className="mb-10 bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-2xl font-semibold mb-4 text-center text-purple-800">Sobre Nossas Composições</h2>
           <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -33,21 +48,6 @@ const NossasMusicas = () => {
                 Oferecemos diversos gêneros musicais, desde baladas românticas até músicas animadas e contemporâneas.
               </p>
             </div>
-          </div>
-        </section>
-        
-        <section className="mb-6 sm:mb-8">
-          <div className="w-full max-w-4xl mx-auto mt-4 sm:mt-8">
-            <h3 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-center text-gray-800">
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">
-                Playlist - Exemplos de Músicas Personalizadas
-              </span>
-            </h3>
-            <p className="text-center text-sm sm:text-base text-gray-600 mb-4 max-w-3xl mx-auto px-4">
-              Ouça nossa seleção de músicas personalizadas criadas especialmente para diversas ocasiões.
-              Cada música conta uma história única e emocionante, criada com nossa tecnologia de inteligência artificial.
-            </p>
-            <NativePlaylist className="mb-4" />
           </div>
         </section>
         
@@ -76,3 +76,4 @@ const NossasMusicas = () => {
 };
 
 export default NossasMusicas;
+

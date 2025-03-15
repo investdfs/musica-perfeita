@@ -6,15 +6,18 @@ import { Toaster } from "@/components/ui/toaster";
 import ScrollToTopButton from "@/components/ui/scroll-to-top-button";
 import AuthGuard from "@/components/auth/AuthGuard";
 import Loading from "@/components/Loading";
+import { isMobileDevice } from "@/hooks/use-mobile";
 
 // Páginas carregadas diretamente
 import Home from "./pages/Home";
+import HomeMobile from "./pages/HomeMobile";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
 import NotFound from "./pages/NotFound";
 
 // Páginas carregadas com lazy loading
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const DashboardMobile = lazy(() => import("./pages/DashboardMobile"));
 const Admin = lazy(() => import("./pages/Admin"));
 const Pagamento = lazy(() => import("./pages/Pagamento"));
 const Sobre = lazy(() => import("./pages/Sobre"));
@@ -34,6 +37,7 @@ const ProcessandoPagamento = lazy(() => import("./pages/ProcessandoPagamento"));
 function App() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isMobile, setIsMobile] = useState<boolean>(isMobileDevice());
 
   useEffect(() => {
     const storedUser = localStorage.getItem("musicaperfeita_user");
@@ -41,6 +45,14 @@ function App() {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
+    
+    // Atualiza o estado de dispositivo móvel quando a janela é redimensionada
+    const handleResize = () => {
+      setIsMobile(isMobileDevice());
+    };
+    
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleLogin = (user: UserProfile) => {
@@ -53,11 +65,17 @@ function App() {
     localStorage.removeItem("musicaperfeita_user");
   };
 
+  // Componente Home baseado no tipo de dispositivo
+  const HomeComponent = isMobile ? HomeMobile : Home;
+  
+  // Componente Dashboard baseado no tipo de dispositivo
+  const DashboardComponent = isMobile ? DashboardMobile : Dashboard;
+
   return (
     <Router>
       <Suspense fallback={<Loading />}>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomeComponent />} />
           <Route path="/login" element={<Login onLogin={handleLogin} />} />
           <Route path="/cadastro" element={<Cadastro onRegister={handleLogin} />} />
           <Route path="/sobre" element={<Sobre />} />
@@ -77,17 +95,17 @@ function App() {
           {/* Rotas protegidas */}
           <Route path="/dashboard" element={
             <AuthGuard>
-              <Dashboard userProfile={user} onLogout={handleLogout} />
+              <DashboardComponent userProfile={user!} onLogout={handleLogout} />
             </AuthGuard>
           } />
           <Route path="/admin" element={
             <AuthGuard>
-              <Admin userProfile={user} onLogout={handleLogout} />
+              <Admin userProfile={user!} onLogout={handleLogout} />
             </AuthGuard>
           } />
           <Route path="/pagamento" element={
             <AuthGuard>
-              <Pagamento userProfile={user} />
+              <Pagamento userProfile={user!} />
             </AuthGuard>
           } />
           

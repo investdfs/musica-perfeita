@@ -9,6 +9,22 @@ interface RelationshipFieldsProps {
   form: UseFormReturn<MusicRequestFormValues>;
 }
 
+const RelationshipTypes = {
+  esposa: "Esposa",
+  noiva: "Noiva",
+  namorada: "Namorada",
+  amigo_especial: "Amigo(a) \"Especial\"",
+  partner: "Parceiro(a)/Cônjuge",
+  friend: "Amigo(a)",
+  family: "Familiar (Geral)",
+  parent: "Pai/Mãe",
+  sibling: "Irmão/Irmã",
+  child: "Filho(a)",
+  colleague: "Colega de Trabalho",
+  mentor: "Mentor(a)/Professor(a)",
+  other: "Outro"
+};
+
 const RelationshipFields = ({ form }: RelationshipFieldsProps) => {
   const relationshipType = useWatch({
     control: form.control,
@@ -33,19 +49,9 @@ const RelationshipFields = ({ form }: RelationshipFieldsProps) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent className="bg-white text-gray-900">
-                <SelectItem value="esposa">Esposa</SelectItem>
-                <SelectItem value="noiva">Noiva</SelectItem>
-                <SelectItem value="namorada">Namorada</SelectItem>
-                <SelectItem value="amigo_especial">Amigo(a) "Especial"</SelectItem>
-                <SelectItem value="partner">Parceiro(a)/Cônjuge</SelectItem>
-                <SelectItem value="friend">Amigo(a)</SelectItem>
-                <SelectItem value="family">Familiar (Geral)</SelectItem>
-                <SelectItem value="parent">Pai/Mãe</SelectItem>
-                <SelectItem value="sibling">Irmão/Irmã</SelectItem>
-                <SelectItem value="child">Filho(a)</SelectItem>
-                <SelectItem value="colleague">Colega de Trabalho</SelectItem>
-                <SelectItem value="mentor">Mentor(a)/Professor(a)</SelectItem>
-                <SelectItem value="other">Outro</SelectItem>
+                {Object.entries(RelationshipTypes).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <FormMessage />

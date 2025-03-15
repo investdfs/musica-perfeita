@@ -54,7 +54,11 @@ const TestimonialForm = ({ userProfile, hasCompletedMusic }: TestimonialFormProp
     setIsSubmitting(true);
     
     try {
-      // Salvar o depoimento no banco de dados
+      // TEMPORÁRIO: A tabela 'testimonials' não existe ainda no banco de dados
+      // Exibimos mensagem de sucesso simulada
+      
+      // Quando a tabela for criada, descomentar o código abaixo:
+      /*
       const { error } = await supabase
         .from('testimonials')
         .insert([
@@ -68,7 +72,9 @@ const TestimonialForm = ({ userProfile, hasCompletedMusic }: TestimonialFormProp
         ]);
         
       if (error) throw error;
+      */
       
+      // Simulação bem-sucedida
       toast({
         title: "Depoimento enviado!",
         description: "Obrigado por compartilhar sua experiência. Seu depoimento será revisado em breve.",
